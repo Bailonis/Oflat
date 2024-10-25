@@ -8,22 +8,31 @@
 
 \typeout{NT FILE chapter2.tex}%
 
-\chapter{NOVAthesis Template \emph{User's Manual}}
-\label{cha:users_manual}
-
-\glsresetall
-
-\begin{center}
-  \fbox{\LARGE
-    This manual is outdated and must be revised!}
-\end{center}
+\chapter{Theory of Computation}
+\label{cha:theory_of_computation}
 
 
-\section{Introduction}
-\label{sec:introduction}
+In the Theory of Computation, various models of computation with different levels of expressive power are studied. To discuss and compare different levels of expressive power, it is inevitable to consider algorithms in the context of some application domain. The typically chosen application domain is the syntax of formal languages.
+There are two techniques for defining languages that are typically used. The first technique is based on the concept of generation and uses the formalism of grammars. Another technique is based on the mechanism of recognition and uses the formalism of automata.
 
-This Chapter describes how to use the \gls{novathesis}\ template.  It is assumed that you have a working \index{installation} of \LaTeX, either local (in your own computer) or remote (in \Overleaf), and that you were able to generate a PDF for the default configuration of the template: a PhD thesis for \gls{FCT}.
 
+\section{Chomsky Hierarchy}
+\label{sec:chomsky_hierarchy
+}
+
+Noam Chomsky (with the help of Marcel-Paul Schützenberger) identified several classes of formal languages, with different levels of specification complexity, requiring computational models with different levels of expressive power to solve the problem of recognizing these languages.
+
+There are four levels: type 0, type 1, type 2, and type 3.
+
+\begin{itemize}
+  \item Type 0 — Recursively enumerable languages
+  \item Type 1 — Context-sensitive languages
+  \item Type 2 — Context-free languages
+  \item Type 3 — Regular languages
+  
+\end{itemize}
+
+The Chomsky hierarchy involves four levels of language types. Each type of language is associated with a type of generator and a type of recognizer.
 
 \section{Quick Start}
 \label{sec:quick_started}
