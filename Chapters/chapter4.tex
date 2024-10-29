@@ -8,47 +8,44 @@
 
 \typeout{NT FILE chapter4.tex}%
 
-\chapter{Adding Support to a New School (work in progress)}
-\label{cha:porting_novathesis}
-
-My advice to customize the \novathesis\ template to another School/University/Department/Degree is to browse the existing supported degrees to find one that is \emph{close enough}, and depart from there!
-
-The multitude of layouts supported by the \novathesis\ template is based in a three-tier naming scheme, separated by slashes: University / School / Department-or-Degree.  This three-tier naming scheme is also reflected in a three-tier directory (folder) structure in: \verb!<project_root>a/NOVAthesiFiles/Schools/…!.  For example:
-
-\begin{verbatim}
-…
-| 
-+—— nova
-|   +—— Images
-|   +—— fct
-|   |   \—— Images
-|   +—— ims
-|   |   \—— Images
-|   …
-|   
-\—— uminho
-    +—— Images
-    +—— ea
-    |   \—— Images
-    +—— ec
-    |   \—— Images
-    …
-\end{verbatim}
-
-The directory \verb!uminho! contains the customization for all Schools of Universidade do Minho.  This university is an example of the case where the regulations are defined at University level and all the schools apply the same thesis layout and organization.  So, the all the customization is done in the file \verb!uminho/uminho-defaults.ldf!, except the definition of the name and logo of each individual school.
-
-As another example, the directory \verb!nova! contains the customization for all Schools from NOVA University Lisbon. This university grants a lot of freedom in the definition of the thesis layouts.  In some cases, they are defined at the School level (e.g., NOVA FCT), while is some other cases they are defined separately for each degree (e.g., NOVA IMS).
+\chapter{OCaml-Flat and OFLAT Systems}
+\label{cha:ocaml_flat_and_oflat_systems}
 
 
+The OCamlFLAT library and the OFLAT platform are the main componentsof this thesis, both developed in OCaml.
+They are already in an advanced stage of development, thanks to the work of several students and professorswho have contributed to this project.
+
+The OCamlFLAT library consists of various modules that make up the logical part of the system, where several FLAT theory models have already been implemented. The OFLAT platform, on the other hand, is a web application that provides the system’s graphical interface.
 
 
-\begin{enumerate}
-  \item Try all the already supported schools and check which one is closer to your needs;
-  \begin{enumerate}
-    \item Edit \verb!Config/1_novathesis.tex! and near line 28 uncomment the line with key \verb!\ntsetup{school=<SOMETHING>}!;
-    \item For each school supported (see the comment), replace \verb!<SOMETHING>! with the school name, e.g., make it \verb!\ntsetup{school=ulisboa/fmv}!
-    \item Recompile and check the document.  Particularly, check the cover layout, the front-page (second cover) layout, the front-matter contents, the bibliography style;
-    \item Repeat for the next school, until you find one close enough.
-  \end{enumerate}
-  \item 
-\end{enumerate}
+\section{OCamlFLAT}
+\label{sec:ocamlflat}
+
+The OCamlFLAT library is organized into modules to ensure a clearer and more structured organization. There are modules that implement models of FLAT theory, such as regular expressions, finite automata, and context-free grammars, as well as auxiliary modules for tests, error handling, and parsers. It is important to note that the modules follow a hierarchical relationship among themselves, which facilitates the maintenance and expansion of the library.
+
+Some of the most important modules are:
+
+Entity: This module represents the most abstract level of the library. The entities are the exercises and the FLAT models, each containing a type, a description, and a unique ID.
+
+Exercise: This module is responsible for supporting exercises, which are validated using UnitTests. It extends the Entity module, inheriting its properties and methods.
+
+Model: An abstract module that also extends Entity and introduces common functionalities to the FLAT models available in the library. Examples of methods included in this module are validate, which checks the validity of a model, and accept, which processes inputs according to the model.
+
+Examples of modules that represent FLAT models and extend Model include:
+
+RegularExpression: This module contains all the functionalities needed to work with regular expressions, allowing the definition and manipulation of these expressions.
+
+FiniteAutomaton: This module implements the functionalities of a finite automaton, including the definition of states and transitions.
+
+ContextFreeGrammar: This module offers the functionalities of a context-free grammar, allowing the definition of production rules and the analysis of strings.
+
+PushdownAutomaton: This module contains the functionalities of a pushdown automaton, which is an extension of finite automata with an additional stack for temporary storage of information.
+
+These modules are designed to work together, forming a robust and flexible library for the implementation and analysis of FLAT theory models.
+
+\section{OFLAT Platform}
+\label{sec:oflat_platform}
+
+The OFLAT platform is the graphical interface of the project, available online to the public. Its main goal is to serve as an easy-to-use educational tool. It features a static menu on the left sidebar and a dynamic workspace on the right, which changes according to the options selected on the screen. In Figure 4.1, you can see the main screen when you click on the “New model -> Finite automata” option in the sidebar.
+
+The platform is intuitive and user-friendly. For example, to create a finite automaton, you first need to choose the option in the sidebar and then right-click on the blank workspace, where the option to create a state appears. The state can be either final or initial (Figure 4.2), and an initial state is already displayed by default. By right-clicking on the state, you can add transitions (Figure 4.3) and thus build a finite automaton. In the lower-left corner of the white screen, information about the automaton is displayed, such as whether it is deterministic, whether it is minimal, the number of useless states, the number of states, and transitions. In Figure 4.4, we can see that the created automaton is deterministic and not minimal. We can then click on the “minimize automaton” option to view a minimal version (Figure 4.5).

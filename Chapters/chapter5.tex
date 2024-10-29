@@ -8,18 +8,75 @@
 
 \typeout{NT FILE chapter5.tex}%
 
-\chapter{Lorem Ipsum}
-\label{cha:lorem_ipsum}
+\chapter{Technology}
+\label{cha:technology}
 
-\lipsum[1-100]
-\lipsum[1-100]
-\lipsum[1-100]
-% \lipsum[1-100]
-% \lipsum[1-700]
-% \lipsum[1-700]
-% \lipsum[1-700]
-% \lipsum[1-700]
-% \lipsum[1-700]
-% \lipsum[1-700]
-% \lipsum[1-700]
-% \lipsum[1-700]
+\section{OCaml/JavaScript Interoperability}
+\label{sec:ocaml_javascript_interoperability}
+
+
+Interoperability between OCaml and JavaScript is made possible through the use of the \texttt{js\_of\_ocaml} toll,
+which translates OCaml code into JavaScript, allowing OCaml code to run in a browser.
+
+This tool consists of three main components:
+
+\begin{itemize}
+    \item \texttt{js\_of\_ocaml} ppx: A preprocessor that extends the OCaml library, adding functionalities that facilitate integration with JavaScript.
+    \item \texttt{js\_of\_ocaml} library: A library that contains bindings for various categories of JavaScript objects, enabling OCaml code to efficiently interact with JavaScript APIs and libraries.
+    \item \texttt{js\_of\_ocaml} compiler: A compiler that translates OCaml code into JavaScript, allowing OCaml programs to be executed in web-based environments.
+\end{itemize}
+
+
+
+
+\subsection{JavaScript Types}
+\label{ssec:javaScript_types}
+
+Types in OCaml and JavaScript are not represented in the same way in both languages. For example, a string in OCaml is a mutable array of bytes, whereas in JavaScript, strings are constant arrays of UTF-16 code points. Therefore, it is necessary to find a way to represent JavaScript types in OCaml appropriately. The table below illustrates the correspondences between the types in the two languages.
+
+To ensure effective interoperability, it is crucial to understand how each type is handled in OCaml and JavaScript. For instance, besides strings, other types such as numbers, arrays, and objects also have distinct representations. In OCaml, integers and floating-point numbers are treated differently compared to JavaScript, where all numbers are essentially floating-point. Arrays in OCaml are mutable, while in JavaScript, arrays can be either mutable or immutable, depending on the context.
+
+The table below summarizes the type correspondences between OCaml and JavaScript:
+
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        OCaml & JavaScript in OCaml  & JavaScript \\ \hline
+        int & int & Number \\ \hline
+        float & float & Number \\ \hline
+        bool & bool Js.t & Boolean \\ \hline
+        string & \texttt{Js.js\_string Js.t} & String \\ \hline
+        array & \texttt{Js.js\_array Js.t} & Array \\ \hline
+      \end{tabular} 
+\end{center}
+
+  
+
+
+\subsection{Bindings}
+\label{ssec:bindings}
+
+
+\subsection{\texttt{js\_of\_ocaml} Modules}
+\label{ssec:js_of_ocaml_modules}
+
+The \texttt{js\_of\_ocaml} library already includes several modules with predefined bindings, but only a few are necessary for the development of the OFLAT platform. 
+
+Below are some examples of these modules and submodules:
+
+
+\begin{itemize}
+    \item Js Module: This module contains definitions of JavaScript types, functions for standard JavaScript objects, and conversion functions between OCaml and JavaScript types. It is essential for ensuring interoperability between the two languages.
+    \item Js.Unsafe Submodule: This submodule allows for operations on JavaScript that are not safe, offering greater flexibility but requiring extra caution to avoid errors and vulnerabilities.
+    \item \texttt{Dom\_html} Module: Defines and manipulates HTML DOM elements, enabling the creation and modification of HTML structures directly from OCaml code. This module is crucial for building the graphical interface of the platform.
+    \item Firebug Module: Allows for the visualization and debugging of objects in the browser's developer console, facilitating the development and debugging process.
+
+\end{itemize}
+
+
+\section{Cytoscape}
+\label{sec:Cytoscape}
+
+Cytoscape is an open-source software platform that, although initially designed for biological research, is now a general tool for graph visualization and analysis. In this project, the OFLAT platform is used to visualize the various models supported by the application. To use this library, it is necessary to create bindings for OCaml/JavaScript interoperability.
+
+
