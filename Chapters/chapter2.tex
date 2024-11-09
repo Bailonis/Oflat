@@ -24,20 +24,154 @@ Noam Chomsky (with the help of Marcel-Paul Schützenberger) identified several c
 There are four levels: type 0, type 1, type 2, and type 3.
 
 \begin{itemize}
-  \item Type 0 — Recursively enumerable languages
-  \item Type 1 — Context-sensitive languages
-  \item Type 2 — Context-free languages
+  \item Type 0 — Unrestricted Grammars
+  \item Type 1 — Context-Sensitive languages
+  \item Type 2 — Context-Free languages
   \item Type 3 — Regular languages
   
 \end{itemize}
 
 The Chomsky hierarchy involves four levels of language types. Each type of language is associated with a type of generator and a type of recognizer.
 
-\section{Context-free Languages}
-\label{sec:context_free_languages}
+\subsection{Type 0: Unrestricted Grammars}
 
-Context-free languages include regular languages and are a type of formal language defined by context-free grammars. These grammars have production rules that generate sequences of symbols recursively, using non-terminal and terminal symbols. They have various applications in computer science, such as aiding in the implementation of compilers and describing document formats
+Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages, which are the most extensive class of languages in formal language theory.
 
-\subsection{With a Local \LaTeX\ Installation} % (fold)
-\label{sub:with_a_local_latex_installation}
+An example of an unrestricted grammar is:
+
+
+\[ G = ( \{S, A, B\}, \{a, b\}, P, S ) \]
+\[ P = \{ S \rightarrow aAB, AB \rightarrow BA, A \rightarrow a, B \rightarrow b \} \]
+
+
+\subsection{Type 1: Context-Sensitive Grammars}
+
+Type 1 grammars, or context-sensitive grammars, are a class of grammars in the Chomsky hierarchy. The production rules in these grammars do not reduce the length of the sentential form, meaning that the length of the string on the left-hand side of a production rule is less than or equal to the length of the string on the right-hand side. This property ensures that the derivation process does not shorten the string, maintaining context sensitivity. Type 1 grammars can generate languages that are recognized by a linear bounded automaton, which is a non-deterministic Turing machine with a tape of limited length proportional to the input size. 
+
+An example of a context-sensitive grammar is:
+
+\[ G = ( \{S, A, B, C\}, \{a, b, c\}, P, S ) \]
+\[ P = \{ S \rightarrow aABC, AB \rightarrow BA, BC \rightarrow CB, aA \rightarrow aa, bB \rightarrow bb, cC \rightarrow cc \} \]
+
+
+\subsection{Type 2: Context-Free Grammars}
+
+Type 2 grammars, or context-free grammars, are a class of grammars in the Chomsky hierarchy. The production rules in these grammars have a specific form: the left-hand side consists of a single non-terminal symbol, and the right-hand side can be any string of terminal and/or non-terminal symbols. This structure allows context-free grammars to generate languages that can be recognized by a pushdown automaton, which is a type of automaton that uses a stack to manage additional information. 
+
+An example of a context-free grammar is:
+
+\[ G = ( \{S\}, \{a, b\}, P, S ) \]
+\[ P = \{ S \rightarrow aSb, S \rightarrow ab \} \]
+
+\subsection{Type 3: Regular Grammars}
+
+Type 3 grammars, also known as regular grammars, represent the most constrained category within the Chomsky hierarchy. The production rules for these grammars are quite specific: each rule’s left-hand side is a single non-terminal symbol, while the right-hand side is either a single terminal symbol or a terminal symbol followed by a single non-terminal symbol. This strict format allows regular grammars to generate languages that can be processed by finite automata, which are basic computational models with limited memory capacity. 
+
+An example of a regular grammar is:
+
+\[ G = ( \{S\}, \{a, b\}, P, S ) \]
+\[ P = \{ S \rightarrow aS, S \rightarrow b \} \]
+
+For Type 3 grammars, it is important to understand the concepts of generator and recognizer. A generator is a grammar that defines a language, while a recognizer is an automaton that accepts or rejects strings of that language.
+
+\section{Context-Free Grammars}
+
+Context-free grammars (CFGs) are a special type of formal grammar where all production rules are of the form \( A \rightarrow \alpha \), where \( A \) is a non-terminal symbol and \( \alpha \) is a string of terminals and/or non-terminals. CFGs are fundamental in the field of formal language theory and are widely used in the description of programming languages and in syntactic analysis.
+
+These grammars are used to define the syntax of programming languages, such as C, Java, and Python. In compiler design, they help parse source code and check for syntactic correctness. Additionally, CFGs model the syntax of natural languages, aiding in tasks like sentence parsing and grammar checking.
+
+CFGs are crucial in the development of parsers, which are components of compilers that analyze the structure of code. Efficient parsing algorithms, such as LL and LR parsers, are designed to work with CFGs, making them indispensable in the field of compiler construction.
+
+\subsection{Example of a Context-Free Grammar}
+
+\[ G = ( \{S, A, B\}, \{a, b\}, P, S ) \]
+\[ P = \{ S \rightarrow aSb, S \rightarrow ab \} \]
+
+This grammar generates the language of all strings that have the same number of \( a \)'s and \( b \)'s.
+
+\section{Attribute Grammars}
+
+Attribute grammars are an extension of context-free grammars that associate attributes with the grammar symbols and define rules for computing these attributes. These attributes provide a way to carry semantic information through the parse tree, enabling context-sensitive analysis.
+
+There are two main types of attributes:
+
+\begin{itemize}
+  \item Synthesized Attributes: These are computed from the attributes of the children nodes in the parse tree. They propagate information up the tree.
+  \item Inherited Attributes: These are computed from the attributes of the parent and/or sibling nodes. They propagate information down and across the tree.
+\end{itemize}
+
+Attribute grammars are used in various applications, such as:
+
+\begin{itemize}
+  \item Compiler Design: They help in semantic analysis, type checking, and intermediate code generation.
+  \item Language Translation: They facilitate the translation of high-level programming languages into machine code or intermediate representations.
+  \item Natural Language Processing: They assist in understanding and processing the syntactic and semantic structure of natural languages.
+\end{itemize}
+
+By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions, making them essential tools in the field of computer science
+
+\subsection{Synthesized Attributes}
+
+Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node.
+
+For example, consider the following grammar:
+
+
+\[ G = ( \{S, A\}, \{a, b\}, P, S ) \]
+\[  P = \{ S \rightarrow A, A \rightarrow aA | b \} \]
+  
+We can define a synthesized attribute \( \text{length} \) that calculates the length of the generated string. The rules for computing this attribute are as follows:
+  
+  
+\[  \text{length}(S) = \text{length}(A) \]
+\[  \text{length}(A \rightarrow aA) = 1 + \text{length}(A) \]
+\[ \text{length}(A \rightarrow b) = 1 \]
+  
+  
+In this example, the attribute \( \text{length} \) is synthesized because it is computed based on the attributes of the children nodes. For the production \( A \rightarrow aA \), the length is calculated by adding 1 to the length of \( A \). For the production \( A \rightarrow b \), the length is simply 1, as \( b \) is a terminal symbol.
+  
+
+\subsection{Inherited Attributes}
+
+Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the tree, allowing for context-sensitive analysis.
+
+For example, consider the following grammar:
+
+\[ G = ( \{S, A\}, \{a, b\}, P, S ) \]
+\[ P = \{ S \rightarrow A, A \rightarrow aA | b \} \]
+
+We can define an inherited attribute \( \text{prefix} \) that accumulates the prefix of the generated string. The rules for computing this attribute are as follows:
+
+
+\[ \text{prefix}(S) = "" \]
+\[ \text{prefix}(A \rightarrow aA) = \text{prefix}(A) + "a" \]
+\[ \text{prefix}(A \rightarrow b) = \text{prefix}(A) + "b" \]
+
+
+In this example, the attribute \( \text{prefix} \) is inherited because it is computed based on the attributes of the parent node. For the production \( A \rightarrow aA \), the prefix is calculated by appending "a" to the prefix of \( A \). For the production \( A \rightarrow b \), the prefix is calculated by appending "b" to the prefix of \( A \).
+
+
+\subsection{Circularity}
+
+Circularity occurs when there are cyclic dependencies between attributes, preventing their correct computation. This happens when the value of an attribute depends, directly or indirectly, on itself. Detecting and avoiding circularities is crucial to ensure the correctness and computability of attribute grammars.
+
+Consider the following grammar:
+
+\[ G = ( \{S, A\}, \{a, b\}, P, S ) \]
+\[ P = \{ S \rightarrow A, A \rightarrow aA | b \} \]
+
+If we define the attributes such that \( \text{length}(A) \) depends on \( \text{length}(S) \), we will have a circularity:
+
+\[ \text{length}(S) = \text{length}(A) \]
+\[ \text{length}(A \rightarrow aA) = 1 + \text{length}(S) \]
+
+In this example, the attribute \( \text{length}(S) \) depends on \( \text{length}(A) \), and \( \text{length}(A) \) depends on \( \text{length}(S) \), creating a cycle. This circular dependency makes it impossible to compute the values of these attributes.
+
+To avoid circularity, we must ensure that attributes are defined in an acyclic manner. This can be achieved by carefully designing the attribute dependency graph, which represents the dependencies between attributes. The graph should be a Directed Acyclic Graph (DAG), where there are no cycles.
+
+Detecting circularities can be complex and is often done using algorithms that analyze the dependency graph. These algorithms check for cycles and ensure that the attribute dependencies form a DAG. Ensuring acyclic dependencies is essential for the correct evaluation of attributes in attribute grammars.
+
+By avoiding circularities, we can guarantee that attribute values can be computed correctly, enabling reliable semantic analysis and other applications of attribute grammars.
+
+
 

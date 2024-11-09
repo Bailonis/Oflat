@@ -11,6 +11,29 @@
 \chapter{Technology}
 \label{cha:technology}
 
+\section{Declarative Code in OCaml}
+\label{sec:declarative_code_in_ocaml}
+
+OCaml encourages a declarative programming style, where the focus is on what the program should accomplish rather than how to accomplish it. This approach aligns well with the functional programming paradigm, making the code more readable and maintainable. Declarative code in OCaml allows developers to express their intentions clearly, leading to more concise and understandable programs. By abstracting away the implementation details, developers can focus on the logic and structure of their code, which enhances productivity and reduces the likelihood of errors.
+
+\section{Functional Declarative Programming}
+\label{sec:functional_declarative_programmin}
+
+Functional programming in OCaml emphasizes the use of pure functions and immutable data. This paradigm supports declarative programming by allowing developers to express computations without side effects. Pure functions, which always produce the same output for the same input and do not modify any state, are a cornerstone of functional programming. Here’s a simple example:
+
+\begin{verbatim}
+(* Example of a declarative function in OCaml *)
+let rec factorial n =
+  if n = 0 then 1
+  else n * factorial (n - 1)
+
+(* Usage *)
+let () = Printf.printf "Factorial of 5 is %d\n" (factorial 5)
+\end{verbatim}
+
+In this example, the \texttt{factorial} function is defined declaratively, specifying what the result should be for each input without describing the steps to compute it imperatively. This approach not only makes the code easier to read and understand but also simplifies debugging and testing, as pure functions are inherently more predictable.
+
+
 \section{OCaml/JavaScript Interoperability}
 \label{sec:ocaml_javascript_interoperability}
 
@@ -36,25 +59,18 @@ Types in OCaml and JavaScript are not represented in the same way in both langua
 
 To ensure effective interoperability, it is crucial to understand how each type is handled in OCaml and JavaScript. For instance, besides strings, other types such as numbers, arrays, and objects also have distinct representations. In OCaml, integers and floating-point numbers are treated differently compared to JavaScript, where all numbers are essentially floating-point. Arrays in OCaml are mutable, while in JavaScript, arrays can be either mutable or immutable, depending on the context.
 
-The table below summarizes the type correspondences between OCaml and JavaScript:
-
-\begin{center}
-    \begin{tabular}{|c|c|c|}
-        \hline
-        OCaml & JavaScript in OCaml  & JavaScript \\ \hline
-        int & int & Number \\ \hline
-        float & float & Number \\ \hline
-        bool & bool Js.t & Boolean \\ \hline
-        string & \texttt{Js.js\_string Js.t} & String \\ \hline
-        array & \texttt{Js.js\_array Js.t} & Array \\ \hline
-      \end{tabular} 
-\end{center}
-
-  
-
 
 \subsection{Bindings}
 \label{ssec:bindings}
+
+
+
+The existence and creation of bindings in \texttt{js\_of\_ocaml} facilitate the seamless integration of JavaScript code and libraries within the OCaml programming environment, ensuring type safety throughout the process. This powerful feature allows developers to leverage the extensive ecosystem of JavaScript while maintaining the robust type-checking capabilities of OCaml.
+
+Although \texttt{js\_of\_ocaml} already includes a plethora of useful bindings, developers are not limited to these pre-existing options. It remains entirely feasible to create new bindings tailored to specific project needs, thereby enabling interaction with a wide array of additional JavaScript libraries and objects. This flexibility is particularly advantageous for projects that require the integration of specialized JavaScript functionalities or the utilization of cutting-edge libraries that may not yet be covered by the existing bindings.
+
+By creating custom bindings, developers can ensure that their OCaml applications can interact with the latest JavaScript technologies, thereby enhancing the functionality and versatility of their projects. This approach broadens the scope of what can be achieved with \texttt{js\_of\_ocaml} and empowers developers to innovate and adapt to the ever-evolving landscape of web development
+
 
 
 \subsection{\texttt{js\_of\_ocaml} Modules}
@@ -72,6 +88,46 @@ Below are some examples of these modules and submodules:
     \item Firebug Module: Allows for the visualization and debugging of objects in the browser's developer console, facilitating the development and debugging process.
 
 \end{itemize}
+
+\section{Representation in OCaml}
+\label{sec:representation_in_ocaml}
+
+When working with OCaml and JavaScript interoperability, understanding how to represent various attributes is crucial. OCaml uses synthesized and inherited attributes to manage data and behavior in a structured way. These attributes play a significant role in the language's type system and its ability to enforce strong type safety.
+
+\subsection{Synthesized Attributes}
+\label{ssec:synthesized_attributes}
+
+These are attributes computed from the values of other attributes. For example, in a syntax tree, the type of an expression might be synthesized from the types of its sub-expressions. Synthesized attributes help in propagating information upwards in a hierarchical structure, ensuring that each node has the necessary context to perform its operations.
+
+\subsection{Inherited Attributes}
+\label{ssec:inherited_attributes}
+
+These are attributes passed down from parent nodes to child nodes in a structure. For instance, the scope information in a syntax tree can be inherited from parent nodes to ensure proper variable resolution. Inherited attributes facilitate the flow of information downwards, providing child nodes with the context they need to function correctly.
+
+\subsection{Rules}
+\label{ssec:rules}
+
+The rules define how attributes are calculated. They consist of a head, which specifies the attribute being computed, and a body, which describes the computation. These rules are essential for maintaining consistency and correctness in the representation of data.
+
+Here’s a simple example to illustrate these concepts:
+
+\begin{verbatim}
+(* Example of synthesized and inherited attributes in OCaml *)
+type expr =
+  | Const of int
+  | Add of expr * expr
+
+(* Function to evaluate an expression with synthesized attributes *)
+let rec eval = function
+  | Const n -> n
+  | Add (e1, e2) -> eval e1 + eval e2
+
+(* Usage *)
+let () = Printf.printf "Result of 3 + 4 is %d\n" (eval (Add (Const 3, Const 4)))
+\end{verbatim}
+
+In this example, the \texttt{eval} function synthesizes the result of an addition expression from its sub-expressions. This approach ensures that each part of the expression is evaluated in a consistent and predictable manner, leveraging the power of OCaml's type system to enforce correctness.
+
 
 
 \section{Cytoscape}
