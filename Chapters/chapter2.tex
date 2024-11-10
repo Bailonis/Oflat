@@ -74,6 +74,8 @@ An example of a regular grammar is:
 
 For Type 3 grammars, it is important to understand the concepts of generator and recognizer. A generator is a grammar that defines a language, while a recognizer is an automaton that accepts or rejects strings of that language.
 
+This dissertation will focus on type 2, context-free grammars.
+
 \section{Context-Free Grammars}
 
 Context-free grammars (CFGs) are a special type of formal grammar where all production rules are of the form \( A \rightarrow \alpha \), where \( A \) is a non-terminal symbol and \( \alpha \) is a string of terminals and/or non-terminals. CFGs are fundamental in the field of formal language theory and are widely used in the description of programming languages and in syntactic analysis.
@@ -82,7 +84,7 @@ These grammars are used to define the syntax of programming languages, such as C
 
 CFGs are crucial in the development of parsers, which are components of compilers that analyze the structure of code. Efficient parsing algorithms, such as LL and LR parsers, are designed to work with CFGs, making them indispensable in the field of compiler construction.
 
-\subsection{Example of a Context-Free Grammar}
+Example:
 
 \[ G = ( \{S, A, B\}, \{a, b\}, P, S ) \]
 \[ P = \{ S \rightarrow aSb, S \rightarrow ab \} \]
