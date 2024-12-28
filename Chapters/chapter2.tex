@@ -98,16 +98,16 @@ Attribute grammars are an extension of context-free grammars that associate attr
 There are two main types of attributes:
 
 \begin{itemize}
-  \item Synthesized Attributes: These are computed from the attributes of the children nodes in the parse tree. They propagate information up the tree.
-  \item Inherited Attributes: These are computed from the attributes of the parent and/or sibling nodes. They propagate information down and across the tree.
+  \item \textbf{Synthesized Attributes}: These are computed from the attributes of the children nodes in the parse tree. They propagate information up the tree.
+  \item \textbf{Inherited Attributes}: These are computed from the attributes of the parent and/or sibling nodes. They propagate information down and across the tree.
 \end{itemize}
 
 Attribute grammars are used in various applications, such as:
 
 \begin{itemize}
-  \item Compiler Design: They help in semantic analysis, type checking, and intermediate code generation.
-  \item Language Translation: They facilitate the translation of high-level programming languages into machine code or intermediate representations.
-  \item Natural Language Processing: They assist in understanding and processing the syntactic and semantic structure of natural languages.
+  \item \textbf{Compiler Design}: They help in semantic analysis, type checking, and intermediate code generation.
+  \item \textbf{Language Translation}: They facilitate the translation of high-level programming languages into machine code or intermediate representations.
+  \item \textbf{Natural Language Processing}: They assist in understanding and processing the syntactic and semantic structure of natural languages.
 \end{itemize}
 
 By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions, making them essential tools in the field of computer science
@@ -174,6 +174,51 @@ To avoid circularity, we must ensure that attributes are defined in an acyclic m
 Detecting circularities can be complex and is often done using algorithms that analyze the dependency graph. These algorithms check for cycles and ensure that the attribute dependencies form a DAG. Ensuring acyclic dependencies is essential for the correct evaluation of attributes in attribute grammars.
 
 By avoiding circularities, we can guarantee that attribute values can be computed correctly, enabling reliable semantic analysis and other applications of attribute grammars.
+
+Sure, here's the content converted to LaTeX:
+\section{Automata}
+Automata theory is a fundamental area of theoretical computer science that deals with the study of abstract machines and the problems they can solve. Automata are used to model computational processes and recognize patterns within input strings. Different types of automata correspond to different classes of formal languages, as described in the Chomsky hierarchy.
+
+\subsection{Types of Automata}
+
+\subsubsection{Finite Automata}
+Finite automata (FA) are the simplest type of automata and are used to recognize regular languages. They consist of a finite number of states, transitions between these states, and an input alphabet. There are two main types of finite automata:
+\begin{itemize}
+    \item \textbf{Deterministic Finite Automata (DFA)}: Each state has exactly one transition for each symbol in the input alphabet.
+    \item \textbf{Non-deterministic Finite Automata (NFA)}: States can have zero, one, or multiple transitions for each symbol in the input alphabet.
+\end{itemize}
+
+Finite automata are used in text processing, lexical analysis, and network protocols.
+
+\subsubsection{Pushdown Automata}
+Pushdown automata (PDA) are more powerful than finite automata and can recognize context-free languages. They extend finite automata by adding a stack, which provides additional memory. This stack allows PDAs to handle nested structures, such as parentheses in arithmetic expressions or nested loops in programming languages and used in parsing and syntax analysis in compilers.
+
+\subsubsection{Turing Machines}
+Turing machines (TM) are the most powerful type of automata and can recognize recursively enumerable languages. They consist of an infinite tape, a tape head that can read and write symbols, and a set of states. Turing machines can simulate any algorithm and are used to define the limits of what can be computed and are fundamental in the study of computability and complexity theory.
+
+\subsubsection{Linear Bounded Automata}
+Linear bounded automata (LBA) are a type of Turing machine with a tape of limited length proportional to the input size. They recognize context-sensitive languages. LBAs are more powerful than PDAs but less powerful than general Turing machines, they also are used in certain types of language recognition and computational complexity studies.
+
+
+\subsection{The Relationship Between Automata and Formal Languages}
+The study of automata is fundamentally linked to formal languages. Each type of automaton corresponds to a class of formal languages, and understanding this relationship is key to various applications in computer science:
+\begin{itemize}
+    \item \textbf{Closure Properties}: Different classes of languages exhibit specific closure properties under operations like union, intersection, and complementation. For instance, regular languages are closed under these operations, while context-free languages are not.
+    \item \textbf{Decidability}: The ability to determine whether a given automaton accepts a particular string is a central question in automata theory. For example, the emptiness problem for finite automata is decidable, while it becomes undecidable for Turing machines.
+\end{itemize}
+
+\subsection{Applications of Automata and Formal Languages}
+Automata and formal languages have numerous applications in computer science and related fields:
+\begin{itemize}
+    \item \textbf{Compiler Design}: Finite automata are used in lexical analysis to tokenize input strings, while pushdown automata are used in syntax analysis.
+    \item \textbf{Formal Verification}: Automata are used to verify the correctness of hardware and software systems.
+    \item \textbf{Artificial Intelligence}: Automata are used in pattern recognition, natural language processing, and machine learning.
+    \item \textbf{Network Protocols}: Automata are used to model and analyze communication protocols.
+\end{itemize}
+
+
+
+
 
 
 
