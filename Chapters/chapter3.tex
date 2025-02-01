@@ -9,11 +9,11 @@
 \typeout{NT FILE chapter3.tex}%
 
 
-\chapter{Pedagogical Tools}
+\chapter{Grammar Tools}
 \label{cha:pedagogical_tools}
 
 
-Understanding and applying attribute grammars can be complex, making pedagogic tools essential for effective learning and teaching. These tools provide practical, hands-on experience, helping students grasp theoretical concepts more concretely. In this chapter, we will discuss three such tools: \textbf{JFLAT}, \textbf{ANTLR}, and \textbf{DFA Tester}. Each of these tools offers unique features and benefits that facilitate the learning process of attribute grammars.
+Understanding and applying attribute grammars can be complex, making pedagogic tools essential for effective learning and teaching. These tools provide practical, hands-on experience, helping students grasp theoretical concepts more concretely. In this chapter, we will discuss three such tools: \textbf{JFLAT}, \textbf{ANTLR}, and \textbf{CGM}. Each of these tools offers unique features and benefits that facilitate the learning process of attribute grammars.
 
 \section{JFLAT}
 
@@ -70,40 +70,41 @@ ANTLR has been effectively used in various educational projects and assignments.
     \item \textbf{Compiler Construction Assignments}: By building simple compilers, students learn about the different stages of compilation, from lexical analysis to code generation.
     \item \textbf{Framework Development}: Projects involving the development of domain-specific languages (DSLs) help students appreciate the practical applications of ANTLR in real-world scenarios.
 \end{itemize}
-\section{DFA Tester}
-
-DFA Tester is a specialized tool designed for building and testing deterministic finite automata (DFA). It provides a user-friendly interface for defining and experimenting with DFAs, making it an excellent resource for learning about finite automata.
+\section{CGM: Context-Free Grammar Manipulator}
+CGM is a tool developed at the University of Porto designed to assist in the manipulation and study of context-free grammars. It provides a graphical environment for editing grammars, converting them to Chomsky normal form, parsing words, and constructing parse trees interactively.
 
 \subsection{Features}
-DFA Tester offers several key functionalities:
+CGM offers several key functionalities:
 \begin{itemize}
-    \item \textbf{Defining Alphabets, States, and Transitions}: Users can define the alphabet, states, and transition functions of a DFA, allowing for the creation of custom automata.
-    \item \textbf{Testing String Acceptance}: The tool enables users to test whether a given string is accepted by the DFA, providing immediate feedback on the automaton's behavior.
+    \item \textbf{Grammar Editing}: Users can define and edit context-free grammars using a graphical interface.
+    \item \textbf{Chomsky Normal Form Conversion}: The tool supports the conversion of grammars to Chomsky normal form, which is useful for various theoretical and practical applications.
+    \item \textbf{Parsing and Parse Trees}: CGM allows users to parse words and visualize the corresponding parse trees, aiding in the understanding of grammar structures \cite{cgm}.
 \end{itemize}
 
 \subsection{Educational Benefits}
-DFA Tester aids in understanding the principles of finite automata through hands-on experimentation. It helps students:
+CGM aids in understanding the principles of context-free grammars through hands-on experimentation. It helps students:
 \begin{itemize}
-    \item Visualize the structure and operation of DFAs.
-    \item Experiment with different automata configurations to see how changes affect string acceptance.
-    \item Develop a deeper understanding of the concepts of states, transitions, and acceptance conditions.
+    \item Visualize the structure and operation of context-free grammars.
+    \item Experiment with different grammar configurations to see how changes affect parsing and parse tree construction.
+    \item Develop a deeper understanding of the concepts of grammar rules, parsing, and syntax trees \cite{cgm}.
 \end{itemize}
 
 \subsection{Case Studies/Examples}
-DFA Tester has been used in various classroom activities and projects, such as:
+CGM has been used in various classroom activities and projects, such as:
 \begin{itemize}
-    \item \textbf{Automata Design Exercises}: Students can design DFAs to recognize specific patterns or languages, reinforcing their understanding of regular languages.
-    \item \textbf{String Testing Projects}: Assignments where students test multiple strings against their DFAs to observe and analyze the automaton's behavior.
-    \item \textbf{Interactive Learning Sessions}: Instructors can use DFA Tester in interactive sessions to demonstrate the principles of finite automata and engage students in hands-on learning.
+    \item \textbf{Grammar Design Exercises}: Students can design grammars to recognize specific patterns or languages, reinforcing their understanding of context-free grammars.
+    \item \textbf{Parsing Projects}: Assignments where students define grammars and parse words to observe and analyze the resulting parse trees.
+    \item \textbf{Interactive Learning Sessions}: Instructors can use CGM in interactive sessions to demonstrate the principles of context-free grammars and engage students in hands-on learning \cite{cgm}.
 \end{itemize}
+
 \section{Comparison of Tools}
 
 \subsection{Features}
-Each of the three tools—JFLAT, ANTLR, and DFA Tester—offers distinct features that cater to different aspects of teaching attribute grammars:
+Each of the three tools—JFLAT, ANTLR, and CGM—offers distinct features that cater to different aspects of teaching attribute grammars:
 \begin{itemize}
     \item \textbf{JFLAT}: Provides a comprehensive environment for experimenting with various computational models, including finite automata, pushdown automata, Turing machines, and grammars. It excels in visualizing automata and converting between different forms.
     \item \textbf{ANTLR}: Specializes in generating parsers, lexers, and tree parsers from grammars. It supports multiple programming languages and is widely used for building languages and frameworks.
-    \item \textbf{DFA Tester}: Focuses on building and testing deterministic finite automata. It allows users to define alphabets, states, and transitions, and test string acceptance.
+    \item \textbf{CGM}: Focuses on building and testing context-free grammars. It allows users to define grammars, convert them to Chomsky normal form, and visualize parse trees.
 \end{itemize}
 
 \subsection{Ease of Use}
@@ -111,7 +112,7 @@ The ease of use varies among the tools:
 \begin{itemize}
     \item \textbf{JFLAT}: User-friendly with a graphical interface that makes it accessible for beginners. Its visualizations help in understanding complex concepts.
     \item \textbf{ANTLR}: Requires a steeper learning curve due to its powerful and flexible nature. It is more suitable for advanced students who have a basic understanding of language parsing.
-    \item \textbf{DFA Tester}: Simple and intuitive, making it easy for students to quickly start experimenting with DFAs. Its straightforward interface is ideal for introductory courses.
+    \item \textbf{CGM}: Simple and intuitive, making it easy for students to quickly start experimenting with context-free grammars. Its straightforward interface is ideal for introductory courses.
 \end{itemize}
 
 \subsection{Educational Impact}
@@ -119,7 +120,7 @@ The educational impact of each tool is significant in different ways:
 \begin{itemize}
     \item \textbf{JFLAT}: Enhances understanding of formal languages and automata theory through interactive and visual learning. It is particularly effective in demonstrating the equivalence of different computational models.
     \item \textbf{ANTLR}: Provides deep insights into language parsing and compiler construction. It helps students gain practical experience in building parsers and understanding the intricacies of language design.
-    \item \textbf{DFA Tester}: Reinforces the principles of finite automata through hands-on experimentation. It is effective in helping students grasp the concepts of states, transitions, and string acceptance.
+    \item \textbf{CGM}: Reinforces the principles of context-free grammars through hands-on experimentation. It is effective in helping students grasp the concepts of grammar rules, parsing, and syntax trees.
 \end{itemize}
 
 \subsection{Strengths and Weaknesses}
@@ -135,20 +136,13 @@ Each tool has its strengths and weaknesses:
         \item \textbf{Strengths}: Powerful, flexible, supports multiple languages, ideal for advanced projects.
         \item \textbf{Weaknesses}: Steeper learning curve, may be overwhelming for beginners.
     \end{itemize}
-    \item \textbf{DFA Tester}:
+    \item \textbf{CGM}:
     \begin{itemize}
         \item \textbf{Strengths}: Simple, intuitive, excellent for introductory courses.
-        \item \textbf{Weaknesses}: Limited to DFAs, may not cover broader aspects of formal languages.
+        \item \textbf{Weaknesses}: Limited to context-free grammars, may not cover broader aspects of formal languages.
     \end{itemize}
 \end{itemize}
 
-\subsection{Complementary Use}
-These tools complement each other in teaching attribute grammars:
-\begin{itemize}
-    \item \textbf{JFLAT} can be used to introduce students to the basics of formal languages and automata theory, providing a solid foundation.
-    \item \textbf{ANTLR} can then be introduced to teach advanced concepts of language parsing and compiler construction, building on the foundational knowledge.
-    \item \textbf{DFA Tester} can be used throughout to reinforce understanding of finite automata, providing practical, hands-on experience.
-\end{itemize}
 
 
 
