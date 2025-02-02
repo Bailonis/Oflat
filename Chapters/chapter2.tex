@@ -1,11 +1,3 @@
-%!TEX root = ../template.tex
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% chapter2.tex
-%% NOVA thesis document file
-%%
-%% Chapter with the template manual
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \typeout{NT FILE chapter2.tex}%
 
 \chapter{Theory of Computation}
@@ -19,7 +11,7 @@ There are two techniques for defining languages that are typically used. The fir
 \section{Chomsky Hierarchy}
 \label{sec:chomsky_hierarchy}
 
-Noam Chomsky (with the help of Marcel-Paul Schützenberger) identified several classes of formal languages, with different levels of specification complexity, requiring computational models with different levels of expressive power to solve the problem of recognizing these languages.
+Noam Chomsky (with the help of Marcel-Paul Schützenberger) identified several classes of formal languages, with different levels of specification complexity, requiring computational models with different levels of expressive power to solve the problem of recognizing these languages \cite{cit9}.
 
 There are four levels: type 0, type 1, type 2, and type 3.
 
@@ -42,7 +34,7 @@ The Chomsky hierarchy involves four levels of language types. Each type of langu
 
 \subsection{Type 0: Unrestricted Grammars}
 
-Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages, which are the most extensive class of languages in formal language theory.
+Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages, which are the most extensive class of languages in formal language theory \cite{cit9}.
 
 An example of an unrestricted grammar is:
 
@@ -53,7 +45,7 @@ An example of an unrestricted grammar is:
 
 \subsection{Type 1: Context-Sensitive Grammars}
 
-Type 1 grammars, or context-sensitive grammars, these grammars do not reduce the length of the sentential form, meaning that the length of the string on the left-hand side of a production rule is less than or equal to the length of the string on the right-hand side. This property ensures that the derivation process does not shorten the string, maintaining context sensitivity. Type 1 grammars can generate languages that are recognized by a linear bounded automaton, which is a non-deterministic Turing machine with a tape of limited length proportional to the input size. 
+Type 1 grammars, or context-sensitive grammars, these grammars do not reduce the length of the sentential form, meaning that the length of the string on the left-hand side of a production rule is less than or equal to the length of the string on the right-hand side. This property ensures that the derivation process does not shorten the string, maintaining context sensitivity. Type 1 grammars can generate languages that are recognized by a linear bounded automaton, which is a non-deterministic Turing machine with a tape of limited length proportional to the input size \cite{cit9}. 
 
 An example of a context-sensitive grammar is:
 
@@ -63,7 +55,7 @@ An example of a context-sensitive grammar is:
 
 \subsection{Type 2: Context-Free Grammars}
 
-Type 2 grammars, or context-free grammars, in these grammars have a specific form: the left-hand side consists of a single non-terminal symbol, and the right-hand side can be any string of terminal and/or non-terminal symbols. This structure allows context-free grammars to generate languages that can be recognized by a pushdown automaton, which is a type of automaton that uses a stack to manage additional information. 
+Type 2 grammars, or context-free grammars, in these grammars have a specific form: the left-hand side consists of a single non-terminal symbol, and the right-hand side can be any string of terminal and/or non-terminal symbols. This structure allows context-free grammars to generate languages that can be recognized by a pushdown automaton, which is a type of automaton that uses a stack to manage additional information \cite{cit9}. 
 
 An example of a context-free grammar is:
 
@@ -72,7 +64,7 @@ An example of a context-free grammar is:
 
 \subsection{Type 3: Regular Grammars}
 
-Type 3 grammars, also known as regular grammars, represent the most constrained category within the Chomsky hierarchy. The production rules for these grammars are quite specific: each rule’s left-hand side is a single non-terminal symbol, while the right-hand side is either a single terminal symbol or a terminal symbol followed by a single non-terminal symbol. This strict format allows regular grammars to generate languages that can be processed by finite automata, which are basic computational models with limited memory capacity. 
+Type 3 grammars, also known as regular grammars, represent the most constrained category within the Chomsky hierarchy. The production rules for these grammars are quite specific: each rule’s left-hand side is a single non-terminal symbol, while the right-hand side is either a single terminal symbol or a terminal symbol followed by a single non-terminal symbol. This strict format allows regular grammars to generate languages that can be processed by finite automata, which are basic computational models with limited memory capacity \cite{cit9}. 
 
 An example of a regular grammar is:
 
@@ -85,11 +77,11 @@ This dissertation will focus on type 2, context-free grammars.
 
 \section{Context-Free Grammars}
 
-Context-free grammars (CFGs) are a special type of formal grammar where all production rules are of the form \( A \rightarrow \alpha \), where \( A \) is a non-terminal symbol and \( \alpha \) is a string of terminals and/or non-terminals. CFGs are fundamental in the field of formal language theory and are widely used in the description of programming languages and in syntactic analysis.
+Context-free grammars (CFGs) are a special type of formal grammar where all production rules are of the form \( A \rightarrow \alpha \), where \( A \) is a non-terminal symbol and \( \alpha \) is a string of terminals and/or non-terminals. CFGs are fundamental in the field of formal language theory and are widely used in the description of programming languages and in syntactic analysis \cite{cit9}.
 
-These grammars are used to define the syntax of programming languages, such as C, Java, and Python. In compiler design, they help parse source code and check for syntactic correctness. Additionally, CFGs model the syntax of natural languages, aiding in tasks like sentence parsing and grammar checking.
+These grammars are used to define the syntax of programming languages, such as C, Java, and Python. In compiler design, they help parse source code and check for syntactic correctness \cite{aho1986compilers}. Additionally, CFGs model the syntax of natural languages, aiding in tasks like sentence parsing and grammar checking \cite{hopcroft2006automata}.
 
-CFGs are crucial in the development of parsers, which are components of compilers that analyze the structure of code. Efficient parsing algorithms, such as LL and LR parsers, are designed to work with CFGs, making them indispensable in the field of compiler construction.
+CFGs are crucial in the development of parsers, which are components of compilers that analyze the structure of code. Efficient parsing algorithms, such as LL and LR parsers, are designed to work with CFGs, making them indispensable in the field of compiler construction \cite{aho1986compilers}.
 
 Example:
 
@@ -100,7 +92,7 @@ This grammar generates the language of all strings that have the same number of 
 
 \section{Attribute Grammars}
 
-Attribute grammars are an extension of context-free grammars that associate attributes with the grammar symbols and define rules for computing these attributes. These attributes provide a way to carry semantic information through the parse tree, enabling context-sensitive analysis \cite{cit6}.
+Attribute grammars are an extension of context-free grammars that associate attributes with the grammar symbols and define rules for computing these attributes. These attributes provide a way to carry semantic information through the parse tree, enabling context-sensitive analysis \cite{knuth1968semantics}.
 
 There are two main types of attributes:
 
@@ -112,19 +104,18 @@ There are two main types of attributes:
 Attribute grammars are used in various applications, such as:
 
 \begin{itemize}
-  \item \textbf{Compiler Design}: They help in semantic analysis, type checking, and intermediate code generation.
+  \item \textbf{Compiler Design}: They help in semantic analysis, type checking, and intermediate code generation \cite{aho1986compilers}.
   \item \textbf{Language Translation}: They facilitate the translation of high-level programming languages into machine code or intermediate representations.
   \item \textbf{Natural Language Processing}: They assist in understanding and processing the syntactic and semantic structure of natural languages.
 \end{itemize}
 
-By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions, making them essential tools in the field of computer science
+By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions, making them essential tools in the field of computer science.
 
 \subsection{Synthesized Attributes}
 
-Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node \cite{cit6}.
+Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node \cite{knuth1968semantics}.
 
 For example, consider the following grammar:
-
 
 \[ G = ( \{S, A\}, \{a, b\}, P, S ) \]
 \[  P = \{ S \rightarrow A, A \rightarrow aA | b \} \]
@@ -136,13 +127,11 @@ We can define a synthesized attribute \( \text{length} \) that calculates the le
 \[  \text{length}(A \rightarrow aA) = 1 + \text{length}(A) \]
 \[ \text{length}(A \rightarrow b) = 1 \]
   
-  
 In this example, the attribute \( \text{length} \) is synthesized because it is computed based on the attributes of the children nodes. For the production \( A \rightarrow aA \), the length is calculated by adding 1 to the length of \( A \). For the production \( A \rightarrow b \), the length is simply 1, as \( b \) is a terminal symbol.
-  
 
 \subsection{Inherited Attributes}
 
-Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the tree, allowing for context-sensitive analysis \cite{cit6}.
+Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the tree, allowing for context-sensitive analysis \cite{knuth1968semantics}.
 
 For example, consider the following grammar:
 
@@ -151,18 +140,15 @@ For example, consider the following grammar:
 
 We can define an inherited attribute \( \text{prefix} \) that accumulates the prefix of the generated string. The rules for computing this attribute are as follows:
 
-
 \[ \text{prefix}(S) = "" \]
 \[ \text{prefix}(A \rightarrow aA) = \text{prefix}(A) + "a" \]
 \[ \text{prefix}(A \rightarrow b) = \text{prefix}(A) + "b" \]
 
-
 In this example, the attribute \( \text{prefix} \) is inherited because it is computed based on the attributes of the parent node. For the production \( A \rightarrow aA \), the prefix is calculated by appending "a" to the prefix of \( A \). For the production \( A \rightarrow b \), the prefix is calculated by appending "b" to the prefix of \( A \).
-
 
 \subsection{Circularity}
 
-Circularity occurs when there are cyclic dependencies between attributes, preventing their correct computation. This happens when the value of an attribute depends, directly or indirectly, on itself. Detecting and avoiding circularities is crucial to ensure the correctness and computability of attribute grammars \cite{cit6}.
+Circularity occurs when there are cyclic dependencies between attributes, preventing their correct computation. This happens when the value of an attribute depends, directly or indirectly, on itself. Detecting and avoiding circularities is crucial to ensure the correctness and computability of attribute grammars \cite{knuth1974art}.
 
 Consider the following grammar:
 
@@ -184,7 +170,7 @@ By avoiding circularities, we can guarantee that attribute values can be compute
 
 \section{Attribute Grammars with Constraints}
 
-Attribute grammars can be extended to include constraints on attributes, which can be used to define more complex languages. In this section, we will discuss an example of an attribute grammar with two calculated attributes and permissions, utilizing attribute constraints to define a language.
+Attribute grammars can be extended to include constraints on attributes, which can be used to define more complex languages. In this section, we will discuss an example of an attribute grammar with two calculated attributes and permissions, utilizing attribute constraints to define a language \cite{cit6}.
 
 \subsection{Example Grammar}
 Consider the following context-free grammar \( G \):
@@ -226,7 +212,6 @@ Attribute grammars with constraints are useful in various applications, such as:
 
 By incorporating attribute constraints, we can define more precise and powerful languages, making attribute grammars a versatile tool in theoretical computer science.
 
-
 \section{Automata}
 Automata theory is a fundamental area of theoretical computer science that deals with the study of abstract machines and the problems they can solve \cite{cit4}. Automata are used to model computational processes and recognize patterns within input strings. Different types of automata correspond to different classes of formal languages, as described in the Chomsky hierarchy.
 
@@ -242,14 +227,13 @@ Finite automata (FA) are the simplest type of automata and are used to recognize
 Finite automata are used in text processing, lexical analysis, and network protocols.
 
 \subsubsection{Pushdown Automata}
-Pushdown automata (PDA) are more powerful than finite automata and can recognize context-free languages. They extend finite automata by adding a stack, which provides additional memory. This stack allows PDAs to handle nested structures, such as parentheses in arithmetic expressions or nested loops in programming languages and used in parsing and syntax analysis in compilers.
+Pushdown automata (PDA) are more powerful than finite automata and can recognize context-free languages. They extend finite automata by adding a stack, which provides additional memory. This stack allows PDAs to handle nested structures, such as parentheses in arithmetic expressions or nested loops in programming languages and used in parsing and syntax analysis in compilers \cite{cit5}.
 
 \subsubsection{Turing Machines}
-Turing machines (TM) are the most powerful type of automata and can recognize recursively enumerable languages. They consist of an infinite tape, a tape head that can read and write symbols, and a set of states. Turing machines can simulate any algorithm and are used to define the limits of what can be computed and are fundamental in the study of computability and complexity theory.
+Turing machines (TM) are the most powerful type of automata and can recognize recursively enumerable languages. They consist of an infinite tape, a tape head that can read and write symbols, and a set of states. Turing machines can simulate any algorithm and are used to define the limits of what can be computed and are fundamental in the study of computability and complexity theory \cite{cit5}.
 
 \subsubsection{Linear Bounded Automata}
-Linear bounded automata (LBA) are a type of Turing machine with a tape of limited length proportional to the input size. They recognize context-sensitive languages. LBAs are more powerful than PDAs but less powerful than general Turing machines, they also are used in certain types of language recognition and computational complexity studies.
-
+Linear bounded automata (LBA) are a type of Turing machine with a tape of limited length proportional to the input size. They recognize context-sensitive languages. LBAs are more powerful than PDAs but less powerful than general Turing machines, they also are used in certain types of language recognition and computational complexity studies \cite{cit5}.
 
 \subsection{The Relationship Between Automata and Formal Languages}
 The study of automata is fundamentally linked to formal languages. Each type of automaton corresponds to a class of formal languages, and understanding this relationship is key to various applications in computer science \cite{cit4}:
@@ -266,3 +250,4 @@ Automata and formal languages have numerous applications in computer science and
     \item \textbf{Artificial Intelligence}: Automata are used in pattern recognition, natural language processing, and machine learning.
     \item \textbf{Network Protocols}: Automata are used to model and analyze communication protocols.
 \end{itemize}
+
