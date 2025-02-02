@@ -31,6 +31,13 @@ There are four levels: type 0, type 1, type 2, and type 3.
   
 \end{itemize}
 
+\begin{figure}[h]
+  \includegraphics[height=6cm]{Chapters/Figures/Chapter2/tese1.png}
+  \centering
+  \caption{Chomsky hierarchy}
+  \label{fig:tese1}
+\end{figure}
+
 The Chomsky hierarchy involves four levels of language types. Each type of language is associated with a type of generator and a type of recognizer.
 
 \subsection{Type 0: Unrestricted Grammars}
@@ -93,7 +100,7 @@ This grammar generates the language of all strings that have the same number of 
 
 \section{Attribute Grammars}
 
-Attribute grammars are an extension of context-free grammars that associate attributes with the grammar symbols and define rules for computing these attributes. These attributes provide a way to carry semantic information through the parse tree, enabling context-sensitive analysis.
+Attribute grammars are an extension of context-free grammars that associate attributes with the grammar symbols and define rules for computing these attributes. These attributes provide a way to carry semantic information through the parse tree, enabling context-sensitive analysis \cite{cit6}.
 
 There are two main types of attributes:
 
@@ -114,7 +121,7 @@ By extending context-free grammars with attributes, attribute grammars enable mo
 
 \subsection{Synthesized Attributes}
 
-Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node.
+Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node \cite{cit6}.
 
 For example, consider the following grammar:
 
@@ -135,7 +142,7 @@ In this example, the attribute \( \text{length} \) is synthesized because it is 
 
 \subsection{Inherited Attributes}
 
-Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the tree, allowing for context-sensitive analysis.
+Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the tree, allowing for context-sensitive analysis \cite{cit6}.
 
 For example, consider the following grammar:
 
@@ -155,7 +162,7 @@ In this example, the attribute \( \text{prefix} \) is inherited because it is co
 
 \subsection{Circularity}
 
-Circularity occurs when there are cyclic dependencies between attributes, preventing their correct computation. This happens when the value of an attribute depends, directly or indirectly, on itself. Detecting and avoiding circularities is crucial to ensure the correctness and computability of attribute grammars.
+Circularity occurs when there are cyclic dependencies between attributes, preventing their correct computation. This happens when the value of an attribute depends, directly or indirectly, on itself. Detecting and avoiding circularities is crucial to ensure the correctness and computability of attribute grammars \cite{cit6}.
 
 Consider the following grammar:
 
@@ -221,12 +228,12 @@ By incorporating attribute constraints, we can define more precise and powerful 
 
 
 \section{Automata}
-Automata theory is a fundamental area of theoretical computer science that deals with the study of abstract machines and the problems they can solve. Automata are used to model computational processes and recognize patterns within input strings. Different types of automata correspond to different classes of formal languages, as described in the Chomsky hierarchy.
+Automata theory is a fundamental area of theoretical computer science that deals with the study of abstract machines and the problems they can solve \cite{cit4}. Automata are used to model computational processes and recognize patterns within input strings. Different types of automata correspond to different classes of formal languages, as described in the Chomsky hierarchy.
 
 \subsection{Types of Automata}
 
 \subsubsection{Finite Automata}
-Finite automata (FA) are the simplest type of automata and are used to recognize regular languages. They consist of a finite number of states, transitions between these states, and an input alphabet. There are two main types of finite automata:
+Finite automata (FA) are the simplest type of automata and are used to recognize regular languages. They consist of a finite number of states, transitions between these states, and an input alphabet \cite{cit4}. There are two main types of finite automata:
 \begin{itemize}
     \item \textbf{Deterministic Finite Automata (DFA)}: Each state has exactly one transition for each symbol in the input alphabet.
     \item \textbf{Non-deterministic Finite Automata (NFA)}: States can have zero, one, or multiple transitions for each symbol in the input alphabet.
@@ -245,7 +252,7 @@ Linear bounded automata (LBA) are a type of Turing machine with a tape of limite
 
 
 \subsection{The Relationship Between Automata and Formal Languages}
-The study of automata is fundamentally linked to formal languages. Each type of automaton corresponds to a class of formal languages, and understanding this relationship is key to various applications in computer science:
+The study of automata is fundamentally linked to formal languages. Each type of automaton corresponds to a class of formal languages, and understanding this relationship is key to various applications in computer science \cite{cit4}:
 \begin{itemize}
     \item \textbf{Closure Properties}: Different classes of languages exhibit specific closure properties under operations like union, intersection, and complementation. For instance, regular languages are closed under these operations, while context-free languages are not.
     \item \textbf{Decidability}: The ability to determine whether a given automaton accepts a particular string is a central question in automata theory. For example, the emptiness problem for finite automata is decidable, while it becomes undecidable for Turing machines.
