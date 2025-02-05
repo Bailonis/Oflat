@@ -17,9 +17,9 @@ There are four levels: type 0, type 1, type 2, and type 3.
 
 \begin{itemize}
   \item Type 0 — Unrestricted Grammars
-  \item Type 1 — Context-Sensitive languages
-  \item Type 2 — Context-Free languages
-  \item Type 3 — Regular languages
+  \item Type 1 — Context-Sensitive Grammars
+  \item Type 2 — Context-Free Grammars
+  \item Type 3 — Regular Grammars
   
 \end{itemize}
 
@@ -34,7 +34,7 @@ The Chomsky hierarchy involves four levels of language types. Each type of langu
 
 \subsection{Type 0: Unrestricted Grammars}
 
-Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages, which are the most extensive class of languages in formal language theory \cite{cit9}.
+Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages \cite{cit9}.
 
 An example of an unrestricted grammar is:
 
@@ -42,6 +42,15 @@ An example of an unrestricted grammar is:
 \[ G = ( \{S, A, B\}, \{a, b\}, P, S ) \]
 \[ P = \{ S \rightarrow aAB, AB \rightarrow BA, A \rightarrow a, B \rightarrow b \} \]
 
+Derivation of the word "aba":
+\[
+\begin{aligned}
+S &\rightarrow aAB \\
+aAB &\rightarrow aBA \\
+aBA &\rightarrow abA \\
+abA &\rightarrow aba
+\end{aligned}
+\]
 
 \subsection{Type 1: Context-Sensitive Grammars}
 
@@ -50,10 +59,28 @@ Type 1 grammars, or context-sensitive grammars, these grammars do not reduce the
 An example of a context-sensitive grammar is:
 
 \[ G = ( \{S, A, B, C\}, \{a, b, c\}, P, S ) \]
-\[ P = \{ S \rightarrow aABC, AB \rightarrow BA, BC \rightarrow CB, aA \rightarrow aa, bB \rightarrow bb, cC \rightarrow cc \} \]
+\[ P = \{ S \rightarrow abc, S \rightarrow aABC, Ab \rightarrow bA, Ac \rightarrow Bbcc, bB \rightarrow Bb, aB \rightarrow aa, aB \rightarrow aaA \} \]
 
+
+Derivation of the word "aaabbbccc":
+\[
+\begin{aligned}
+S &\rightarrow aAbc \\
+aAbc &\rightarrow abAc \\
+abAc &\rightarrow abBbcc \\
+abBbcc &\rightarrow aBbbcc \\
+aBbbcc &\rightarrow aaAbbcc \\
+aaAbbcc &\rightarrow aabAbcc \\
+aabAbcc &\rightarrow aabbAcc \\
+aabbAcc &\rightarrow aabbBbccc \\
+aabbBbccc &\rightarrow aabBbbccc \\
+aabBbbccc &\rightarrow aaBbbbccc \\
+aaBbbbccc &\rightarrow aaabbbccc
+\end{aligned}
+\]
 
 \subsection{Type 2: Context-Free Grammars}
+\label{subsuc:type2}
 
 Type 2 grammars, or context-free grammars, in these grammars have a specific form: the left-hand side consists of a single non-terminal symbol, and the right-hand side can be any string of terminal and/or non-terminal symbols. This structure allows context-free grammars to generate languages that can be recognized by a pushdown automaton, which is a type of automaton that uses a stack to manage additional information \cite{cit9}. 
 
@@ -61,6 +88,16 @@ An example of a context-free grammar is:
 
 \[ G = ( \{S\}, \{a, b\}, P, S ) \]
 \[ P = \{ S \rightarrow aSb, S \rightarrow ab \} \]
+
+Derivation of the word "aabb":
+\[
+\begin{aligned}
+S &\rightarrow aSb \\
+aSb &\rightarrow aaSbb \\
+aaSbb &\rightarrow aabb
+\end{aligned}
+\]
+
 
 \subsection{Type 3: Regular Grammars}
 
@@ -70,6 +107,17 @@ An example of a regular grammar is:
 
 \[ G = ( \{S\}, \{a, b\}, P, S ) \]
 \[ P = \{ S \rightarrow aS, S \rightarrow b \} \]
+
+Derivation of the word "aaab":
+\[
+\begin{aligned}
+S &\rightarrow aS \\
+aS &\rightarrow aaS \\
+aaS &\rightarrow aaaS \\
+aaaS &\rightarrow aaab
+\end{aligned}
+\]
+
 
 For Type 3 grammars, it is important to understand the concepts of generator and recognizer. A generator is a grammar that defines a language, while a recognizer is an automaton that accepts or rejects strings of that language.
 
@@ -88,7 +136,7 @@ Example:
 \[ G = ( \{S, A, B\}, \{a, b\}, P, S ) \]
 \[ P = \{ S \rightarrow aSb, S \rightarrow ab \} \]
 
-This grammar generates the language of all strings that have the same number of \( a \)'s and \( b \)'s.
+This grammar generates the language of all strings that have the same number of \( a \)'s and \( b \)'s, as we can see in \ref{subsuc:type2}.
 
 \section{Attribute Grammars}
 
@@ -109,7 +157,7 @@ Attribute grammars are used in various applications, such as:
   \item \textbf{Natural Language Processing}: They assist in understanding and processing the syntactic and semantic structure of natural languages.
 \end{itemize}
 
-By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions, making them essential tools in the field of computer science.
+By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions..
 
 \subsection{Synthesized Attributes}
 
@@ -170,7 +218,7 @@ By avoiding circularities, we can guarantee that attribute values can be compute
 
 \section{Attribute Grammars with Constraints}
 
-Attribute grammars can be extended to include constraints on attributes, which can be used to define more complex languages. In this section, we will discuss an example of an attribute grammar with two calculated attributes and permissions, utilizing attribute constraints to define a language \cite{cit6}.
+Attribute grammars can be extended to include constraints on attributes, which can be used to define languages with contextual aspects. In this section, we will discuss an example of an attribute grammar with two calculated attributes and permissions, utilizing attribute constraints to define a language \cite{cit6}.
 
 \subsection{Example Grammar}
 Consider the following context-free grammar \( G \):
@@ -218,13 +266,11 @@ Automata theory is a fundamental area of theoretical computer science that deals
 \subsection{Types of Automata}
 
 \subsubsection{Finite Automata}
-Finite automata (FA) are the simplest type of automata and are used to recognize regular languages. They consist of a finite number of states, transitions between these states, and an input alphabet \cite{cit4}. There are two main types of finite automata:
-\begin{itemize}
-    \item \textbf{Deterministic Finite Automata (DFA)}: Each state has exactly one transition for each symbol in the input alphabet.
-    \item \textbf{Non-deterministic Finite Automata (NFA)}: States can have zero, one, or multiple transitions for each symbol in the input alphabet.
-\end{itemize}
+Finite automata (FA) are  models in computer science used to recognize regular languages, they consist of a finite number of states, transitions between these states, and an input alphabet. When an input string is processed, the automaton transitions through states according to the input symbols. If it ends in an accepting state, the string is recognized as part of the language.
 
-Finite automata are used in text processing, lexical analysis, and network protocols.
+This models are used in various applications such as in text processing, lexical analysis and in network protocols to manage and control the flow of data.
+
+The simplicity and efficiency of finite automata make them useful tools in computer science, as they can provide a clear and structured way to model and solve problems related to pattern recognition and language processing.
 
 \subsubsection{Pushdown Automata}
 Pushdown automata (PDA) are more powerful than finite automata and can recognize context-free languages. They extend finite automata by adding a stack, which provides additional memory. This stack allows PDAs to handle nested structures, such as parentheses in arithmetic expressions or nested loops in programming languages and used in parsing and syntax analysis in compilers \cite{cit5}.
