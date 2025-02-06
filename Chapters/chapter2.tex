@@ -174,6 +174,30 @@ We can define a synthesized attribute \( \text{length} \) that calculates the le
 \[  \text{length}(S) = \text{length}(A) \]
 \[  \text{length}(A \rightarrow aA) = 1 + \text{length}(A) \]
 \[ \text{length}(A \rightarrow b) = 1 \]
+
+Derivation of the word "aaab":
+
+\[S \Rightarrow A , \quad \text{length}(S) = \text{length}(A)\] 
+\[ A \Rightarrow aA , \quad \text{length}(A) = 1 + \text{length}(A)  \]
+\[  aA \Rightarrow aaA , \quad \text{length}(A) = 1 + (1 + \text{length}(A))  \]
+\[  aaA \Rightarrow aaaA , \quad \text{length}(A) = 1 + (1 + (1 + \text{length}(A)))  \]
+\[  aaaA \Rightarrow aaab , \quad \text{length}(A) = 1  \]
+
+
+Back-substituting:
+\[
+\begin{aligned}
+\text{length}(A) &= 1 \\
+\text{length}(A) &= 1 + 1 = 2 \\
+\text{length}(A) &= 1 + 2 = 3 \\
+\text{length}(A) &= 1 + 3 = 4
+\end{aligned}
+\]
+
+Thus, the length of the generated string \( \mathbf{aaab} \) is:
+\[
+\text{length}(S) = 4
+\]
   
 In this example, the attribute \( \text{length} \) is synthesized because it is computed based on the attributes of the children nodes. For the production \( A \rightarrow aA \), the length is calculated by adding 1 to the length of \( A \). For the production \( A \rightarrow b \), the length is simply 1, as \( b \) is a terminal symbol.
 
@@ -192,6 +216,30 @@ We can define an inherited attribute \( \text{prefix} \) that accumulates the pr
 \[ \text{prefix}(A \rightarrow aA) = \text{prefix}(A) + "a" \]
 \[ \text{prefix}(A \rightarrow b) = \text{prefix}(A) + "b" \]
 
+Derivation of the word "aaab":
+
+\[S \Rightarrow A , \quad  \text{prefix}(S) = "" \]
+\[ A \Rightarrow aA , \quad  \text{prefix}(A) = \text{prefix}(A) + "a" \]
+\[  aA \Rightarrow aaA , \quad \text{prefix}(A) = \text{prefix}(A) + "a" \]
+\[  aaA \Rightarrow aaaA , \quad \text{prefix}(A) = \text{prefix}(A) + "a" \]
+\[  aaaA \Rightarrow aaab , \quad  \text{prefix}(A) = \text{prefix}(A) + "b" \]
+
+Back-substituting:
+\[
+\begin{aligned}
+\text{prefix}(S) &= "" \\
+\text{prefix}(A) &= \text{prefix}(S) + "a" = "a" \\
+\text{prefix}(A) &= "a" + "a" = "aa" \\
+\text{prefix}(A) &= "aa" + "a" = "aaa" \\
+\text{prefix}(A) &= "aaa" + "b" = "aaab"
+\end{aligned}
+\]
+
+Thus, the accumulated prefix of the generated string is:
+\[
+\text{prefix}(S) = "aaab"
+\]
+
 In this example, the attribute \( \text{prefix} \) is inherited because it is computed based on the attributes of the parent node. For the production \( A \rightarrow aA \), the prefix is calculated by appending "a" to the prefix of \( A \). For the production \( A \rightarrow b \), the prefix is calculated by appending "b" to the prefix of \( A \).
 
 \subsection{Circularity}
@@ -207,6 +255,18 @@ If we define the attributes such that \( \text{length}(A) \) depends on \( \text
 
 \[ \text{length}(S) = \text{length}(A) \]
 \[ \text{length}(A \rightarrow aA) = 1 + \text{length}(S) \]
+
+Why is this circular?
+
+From rule 1 we have:
+\[ \text{length}(S) = \text{length}(A) \]
+
+From rule 2, if A expands to aA, then: 
+\[ \text{length}(A) = 1 + \text{length}(S) \]
+\[ \text{length}(A) - \text{length}(S) = 1  \]
+\[ 0 = 1  \]
+
+This contradiction means that the attribute computation is circular and unsolvable.
 
 In this example, the attribute \( \text{length}(S) \) depends on \( \text{length}(A) \), and \( \text{length}(A) \) depends on \( \text{length}(S) \), creating a cycle. This circular dependency makes it impossible to compute the values of these attributes.
 

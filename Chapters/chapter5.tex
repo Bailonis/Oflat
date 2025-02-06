@@ -123,7 +123,8 @@ let rec eval = function
   | Add (e1, e2) -> eval e1 + eval e2
 
 (* Usage *)
-let () = Printf.printf "Result of 3 + 4 is %d\n" (eval (Add (Const 3, Const 4)))
+let () = Printf.printf "Result of 3 + 4 is %d\n" 
+(eval (Add (Const 3, Const 4)))
 \end{verbatim}
 
 In this example, the \texttt{eval} function synthesizes the result of an addition expression from its sub-expressions. This approach ensures that each part of the expression is evaluated in a consistent and predictable manner, leveraging the power of OCaml's type system to enforce correctness.
