@@ -64,20 +64,16 @@ Create a collection of interesting pedagogical examples and encode them into a s
 
 Ideally conducted in small increments, concurrently with other tasks. Two months are considered for the production of the final document. It is important to have a near-final version ready two weeks before the submission deadline to facilitate inviting an examiner.
 
-\section{Gantt Chart (Table Representation)}
+\section{Gantt Chart}
 
-\begin{table}[h]
-    \centering
-    \begin{tabular}{|l|c|}
-        \hline
-        \textbf{Task} & \textbf{Weeks} \\
-        \hline
-        OCamlFLAT Library Support & 1 - 8 \\
-        OFLAT Web Application Support & 9 - 14 \\
-        Pedagogical Exercises & 15 \\
-        Evaluation & 16 \\
-        Dissertation Writing & 17 - 24 \\
-        \hline
-    \end{tabular}
-    \caption{Work Plan Timeline}
-\end{table}
+\begin{flushleft}
+    \begin{ganttchart}[hgrid,vgrid]{1}{24}
+        \gantttitle{Work Plan Timeline (Weeks)}{24} \\
+        \gantttitlelist{1,...,24}{1} \\
+        \ganttbar{OCamlFLAT Library}{1}{8} \\
+        \ganttbar{OFLAT Web Application}{9}{14} \\
+        \ganttbar{Pedagogical Exercises}{15}{15} \\
+        \ganttbar{Evaluation}{16}{16} \\
+        \ganttbar{Dissertation Writing}{17}{24}
+    \end{ganttchart}
+\end{flushleft}
