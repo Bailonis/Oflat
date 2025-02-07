@@ -12,3 +12,72 @@
 \label{cha:planning}
 
 
+\section{Introduction}
+
+In this chapter, the work plan for this dissertation is presented, considering a period of 24 weeks (6 months).
+
+The objective of this work is to add support for attribute grammars to the system OCamlFLAT/OFLAT. The implementation work aims to extend existing software, which already includes some relevant elements, such as support for context-free grammars and basic visualization and graphical interaction mechanisms.
+
+\section{Support for Attribute Grammars in the OCamlFLAT Library (8 weeks)}
+
+At the library level, several functionalities are planned:
+
+\begin{itemize}
+    \item Representation of attributes and their calculation rules within grammars.
+    \item Circularity testing of synthesized and inherited attributes in a grammar.
+    \item Calculation of synthesized and inherited attributes on an already constructed derivation tree.
+    \item Calculation of synthesized and inherited attributes during the derivation tree construction of a word, i.e., during parsing.
+    \item Introduction of "conditions" in grammars to use attribute values to restrict the generated language.
+    \item Integration of attribute grammars into the existing support for composite models in the library. This involves attempting various operations on attribute grammars: union, intersection, difference, concatenation, and Kleene closure.
+    \item Integration of grammars into the existing support for pedagogical exercises in the library.
+\end{itemize}
+
+\section{Support for Grammars in the OFLAT Web Application (6 weeks)}
+
+Attribute grammars must be integrated into the existing graphical interface. The additions should have pedagogical features, and some interesting ideas may emerge for the graphical interface.
+
+There is already support for context-free grammars in the graphical application. That part of the code will be duplicated, refactored, and adapted. Understanding and modifying the graphical application code is not a trivial task.
+
+What should be supported in the graphical interface for attribute grammars:
+
+\begin{itemize}
+    \item Visualization.
+    \item Editing.
+    \item Visualization of the results of operations available in the library.
+    \item Visualization of derivation trees annotated with attribute calculations. In a more ambitious version, attribute calculation could be animated.
+    \item Integration into the existing support for composite models in the graphical application.
+\end{itemize}
+
+\section{Pedagogical Exercises (1 week)}
+
+Create a collection of interesting pedagogical examples and encode them into a set of exercises in the format supported by the OCamlFLAT/OFLAT system.
+
+\section{Evaluation (1 week)}
+
+\begin{itemize}
+    \item The correctness of the newly implemented code will be assessed through a set of unit tests, which will be written alongside code development.
+    \item Analyzing the system's limitations by creating examples that pose challenges due to size or execution time.
+    \item Seeking feedback from potential users of the system, particularly regarding the graphical interface. For example, teachers and students of the TC course.
+\end{itemize}
+
+\section{Dissertation Writing (8 weeks)}
+
+Ideally conducted in small increments, concurrently with other tasks. Two months are considered for the production of the final document. It is important to have a near-final version ready two weeks before the submission deadline to facilitate inviting an examiner.
+
+\section{Gantt Chart (Table Representation)}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|c|}
+        \hline
+        \textbf{Task} & \textbf{Weeks} \\
+        \hline
+        OCamlFLAT Library Support & 1 - 8 \\
+        OFLAT Web Application Support & 9 - 14 \\
+        Pedagogical Exercises & 15 \\
+        Evaluation & 16 \\
+        Dissertation Writing & 17 - 24 \\
+        \hline
+    \end{tabular}
+    \caption{Work Plan Timeline}
+\end{table}
