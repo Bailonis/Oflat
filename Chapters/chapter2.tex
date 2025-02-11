@@ -13,7 +13,8 @@ There are two techniques for defining languages that are typically used. The fir
 
 Noam Chomsky (with the help of Marcel-Paul Schützenberger) identified several classes of formal languages, with different levels of specification complexity, requiring computational models with different levels of expressive power to solve the problem of recognizing these languages \cite{cit9}.
 
-There are four levels: type 0, type 1, type 2, and type 3.
+The Chomsky hierarchy involves four levels of language types. Each type of language is associated with a type of generator(grammar) and a type of recognizer(automata).
+
 
 \begin{itemize}
   \item Type 0 — Unrestricted Grammars
@@ -30,17 +31,16 @@ There are four levels: type 0, type 1, type 2, and type 3.
   \label{fig:tese1}
 \end{figure}
 
-The Chomsky hierarchy involves four levels of language types. Each type of language is associated with a type of generator and a type of recognizer.
 
 \subsection{Type 0: Unrestricted Grammars}
 
-Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages \cite{cit9}.
+Type 0 grammars, also known as unrestricted grammars, are the most general class in the Chomsky hierarchy. They have almost no restrictions on their production rules, meaning that any string of symbols can be replaced by any other string of symbols. This flexibility allows Type 0 grammars to generate any language that is recognizable by a Turing machine, making them equivalent in power to Turing machines. In other words, they can describe all recursively enumerable languages \cite{cit9}.
 
 An example of an unrestricted grammar is:
 
 
 \[ G = ( \{S, A, B\}, \{a, b\}, P, S ) \]
-\[ P = \{ S \rightarrow aAB, AB \rightarrow BA, A \rightarrow a, B \rightarrow b \} \]
+\[ P = \{ S \rightarrow aAB, AB \rightarrow BA, A \rightarrow a, B \rightarrow b, B \rightarrow \lambda \} \]
 
 Derivation of the word "aba":
 \[
@@ -91,8 +91,7 @@ consists of a single
 non-terminal symbol, and the right-hand side can be any string 
 of terminal and/or non-terminal symbols. These grammars allows 
 context-free grammars to generate languages that can be 
-recognized by a pushdown automaton, which is a type of automaton 
-that uses a stack to manage additional information \cite{cit9}. 
+recognized by a pushdown automaton \cite{cit9}. 
 
 An example of a context-free grammar is:
 
@@ -141,8 +140,8 @@ This dissertation will focus on a extension of type 2 grammars: Attribute Gramma
 
 Attribute grammars are an extension of context-free 
 grammars that associate attributes with the grammar symbols 
-and define rules for computing these attributes. 
-These attributes provide a way to carry semantic information 
+and define rules for computing these attributes, in addition, add conditions that are boolean expressions using the attributes and are used to restrict the generated language. 
+These features provide a way to carry semantic information 
 through the parse tree, enabling context-sensitive analysis \cite{knuth1968semantics}.
 
 There are two types of attributes:
@@ -152,9 +151,9 @@ There are two types of attributes:
   \item \textbf{Inherited Attributes}: These are computed from the attributes of the parent and/or sibling nodes. They propagate information down and across the tree.
 \end{itemize}
 
-By extending context-free grammars with attributes, attribute grammars enable more powerful and flexible language descriptions. 
-In fact it is easy to integrate contextual aspects into a grammar, often more intuitively than through a monotonic grammar.
-For example, instead of needing 10 rules, we can use an attribute to achieve the same result.
+By extending context-free grammars with attributes and condictions, attribute grammars enable more powerful and flexible language descriptions. 
+In fact, it is easy to integrate contextual aspects into a grammar, often more intuitively than through a monotonic grammar.
+For example, for the language of sequences of 'a's with a length less than or equal to ten, instead of needing 10 rules, we can use an attribute and some condictions to reach the same result.
 
 \subsection{Synthesized Attributes}
 
@@ -172,7 +171,7 @@ We can define a synthesized attribute \( \text{length} \) that calculates the le
 \[  \text{length}(A \rightarrow aA) = 1 + \text{length}(A) \]
 \[ \text{length}(A \rightarrow b) = 1 \]
 
-Derivation of the word "aaab":
+Derivation of the word "aaab" along with the simultaneous computation of the attribute.:
 
 \[S \Rightarrow A , \quad \text{length}(S) = \text{length}(A)\] 
 \[ A \Rightarrow aA , \quad \text{length}(A) = 1 + \text{length}(A)  \]
@@ -196,57 +195,51 @@ Thus, the length of the generated string \( \mathbf{aaab} \) is:
 \text{length}(S) = 4
 \]
   
-In this example, the attribute \( \text{length} \) is synthesized because it is computed based on the attributes of the children nodes. For the production \( A \rightarrow aA \), the length is calculated by adding 1 to the length of \( A \). For the production \( A \rightarrow b \), the length is simply 1, as \( b \) is a terminal symbol.
-
 \subsection{Inherited Attributes}
 
-Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the tree, allowing for context-sensitive analysis \cite{knuth1968semantics}.
+Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the parse tree \cite{knuth1968semantics}.
 
 For example, consider the following grammar:
 
 \[ G = ( \{S, A\}, \{a, b\}, P, S ) \]
 \[ P = \{ S \rightarrow A, A \rightarrow aA | b \} \]
 
-We can define an inherited attribute \( \text{prefix} \) that accumulates the prefix of the generated string. The rules for computing this attribute are as follows:
+We can define an inherited attribute \( \text{word} \) that accumulates the word that is being generated. of the generated string. The rules for computing this attribute are as follows:
 
-\[ \text{prefix}(S) = "" \]
-\[ \text{prefix}(A \rightarrow aA) = \text{prefix}(A) + "a" \]
-\[ \text{prefix}(A \rightarrow b) = \text{prefix}(A) + "b" \]
+\[ \text{word}(S) = "" \]
+\[ \text{word}(A \rightarrow aA) = \text{word}(A) + "a" \]
+\[ \text{word}(A \rightarrow b) = \text{word}(A) + "b" \]
 
 Derivation of the word "aaab":
 
-\[S \Rightarrow A , \quad  \text{prefix}(S) = "" \]
-\[ A \Rightarrow aA , \quad  \text{prefix}(A) = \text{prefix}(A) + "a" \]
-\[  aA \Rightarrow aaA , \quad \text{prefix}(A) = \text{prefix}(A) + "a" \]
-\[  aaA \Rightarrow aaaA , \quad \text{prefix}(A) = \text{prefix}(A) + "a" \]
-\[  aaaA \Rightarrow aaab , \quad  \text{prefix}(A) = \text{prefix}(A) + "b" \]
+\[S \Rightarrow A , \quad  \text{word}(S) = "" \]
+\[ A \Rightarrow aA , \quad  \text{word}(A) = \text{word}(A) + "a" \]
+\[  aA \Rightarrow aaA , \quad \text{word}(A) = \text{word}(A) + "a" \]
+\[  aaA \Rightarrow aaaA , \quad \text{wordx}(A) = \text{word}(A) + "a" \]
+\[  aaaA \Rightarrow aaab , \quad  \text{word}(A) = \text{word}(A) + "b" \]
 
 Back-substituting:
 \[
 \begin{aligned}
-\text{prefix}(S) &= "" \\
-\text{prefix}(A) &= \text{prefix}(S) + "a" = "a" \\
-\text{prefix}(A) &= "a" + "a" = "aa" \\
-\text{prefix}(A) &= "aa" + "a" = "aaa" \\
-\text{prefix}(A) &= "aaa" + "b" = "aaab"
+\text{word}(S) &= "" \\
+\text{word}(A) &= \text{word}(S) + "a" = "a" \\
+\text{word}(A) &= "a" + "a" = "aa" \\
+\text{word}(A) &= "aa" + "a" = "aaa" \\
+\text{word}(A) &= "aaa" + "b" = "aaab"
 \end{aligned}
 \]
 
-Thus, the accumulated prefix of the generated string is:
+Thus, the accumulated word of the generated string is:
 \[
-\text{prefix}(S) = "aaab"
+\text{word}(S) = "aaab"
 \]
-
-In this example, the attribute \( \text{prefix} \) is inherited because it is computed based on the attributes of the parent node. For the production \( A \rightarrow aA \), the prefix is calculated by appending "a" to the prefix of \( A \). For the production \( A \rightarrow b \), the prefix is calculated by appending "b" to the prefix of \( A \).
-
-
 
 
 \subsection{Circularity}
 
 For an attribute grammar to be well-formed, the attributes associated with nonterminals at any node in the parse tree must be evaluable based 
 on the grammar's semantic rules \cite{gordon}. Since non-trivial context-free grammars can generate an infinite number of parse trees, determining 
-well-formedness is a complex task. The primary challenge lies in circular dependencies within the attribute dependency graph. 
+well-formedness is a complex task \cite{knuth1968semantics}. The primary challenge lies in circular dependencies within the attribute dependency graph. 
 For instance, if attribute a1 depends on a2, which in turn depends on a1, neither attribute can be evaluated, leading to an evaluation deadlock.
 
 Consider the following grammar in figure \ref{fig:figure1}
@@ -272,7 +265,7 @@ The dependency graph is constructed by combining the individual dependencies fro
 multiple List↑Value attributes. In this case, the graph contains no circular dependencies, meaning it is well-formed—i.e., all 
 possible parse trees generated by the grammar can be evaluated using the semantic rules. A circular dependency could be introduced by 
 reversing the arrow from Sign↑Neg to Number↑Value and adding an arrow from Sign↑Neg to the lower List↑Value as we can see in the figure bellow. 
-In such a scenario, none of the four attributes forming the cycle could be evaluated. The core challenge in attribute grammars is 
+In such a scenario, none of the four attributes forming the cycle could be evaluated. The challenge in attribute grammars is 
 detecting these cycles within the attribute dependency graph\cite{gordon}.
 
 
@@ -287,8 +280,8 @@ detecting these cycles within the attribute dependency graph\cite{gordon}.
 
 \section{Constrained Attribute Grammars}
 
-Constrained Attribute Grammars (CAG) further enhance attribute grammars by incorporating constraints that capture spatial 
-relationships between symbols \cite{giulia}. This is essential for recognizing multi-dimensional objects, such as mathematical formulas or organizational 
+Constrained Attribute Grammars (CAG) further enhance attribute grammars by incorporating constraints that capture relationships between 
+symbols \cite{giulia}. This is essential for recognizing multi-dimensional objects, such as mathematical formulas or organizational 
 charts, which cannot be easily represented as one-dimensional strings.
 
 Each production rule in a CAG can be divided in three components \cite{giulia}, syntatic part, semantic part, and constraints.
@@ -355,19 +348,16 @@ Finite automata (FA) are  models in computer science used to recognize regular l
 transitions between these states, and an input alphabet, when an input string is processed, the automaton transitions through states 
 according to the input symbols. If it ends in an accepting state, the string is recognized as part of the language.
 
-Due to their simplicity and efficiency, this models can be used in various applications such as in text processing, 
-lexical analysis and in network protocols to manage and control the flow of data.
 
 \subsubsection{Pushdown Automata}
 Pushdown automata (PDA) are more powerful than finite automata and can recognize context-free languages. 
-They extend finite automata by adding a stack, which provides additional memory, this stack allows PDAs to 
-handle nested structures, such as parentheses in arithmetic expressions or nested loops in programming languages and 
-used in parsing and syntax analysis in compilers \cite{cit5}.
+They extend finite automata by adding a stack, which provides additional memory. This stack allows PDAs to 
+handle nested structures, such as parentheses in arithmetic expressions \cite{cit5}.
 
 \subsubsection{Turing Machines}
-Turing machines (TM) are the most powerful type of automata and can recognize recursively enumerable languages, they consist of an infinite tape,
+Turing machines (TM) are the most powerful type of the Chomsky hierarchy and can recognize recursively enumerable languages. They consist of an infinite tape,
  a tape head that can read and write symbols, and a set of states. Turing machines can simulate any algorithm and are used to define the limits 
- of what can be computed and are fundamental in the study of computability and complexity theory \cite{cit5}.
+ of what can be computed and are fundamental in the study of computability \cite{cit5}.
 
 \subsubsection{Linear Bounded Automata}
 Linear bounded automata (LBA) are a type of Turing machine with a tape of limited length proportional to the input size, they recognize 

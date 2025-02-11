@@ -13,9 +13,9 @@
 
 
 The OCamlFLAT library and the OFLAT platform are the main componentsof this thesis, both developed in OCaml.
-They are already in an advanced stage of development, thanks to the work of several students and professorswho have contributed to this project.
+They are already in an advanced stage of development, thanks to the work of several students and professors.
 
-The OCamlFLAT library consists of various modules that make up the logical part of the system, where several FLAT theory models have already been implemented. The OFLAT platform, on the other hand, is a web application that provides the system’s graphical interface.
+The OCamlFLAT library consists of various modules that make up the logical part of the system, where several FLAT theory models have already been implemented. The OFLAT platform, on the other hand, is a web application that provides a pedagogical graphical interface.
 
 
 \section{OCamlFLAT}
@@ -25,9 +25,9 @@ The OCamlFLAT library is organized into modules to ensure a clearer and more str
 
 Some of the most important modules are:
 
-Entity: This module represents the most abstract level of the library. The entities are the exercises and the FLAT models, each containing a type, a description, and a unique ID.
+Entity: This module represents the most abstract level of the library. The entities are the exercises and the FLAT models.
 
-Exercise: This module is responsible for supporting exercises, which are validated using UnitTests. It extends the Entity module, inheriting its properties and methods.
+Exercise: This module is responsible for supporting exercises, which are validated using unit tests extending the Entity module.
 
 Model: An abstract module that also extends Entity and introduces common functionalities to the FLAT models available in the library. Examples of methods included in this module are validate, which checks the validity of a model, and accept, which processes inputs according to the model.
 
@@ -39,9 +39,7 @@ FiniteAutomaton: This module implements the functionalities of a finite automato
 
 ContextFreeGrammar: This module offers the functionalities of a context-free grammar, allowing the definition of production rules and the analysis of strings.
 
-PushdownAutomaton: This module contains the functionalities of a pushdown automaton, which is an extension of finite automata with an additional stack for temporary storage of information.
-
-These modules are designed to work together, forming a robust and flexible library for the implementation and analysis of FLAT theory models.
+PushdownAutomaton: This module contains the functionalities of a pushdown automaton.
 
 \section{OFLAT Platform}
 \label{sec:oflat_platform}
