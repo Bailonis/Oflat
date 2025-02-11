@@ -11,31 +11,53 @@
 \chapter{Technology}
 \label{cha:technology}
 
-\section{Declarative Code in OCaml}
+\section{Programming with OCaml}
 \label{sec:declarative_code_in_ocaml}
-%todo Mudar o 5.1 e juntar o 5.2 - aula 3 ou 4 5 ou 6de lap
-%o codigo fica mais proximo das definiçoes matematicas
-%quem escreve o codigo de forma independente de racicocionios operacionais
-%a tecnica consisqte em dividir o problema a uma versão mais simples
 
-OCaml supports a declarative programming style \cite{silverio2022} , where the focus is on what the program should accomplish rather than how to accomplish it. This approach aligns well with the functional programming paradigm, making the code more readable and maintainable. Declarative code in OCaml allows developers to express their intentions clearly, leading to more concise and understandable programs. By abstracting away the implementation details, developers can focus on the logic and structure of their code, which enhances productivity and reduces the likelihood of errors.
+OCaml is a high-performance, portable functional programming language developed in 1996 by Xavier Leroy, Jérôme Vouillon, Damien Doligez, and Didier Rémy at INRIA in France \cite{manuel}. Like other functional programming languages, OCaml is built around the concept of expressions, meaning computations are performed by evaluating expressions, which in turn produce values.
 
-\section{Functional Declarative Programming}
-\label{sec:functional_declarative_programmin}
-
-Functional programming in OCaml emphasizes the use of pure functions and immutable data. This paradigm supports declarative programming by allowing developers to express computations without side effects. Pure functions, which always produce the same output for the same input and do not modify any state, are a cornerstone of functional programming. Here’s a simple example:
+The example bellow, shows a few examples of OCaml computations along with their corresponding results:
 
 \begin{verbatim}
-(* Example of a declarative function in OCaml *)
-let rec factorial n =
-  if n = 0 then 1
-  else n * factorial (n - 1)
+  # 4 * 2;;
+  - : int = 8
 
-(* Usage *)
-let () = Printf.printf "Factorial of 5 is %d\n" (factorial 5)
+  #let val = 4 + 3 in val + 3;;
+  - : int = 10
 \end{verbatim}
 
-In this example, the \texttt{factorial} function is defined declaratively, specifying what the result should be for each input without describing the steps to compute it imperatively. This approach not only makes the code easier to read and understand but also simplifies debugging and testing, as pure functions are inherently more predictable.
+
+The first example, shows the evaluation of a expression, that produces the value 6. The second one
+the let ...in ... call is being used to locally define val within the expression val + 3.
+
+\subsection{Declarative Programming} 
+
+In functional programming languages like OCaml, the code is often written in a declarative style. 
+Declarative programming focus in describing the logic of a computation rather than controlling its flow,
+this approach offers several advantages, for example by abstracting away the flow of control, the code becomes simpler compared to 
+imperative programming. 
+Additionally, since the code aligns more closely with the underlying concepts of the project, it tends to be more understandable 
+and less prone to logical errors. Although this may come at the cost of efficiency, it benefits the OFLAT platform and OCamlFlat library, 
+where the theoretical concepts involved are complex.
+
+\subsection{Pattern Matching}
+
+One of the aspects of working with OCaml is its pattern-matching capability, 
+since a pattern serves as an expression that defines a set of values, we can use them 
+to match a given value against a pattern to determine whether it belongs to the set of values represented by that pattern. In OCaml, there 
+are various ways to pattern match, as we can see in the example bellow.
+
+\begin{verbatim}
+# List.split;;
+- : ('a * 'b) list -> 'a list * 'b list
+
+# let (x, y) = List.split [(1, 2); (3, 4); (5, 6); (7, 8)];;
+val x : int list = [1; 3; 5; 7]
+val y : int list = [2; 4; 6; 8]
+\end{verbatim}
+
+In this example the function takes a list of pairs and splits it into two separate lists, the x list will have the 'a element in each tuple, 
+and the y list the 'b elements.
 
 
 \section{OCaml/JavaScript Interoperability}
