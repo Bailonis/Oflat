@@ -234,6 +234,70 @@ Thus, the accumulated word of the generated string is:
 \text{word}(S) = "aaab"
 \]
 
+\subsection{Conditions}
+
+Consider the language of strings of the form \(a^n b^n c^n\), where the number of 'a's, 'b's, and 'c's must be equal. 
+A context-free grammar can generate strings with the correct structure but cannot enforce the equal lengths of the sequences \cite{chapter}. 
+But as we saw earlier, we can add conditions to an attribute grammar, ensuring this requirement is met. as we can see in the example below.
+
+\[
+\begin{aligned}
+  \text{<letter\_sequence>} &::= \text{<asequence>} \ \text{<bsequence>} \ \text{<csequence>} \\
+  &\text{condition: Size(<asequence>) = Size(<bsequence>) = Size(<csequence>)} \\
+  \\
+  \text{<asequence>} &::= \text{a} \\
+  &\text{Size(<asequence>)} \leftarrow 1 \\
+  &| \ \text{<asequence>} \ \text{a} \\
+  &\text{Size(<asequence>)} \leftarrow \text{Size(<asequence>)} + 1 \\
+  \\
+  \text{<bsequence>} &::= \text{b} \\
+  &\text{Size(<bsequence>)} \leftarrow 1 \\
+  &| \ \text{<bsequence>} \ \text{b} \\
+  &\text{Size(<bsequence>)} \leftarrow \text{Size(<bsequence>)} + 1 \\
+  \\
+  \text{<csequence>} &::= \text{c} \\
+  &\text{Size(<csequence>)} \leftarrow 1 \\
+  &| \ \text{<csequence>} \ \text{c} \\
+  &\text{Size(<csequence>)} \leftarrow \text{Size(<csequence>)} + 1   
+\end{aligned}
+\] \cite{chapter}
+
+If we now parse the string "aabbcc", we get the following parse tree:
+
+\par
+
+
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=50mm},
+  level 2/.style={sibling distance=25mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {<letter\_sequence>}
+  child {node {<asequence> \\ Size = 2}
+    child {node {a \\ Size = 1}}
+    child {node {a \\ Size = 2}}
+  }
+  child {node {<bsequence> \\ Size = 2}
+    child {node {b \\ Size = 1}}
+    child {node {b \\ Size = 2}}
+  }
+  child {node {<csequence> \\ Size = 2}
+    child {node {c \\ Size = 1}}
+    child {node {c \\ Size = 2}}
+  };
+\end{tikzpicture}
+
+As we can see this tree shows the Size attribute is synthesized up the tree, ensuring that the length of the 'a's, 'b's, and 'c's sequences
+are equal. 
+And then on the root we check the following condition:
+\[
+\text{Size}(\text{<asequence>}) = \text{Size}(\text{<bsequence>}) = \text{Size}(\text{<csequence>})
+\]
+\[
+3 = 3 = 3
+\]
+
 
 \subsection{Circularity}
 
@@ -276,64 +340,6 @@ detecting these cycles within the attribute dependency graph\cite{gordon}.
   \label{fig:figure3}
 \end{figure}
 
-
-
-\section{Constrained Attribute Grammars}
-
-Constrained Attribute Grammars (CAG) further enhance attribute grammars by incorporating constraints that capture relationships between 
-symbols \cite{giulia}. This is essential for recognizing multi-dimensional objects, such as mathematical formulas or organizational 
-charts, which cannot be easily represented as one-dimensional strings.
-
-Each production rule in a CAG can be divided in three components \cite{giulia}, syntatic part, semantic part, and constraints.
-The syntatic part defines the structure of the rule, e.g.,E→E1E2...En. On other side the semantic part specifies how to compute the attributes of the 
-left  side symbol based on the attributes of the right side symbols. Finnaly the constraints establish relationships between input symbols and 
-rule symbols, often expressed in terms of attributes.
-
-The parsing algorithm for CAGs leverages the concepts of keywords and relevance measures to efficiently parse multi-dimensional objects. 
-The algorithm proceeds by selecting the most relevant keyword, applying constraints to partition the input symbols, and recursively parsing 
-the subsets of input symbols corresponding to the non-terminal symbols in the rule \cite{giulia}.
-
-\subsection{Example of a Constrained Attribute Grammar }
-
-Consider a simple CAG for recognition mathematical expressions involving addition and division in figure \ref{fig:figure4}
-
-\begin{figure}[ht]
-  \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{Chapters/Figures/Chapter2/figure4.png}
-  \centering
-  \caption{Production rules fi~r a CAG for simple mathematical expressions \cite{giulia}}
-  \label{fig:figure4}
-\end{figure}
-
-If we do the parsing of the mathematical expression: 3 + 5 / 2
-
-\[
-\begin{aligned}
-S \Rightarrow E, \quad A(S) = A(E) \\
-E \Rightarrow E_1 + E_2, \quad A(E) = A(+) \cup A(E_1) \cup A(E_2) \\
-E_1 \Rightarrow 3, \quad A(E_1) = A(3) \\
-E_2 \Rightarrow E_3 / E_4, \quad A(E_2) = A(/) \cup A(E_3) \cup A(E_4) \\
-E_3 \Rightarrow 5, \quad A(E_3) = A(5) \\
-\quad E_4 \Rightarrow 2, \quad A(E_4) = A(2) \\
-\end{aligned}
-\]
-
-Now, let's back-substitute the attributes:
-
-\[
-\begin{aligned}
-&A(E_4) = A(2) \\
-&A(E_3) = A(5) \\
-&A(E_2) = A(/) \cup A(5) \cup A(2) \\
-&A(E_1) = A(3) \\
-&A(E) = A(+) \cup A(3) \cup (A(/) \cup A(5) \cup A(2)) \\
-\end{aligned}
-\]
-
-Thus, the semantic attributes of the parsed string \(3 + 5 / 2\) are:
-
-\[
-A(S) = A(E) = A(+) \cup A(3) \cup A(/) \cup A(5) \cup A(2)
-\]
 
 
 
