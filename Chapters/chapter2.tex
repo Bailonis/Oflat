@@ -171,7 +171,7 @@ We can define a synthesized attribute \( \text{length} \) that calculates the le
 \[  \text{length}(A \rightarrow aA) = 1 + \text{length}(A) \]
 \[ \text{length}(A \rightarrow b) = 1 \]
 
-Derivation of the word "aaab" along with the simultaneous computation of the attribute.:
+Derivation of the word "aaab" along with the simultaneous computation of the attribute:
 
 \[S \Rightarrow A , \quad \text{length}(S) = \text{length}(A)\] 
 \[ A \Rightarrow aA , \quad \text{length}(A) = 1 + \text{length}(A)  \]
@@ -210,7 +210,7 @@ We can define an inherited attribute \( \text{word} \) that accumulates the word
 \[ \text{word}(A \rightarrow aA) = \text{word}(A) + "a" \]
 \[ \text{word}(A \rightarrow b) = \text{word}(A) + "b" \]
 
-Derivation of the word "aaab":
+Derivation of the word "aaab" along with the simultaneous computation of the attribute:
 
 \[S \Rightarrow A , \quad  \text{word}(S) = "" \]
 \[ A \Rightarrow aA , \quad  \text{word}(A) = \text{word}(A) + "a" \]

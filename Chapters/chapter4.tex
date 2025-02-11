@@ -8,44 +8,71 @@
 
 \typeout{NT FILE chapter4.tex}%
 
-\chapter{OCaml-Flat and OFLAT Systems}
+\chapter{OFLAT/OCaml-Flat}
 \label{cha:ocaml_flat_and_oflat_systems}
 
 
-The OCamlFLAT library and the OFLAT platform are the main componentsof this thesis, both developed in OCaml.
-They are already in an advanced stage of development, thanks to the work of several students and professors.
-
-The OCamlFLAT library consists of various modules that make up the logical part of the system, where several FLAT theory models have already been implemented. The OFLAT platform, on the other hand, is a web application that provides a pedagogical graphical interface.
-
-
-\section{OCamlFLAT}
+\section{OCamlFLAT Overview}
 \label{sec:ocamlflat}
 
-The OCamlFLAT library is organized into modules to ensure a clearer and more structured organization. There are modules that implement models of FLAT theory, such as regular expressions, finite automata, and context-free grammars, as well as auxiliary modules for tests, error handling, and parsers. It is important to note that the modules follow a hierarchical relationship among themselves, which facilitates the maintenance and expansion of the library \cite{OFLAT}.
+This chapter introduces the OFLAT/OCamlFLAT system in its current state. The system comprises two main components: the OFLAT web application,
+which provides a graphical user interface, and OCamlFLAT, the underlying library that handles the system's logic, including all FLAT models and 
+their representations.
 
-Some of the most important modules are:
+OFLAT is an ongoing development at the NOVA-LINCS research center within the Computer Science Department of FCT-UNL, supported by two projects: Factor (Functional ApproaCh Teaching pOrtuguese couRses) and LEAFs. It is implemented in OCaml, utilizing the \texttt{js\_of\_ocaml} and Cytoscape.js 
+libraries. Additionally, it leverages the OCamlFLAT library for logical operations. A screenshot of the OFLAT platform's user interface is shown 
+in Figure \ref{fig:ch4f1}
 
-Entity: This module represents the most abstract level of the library. The entities are the exercises and the FLAT models.
+\begin{figure}[ht]
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{Chapters/Figures/Chapter4/ch4f1.png}
+    \centering
+    \caption{Current Version OFLAT User Interface}
+    \label{fig:ch4f1}
+\end{figure}
 
-Exercise: This module is responsible for supporting exercises, which are validated using unit tests extending the Entity module.
+It supports working with a wide range of previously introduced language models, covering all types defined by Chomsky. This tool serves as 
+a valuable resource for students as a study aid and for educators as a teaching tool worldwide. Its intuitive graphical interface distinguishes
+it from most other tools discussed in this document, many of which are outdated and lack modern or functional graphical interfaces.
 
-Model: An abstract module that also extends Entity and introduces common functionalities to the FLAT models available in the library. Examples of methods included in this module are validate, which checks the validity of a model, and accept, which processes inputs according to the model.
+This section provides a detailed examination of the internal workings of OFLAT and the libraries it relies on.
+\section{OFLAT User Interface}
 
-Examples of modules that represent FLAT models and extend Model include:
+The OFLAT User Interface (UI) is primarily divided into two main sections: the workspace and the sidebar (as shown in Figure \ref{fig:ch4f2} ).
 
-RegularExpression: This module contains all the functionalities needed to work with regular expressions, allowing the definition and manipulation of these expressions.
+\begin{figure}[ht]
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{Chapters/Figures/Chapter4/ch4f2.png}
+    \centering
+    \caption{OFLAT User Interface Division. Red - Sidebar, Blue - Workspace}
+    \label{fig:ch4f2}
+\end{figure}
 
-FiniteAutomaton: This module implements the functionalities of a finite automaton, including the definition of states and transitions.
+The sidebar contains buttons for creating and editing models within the workspace. Additionally, it provides access to key operations 
+such as conversions and word acceptance. Alongside the About, Feedback, Language, and Settings buttons, there is also an Examples tab, 
+which features a scrollable list of exercises and examples curated by the OFLAT development team. These examples allow users to test their 
+knowledge or learn through guided practice.
 
-ContextFreeGrammar: This module offers the functionalities of a context-free grammar, allowing the definition of production rules and the analysis of strings.
+The workspace section serves as the main area where users can visualize and interact with their chosen models. Depending on the 
+selected model, a set of relevant buttons appears at the top of the workspace, offering access to specific operations. The workspace layout 
+is illustrated in Figure \ref{fig:ch4f3}.
 
-PushdownAutomaton: This module contains the functionalities of a pushdown automaton.
 
-\section{OFLAT Platform}
-\label{sec:oflat_platform}
+\begin{figure}[ht]
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{Chapters/Figures/Chapter4/ch4f3.png}
+    \centering
+    \caption{Workspace Closeup}
+    \label{fig:ch4f3}
+\end{figure}
 
-The OFLAT platform is an online graphical tool designed for the modeling and analysis of formal language concepts. It provides an intuitive and interactive environment where users can create and manipulate various computational models. The interface consists of a static menu on the left sidebar and a dynamic workspace on the right, which updates based on the selected options.
+However, when displaying a model specification or visualizing an exercise, the workspace splits into two sections. The model remains 
+on the left side, while a window opens on the right, displaying the specification or exercise, creating the previously mentioned split 
+(as shown in Figure \ref{fig:ch4f4}). This layout allows users to view both elements simultaneously, making it easier to correlate them with minimal effort.
 
-OFLAT supports the creation and exploration of multiple formal models, including finite automata, pushdown automata, and Turing machines. Users can visually construct these models, define states and transitions, and analyze their properties. The platform offers built-in tools for checking determinism, minimizing models, and identifying structural properties, making it a valuable resource for both learning and research.
+\begin{figure}[ht]
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{Chapters/Figures/Chapter4/ch4f4.png}
+    \centering
+    \caption{Workspace Window Split}
+    \label{fig:ch4f4}
+\end{figure}
 
-By offering a user-friendly graphical interface, OFLAT helps users experiment with formal languages and computation theory concepts in an accessible way. It is designed to be an educational tool that simplifies complex theoretical concepts through visual representation and interactive manipulation.
+This feature is particularly beneficial for exercises where step-by-step visualization—such as word acceptance—helps users identify and 
+correct potential errors in their input model.

@@ -16,19 +16,28 @@
 
 OCaml is a high-performance, portable functional programming language developed in 1996 by Xavier Leroy, Jérôme Vouillon, Damien Doligez, and Didier Rémy at INRIA in France \cite{manuel}. Like other functional programming languages, OCaml is built around the concept of expressions, meaning computations are performed by evaluating expressions, which in turn produce values.
 
-The example bellow, shows a few examples of OCaml computations along with their corresponding results:
+The example bellow, shows a few examples of OCaml computations:
 
 \begin{verbatim}
-  # 4 * 2;;
-  - : int = 8
+  (Definition of the binary tree type)
+  # type tree = Node of int * tree * tree | Nil;;
+  - : type tree = Node of int * tree * tree | Nil
 
-  #let val = 4 + 3 in val + 3;;
-  - : int = 10
+
+  (Definition of a variable that contains a tree)
+  # let t : tree = Node(1, Nil, Node(2, Nil, Nil));;
+  - : val t : tree = Node(1, Nil, Node(2, Nil, Nil));;
+  
+  (Creation of a function that calculates the height of a tree)
+  # let rec height t =
+    match t with
+    | Nil -> 0
+    | Node(_,l,r) ->
+           1 + max (height l) (height r)
+  ;;
+- : val height : 'tree -> int *
 \end{verbatim}
 
-
-The first example, shows the evaluation of a expression, that produces the value 6. The second one
-the let ...in ... call is being used to locally define val within the expression val + 3.
 
 \subsection{Declarative Programming} 
 
@@ -40,24 +49,6 @@ Additionally, since the code aligns more closely with the underlying concepts of
 and less prone to logical errors. Although this may come at the cost of efficiency, it benefits the OFLAT platform and OCamlFlat library, 
 where the theoretical concepts involved are complex.
 
-\subsection{Pattern Matching}
-
-One of the aspects of working with OCaml is its pattern-matching capability, 
-since a pattern serves as an expression that defines a set of values, we can use them 
-to match a given value against a pattern to determine whether it belongs to the set of values represented by that pattern. In OCaml, there 
-are various ways to pattern match, as we can see in the example bellow.
-
-\begin{verbatim}
-# List.split;;
-- : ('a * 'b) list -> 'a list * 'b list
-
-# let (x, y) = List.split [(1, 2); (3, 4); (5, 6); (7, 8)];;
-val x : int list = [1; 3; 5; 7]
-val y : int list = [2; 4; 6; 8]
-\end{verbatim}
-
-In this example the function takes a list of pairs and splits it into two separate lists, the x list will have the 'a element in each tuple, 
-and the y list the 'b elements.
 
 
 \section{OCaml/JavaScript Interoperability}
@@ -81,83 +72,53 @@ This tool consists of three main components:
 \subsection{JavaScript Types}
 \label{ssec:javaScript_types}
 
-Types in OCaml and JavaScript are not represented in the same way in both languages. For example, a string in OCaml is a mutable array of bytes, whereas in JavaScript, strings are constant arrays of UTF-16 code points. Therefore, it is necessary to find a way to represent JavaScript types in OCaml appropriately. The table below illustrates the correspondences between the types in the two languages.
+Types in OCaml and JavaScript are not represented in the same way in both languages. For example, a string in OCaml is a mutable array 
+of bytes, whereas in JavaScript, strings are constant arrays of UTF-16 code points. Therefore, it is necessary to find a way to represent 
+JavaScript types in OCaml appropriately. The table below illustrates the correspondences between the types in the two languages.
 
-To ensure effective interoperability, it is crucial to understand how each type is handled in OCaml and JavaScript. For instance, besides strings, other types such as numbers, arrays, and objects also have distinct representations. In OCaml, integers and floating-point numbers are treated differently compared to JavaScript, where all numbers are essentially floating-point. Arrays in OCaml are mutable, while in JavaScript, arrays can be either mutable or immutable, depending on the context.
+To ensure effective interoperability, it is crucial to understand how each type is handled in OCaml and JavaScript. For instance, 
+besides strings, other types such as numbers, arrays, and objects also have distinct representations. In OCaml, integers 
+and floating-point numbers are treated differently compared to JavaScript, where all numbers are essentially floating-point. 
+Arrays in OCaml are mutable, while in JavaScript, arrays can be either mutable or immutable, depending on the context.
 
 
 \subsection{Bindings}
 \label{ssec:bindings}
 
+Bindings are present in both the libraries within the \textit{js\_of\_ocaml} environment and the OFLAT code itself. They allow the 
+connection between two different programming languages, enabling the use of a library foreign to one of them.  
 
-
-The existence and creation of bindings in \texttt{js\_of\_ocaml} facilitate the seamless integration of JavaScript code and libraries within the OCaml programming environment, ensuring type safety throughout the process. This powerful feature allows developers to leverage the extensive ecosystem of JavaScript while maintaining the robust type-checking capabilities of OCaml.
-
-Although \texttt{js\_of\_ocaml} already includes a plethora of useful bindings, developers are not limited to these pre-existing options. It remains entirely feasible to create new bindings tailored to specific project needs, thereby enabling interaction with a wide array of additional JavaScript libraries and objects. This flexibility is particularly advantageous for projects that require the integration of specialized JavaScript functionalities or the utilization of cutting-edge libraries that may not yet be covered by the existing bindings.
-
-By creating custom bindings, developers can ensure that their OCaml applications can interact with the latest JavaScript technologies, thereby enhancing the functionality and versatility of their projects. This approach broadens the scope of what can be achieved with \texttt{js\_of\_ocaml} and empowers developers to innovate and adapt to the ever-evolving landscape of web development
-
+Primarily, \textit{js\_of\_ocaml} manages bindings by assigning JavaScript objects a distinct OCaml object type. This type is defined 
+as \texttt{<m\textsubscript{1} : t\textsubscript{1}; ...; m\textsubscript{n} : t\textsubscript{n}> Js.t}, where $m_i$ represents a 
+field of the JavaScript object and $t_i$ its corresponding type.
 
 
 \subsection{\texttt{js\_of\_ocaml} Modules}
 \label{ssec:js_of_ocaml_modules}
 
-The \texttt{js\_of\_ocaml} library already includes several modules with predefined bindings, but only a few are necessary for the development of the OFLAT platform. 
+The interoperability between OCaml and JavaScript is handled by the \textit{js\_of\_ocaml} compiler in different ways. 
+Within the compiler, the \texttt{Js} module exists to manipulate JavaScript values (such as strings, booleans, null, and undefined values) 
+from OCaml and to perform conversions between the two languages. For example, the type \texttt{'a Js.opt} represents values that are 
+either \texttt{null} or of type \texttt{'a}.  
 
-Below are some examples of these modules and submodules:
+Additionally, this module includes another important module: \texttt{Js.Unsafe}. It provides a collection of unsafe JavaScript operations, 
+ranging from type coercion to setting, getting, and deleting object properties. These operations are very powerful and should ideally be 
+used sparingly across the project. However, in some cases, their use may be necessary. By creating bindings and ensuring proper typing, 
+most of these calls can be avoided.  
 
-
-\begin{itemize}
-    \item Js Module: This module contains definitions of JavaScript types, functions for standard JavaScript objects, and conversion functions between OCaml and JavaScript types. It is essential for ensuring interoperability between the two languages.
-    \item Js.Unsafe Submodule: This submodule allows for operations on JavaScript that are not safe, offering greater flexibility but requiring extra caution to avoid errors and vulnerabilities.
-    \item \texttt{Dom\_html} Module: Defines and manipulates HTML DOM elements, enabling the creation and modification of HTML structures directly from OCaml code. This module is crucial for building the graphical interface of the platform.
-    \item Firebug Module: Allows for the visualization and debugging of objects in the browser's developer console, facilitating the development and debugging process.
-
-\end{itemize}
-
-\section{Representation in OCaml}
-\label{sec:representation_in_ocaml}
-
-When working with OCaml and JavaScript interoperability, understanding how to represent various attributes is crucial. OCaml uses synthesized and inherited attributes to manage data and behavior in a structured way. These attributes play a significant role in the language's type system and its ability to enforce strong type safety.
-
-\subsection{Synthesized Attributes}
-\label{ssec:synthesized_attributes}
-
-These are attributes computed from the values of other attributes. For example, in a syntax tree, the type of an expression might be synthesized from the types of its sub-expressions. Synthesized attributes help in propagating information upwards in a hierarchical structure, ensuring that each node has the necessary context to perform its operations.
-
-\subsection{Inherited Attributes}
-\label{ssec:inherited_attributes}
-
-These are attributes passed down from parent nodes to child nodes in a structure. For instance, the scope information in a syntax tree can be inherited from parent nodes to ensure proper variable resolution. Inherited attributes facilitate the flow of information downwards, providing child nodes with the context they need to function correctly.
-
-\subsection{Rules}
-\label{ssec:rules}
-
-The rules define how attributes are calculated. They consist of a head, which specifies the attribute being computed, and a body, which describes the computation. These rules are essential for maintaining consistency and correctness in the representation of data.
-
-Here’s a simple example to illustrate these concepts:
-
-\begin{verbatim}
-(* Example of synthesized and inherited attributes in OCaml *)
-type expr =
-  | Const of int
-  | Add of expr * expr
-
-(* Function to evaluate an expression with synthesized attributes *)
-let rec eval = function
-  | Const n -> n
-  | Add (e1, e2) -> eval e1 + eval e2
-
-(* Usage *)
-let () = Printf.printf "Result of 3 + 4 is %d\n" 
-(eval (Add (Const 3, Const 4)))
-\end{verbatim}
-
-In this example, the \texttt{eval} function synthesizes the result of an addition expression from its sub-expressions. This approach ensures that each part of the expression is evaluated in a consistent and predictable manner, leveraging the power of OCaml's type system to enforce correctness.
+The \texttt{Js} module is one of several modules included in the libraries that come with the compiler. Other key modules worth mentioning 
+are \texttt{Dom}, which serves as a partial binding to the DOM Core API; \texttt{Dom\_html}, which acts as a partial binding to the DOM 
+HTML API; and the \texttt{Firebug} module, which provides a debugging console for development.
 
 
-
-\section{Cytoscape}
+\section{Cytoscape.js}
 \label{sec:Cytoscape}
 
-Cytoscape is an open-source software platform that, although initially designed for biological research, is now a general tool for graph visualization and analysis \cite{cytoscape}. In this project, the OFLAT platform is used to visualize the various models supported by the application. To use this library, it is necessary to create bindings for OCaml/JavaScript interoperability.
+Cytoscape.js is an open-source graph theory library written in JavaScript that enables the manipulation of graphs. 
+It functions as a standalone JavaScript library and utilizes HTML5 canvases for rendering its visualization components.
+
+In OFLAT, Cytoscape.js is primarily used for the graphical representation of automata through nodes and edges. 
+Additionally, it is notably used whenever OFLAT needs to display a tree (important in the scope of context-free grammars). 
+
+With this library, users can perform various operations on the displayed automaton, such as creating new states and transitions, 
+allowing for interactive manipulation of the model.
