@@ -16,26 +16,30 @@
 
 OCaml is a high-performance, portable functional programming language developed in 1996 by Xavier Leroy, Jérôme Vouillon, Damien Doligez, and Didier Rémy at INRIA in France \cite{manuel}. Like other functional programming languages, OCaml is built around the concept of expressions, meaning computations are performed by evaluating expressions, which in turn produce values.
 
-The example below, shows a few examples of OCaml computations:
+The example below, shows a few examples of OCaml code:
 
 \begin{verbatim}
-  (Definition of the binary tree type)
+  (* Definition of the binary tree type *)
   # type tree = Node of int * tree * tree | Nil;;
   - : type tree = Node of int * tree * tree | Nil
 
 
-  (Definition of a variable that contains a tree)
+  (* Definition of a variable that represents a tree *)
   # let t : tree = Node(1, Nil, Node(2, Nil, Nil));;
   - : val t : tree = Node(1, Nil, Node(2, Nil, Nil));;
   
-  (Creation of a function that calculates the height of a tree)
+  (* Function that calculates the height of a tree *)
   # let rec height t =
     match t with
     | Nil -> 0
     | Node(_,l,r) ->
            1 + max (height l) (height r)
   ;;
-- : val height : 'tree -> int *
+  - : val height : 'tree -> int *
+
+  (* Calling the fuction *)
+  # height t;;
+  - : int = 2
 \end{verbatim}
 
 

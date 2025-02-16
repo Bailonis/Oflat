@@ -8,18 +8,57 @@
 
 \typeout{NT FILE chapter4.tex}%
 
-\chapter{OFLAT/OCaml-Flat}
+\chapter{OCamlFLAT/OFLAT}
 \label{cha:ocaml_flat_and_oflat_systems}
 
+\section{OCamlFLAT}
 
-\section{OCamlFLAT Overview}
+The OCamlFLAT library is organized into modules to ensure a clearer and more structured
+organization. There are modules that implement models of FLAT theory, such as regular
+expressions, finite automata, and context-free grammars, as well as auxiliary modules
+for tests, error handling, and parsers. It is important to note that the modules follow
+a hierarchical relationship among themselves, which facilitates the maintenance and
+expansion of the library.
+
+Some of the most important modules are:
+
+Entity: This module represents the most abstract level of the library. The entities are
+the exercises and the FLAT models, each containing a type, a description, and a unique
+ID.
+
+Exercise: This module is responsible for supporting exercises, which are validated
+using UnitTests. It extends the Entity module, inheriting its properties and methods.
+
+Model: An abstract module that also extends Entity and introduces common function-
+alities to the FLAT models available in the library. Examples of methods included in this
+
+module are validate, which checks the validity of a model, and accept, which processes
+inputs according to the model.
+
+Examples of modules that represent FLAT models and extend Model include:
+
+RegularExpression: This module contains all the functionalities needed to work with
+regular expressions, allowing the definition and manipulation of these expressions.
+
+FiniteAutomaton: This module implements the functionalities of a finite automaton,
+including the definition of states and transitions.
+
+ContextFreeGrammar: This module offers the functionalities of a context-free grammar,
+allowing the definition of production rules and the analysis of strings.
+
+PushdownAutomaton: This module contains the functionalities of a pushdown au-
+tomaton, which is an extension of finite automata with an additional stack for temporary
+storage of information.
+
+
+\section{OFLAT Overview}
 \label{sec:ocamlflat}
 
 This chapter introduces the OFLAT/OCamlFLAT system in its current state. The system comprises two main components: the OFLAT web application,
 which provides a graphical user interface, and OCamlFLAT, the underlying library that handles the system's logic, including all FLAT models and 
 their representations.
 
-OFLAT is an ongoing development at the NOVA-LINCS research center within the Computer Science Department of FCT-UNL, supported by two projects: Factor (Functional ApproaCh Teaching pOrtuguese couRses) and LEAFs \cite{amd}. It is implemented in OCaml, utilizing the \texttt{js\_of\_ocaml} and Cytoscape.js 
+OFLAT is an ongoing development at the NOVA-LINCS research center within the Computer Science Department of FCT-UNL, at the beginning was supported by two projects: Factor (Functional ApproaCh Teaching pOrtuguese couRses) and LEAFs \cite{amd}. It is implemented in OCaml, utilizing the \texttt{js\_of\_ocaml} and Cytoscape.js 
 libraries. Additionally, it leverages the OCamlFLAT library for logical operations. A screenshot of the OFLAT platform's user interface is shown 
 in Figure \ref{fig:ch4f1}
 
@@ -63,7 +102,7 @@ is illustrated in Figure \ref{fig:ch4f3}.
     \label{fig:ch4f3}
 \end{figure}
 
-However, when displaying a model specification or visualizing an exercise, the workspace splits into two sections. The model remains 
+However, when displaying the result of an operation or visualizing an exercise, the workspace splits into two sections. The original remains 
 on the left side, while a window opens on the right, displaying the specification or exercise, creating the previously mentioned split 
 (as shown in Figure \ref{fig:ch4f4}). This layout allows users to view both elements simultaneously, making it easier to correlate them with minimal effort.
 
@@ -74,5 +113,3 @@ on the left side, while a window opens on the right, displaying the specificatio
     \label{fig:ch4f4}
 \end{figure}
 
-This feature is particularly beneficial for exercises where step-by-step visualization—such as word acceptance—helps users identify and 
-correct potential errors in their input model.
