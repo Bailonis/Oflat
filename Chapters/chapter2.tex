@@ -142,7 +142,7 @@ Attribute grammars are an extension of context-free
 grammars that associate attributes with the grammar symbols 
 and define rules for computing these attributes, in addition, add conditions that are boolean expressions using the attributes and are used to restrict the generated language. 
 These features provide a way to carry semantic information 
-through the parse tree, enabling context-sensitive analysis \cite{knuth1968semantics}.
+through the parse tree, enabling context-sensitive analysis \cite{cit5}.
 
 There are two types of attributes:
 
@@ -157,7 +157,7 @@ For example, for the language of sequences of 'a's with a length less than or eq
 
 \subsection{Synthesized Attributes}
 
-Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node \cite{knuth1968semantics}.
+Synthesized attributes are computed from the attributes of the children of a node in the derivation tree. These attributes propagate information up the tree, allowing for the evaluation of properties that depend on the structure of the subtree rooted at a particular node \cite{cit5}.
 
 For example, consider the following grammar:
 
@@ -197,7 +197,7 @@ Thus, the length of the generated string \( \mathbf{aaab} \) is:
   
 \subsection{Inherited Attributes}
 
-Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the parse tree \cite{knuth1968semantics}.
+Inherited attributes are passed from parent nodes to child nodes in the derivation tree. These attributes propagate information down and across the parse tree \cite{cit5}.
 
 For example, consider the following grammar:
 
@@ -265,7 +265,7 @@ But as we saw earlier, we can add conditions to an attribute grammar, ensuring t
 
 If we now parse the string "aabbcc", we get the following parse tree:
 
-
+\vspace{1cm}
 
 \begin{tikzpicture}[
   level 1/.style={sibling distance=50mm},
@@ -288,6 +288,8 @@ If we now parse the string "aabbcc", we get the following parse tree:
   };
 \end{tikzpicture}
 
+\vspace{1cm}
+
 As we can see this tree shows the Size attribute is synthesized up the tree, ensuring that the length of the 'a's, 'b's, and 'c's sequences
 are equal. 
 And then on the root we check the following condition:
@@ -303,7 +305,7 @@ And then on the root we check the following condition:
 
 For an attribute grammar to be well-formed, the attributes associated with nonterminals at any node in the parse tree must be evaluable based 
 on the grammar's semantic rules \cite{gordon}. Since non-trivial context-free grammars can generate an infinite number of parse trees, determining 
-well-formedness is a complex task \cite{knuth1968semantics}. The primary challenge lies in circular dependencies within the attribute dependency graph. 
+well-formedness is a complex task \cite{cit5}. The primary challenge lies in circular dependencies within the attribute dependency graph. 
 For instance, if attribute a1 depends on a2, which in turn depends on a1, neither attribute can be evaluated, leading to an evaluation deadlock.
 
 Consider the following grammar in figure \ref{fig:figure1}
