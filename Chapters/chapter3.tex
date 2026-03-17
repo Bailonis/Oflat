@@ -12,7 +12,7 @@
 \chapter{Grammar Tools}
 \label{cha:grammar_tools}
 
-The tools for FLAT aimed at automata can be classified into two major categories:
+The tools for FLAT can be classified into two major categories:
 text-based automaton simulators and graphical interface-based automaton simulators. 
 The first involves specifying a model through structured text, which must be processed using a parser, the second uses a graphical 
 interface that allows creating, editing, and using an automaton to recognize words
@@ -22,47 +22,94 @@ such as finite automata, pushdown automata, and Turing machines.
 There are also tools that deal with regular expressions and grammars, and in such cases, it is 
 common for conversion operations to be available between automata and vice versa.
 
-Next, some pedagogical tools are presented and classified according to the indicators described above, i.e., 
+While \emph{attribute grammars} extend CFGs with synthesized/inherited attributes to capture context-sensitive semantics 
+(e.g., type information, name binding), the ecosystem lacks a JFLAP/CGM-style, classroom-ready GUI for experimenting with them. 
+Available AG toolchains such as \textit{ANTLR} and \textit{YACC} are powerful and used in compiler research, but they expect 
+research to write attribute equations/specifications rather than manipulate structures visually; thus they are not aimed at introductory FLAT workflows. 
+
+Next, some tools are presented and classified according to the indicators described above, i.e., 
 whether they are text-based tools or graphical interface-based tools; whether they implement only one type of 
 automaton or multiple types, and whether they support regular expressions and grammars.
-We will discuss three such tools: \textbf{JFLAT}, \textbf{ANTLR}, and \textbf{CGM}.
-\section{JFLAT}
+We will discuss three such tools: \textbf{JFLAP}, \textbf{CGM}, \textbf{ANTLR}, and \textbf{YACC}.
 
-JFLAT (Java Formal Languages and Automata Toolkit) is a versatile tool designed for experimenting with formal languages, 
-it supports various computational models, including finite automata, pushdown automata, Turing machines, and different types 
-of grammars this tool also provides a comprehensive environment for users to explore and understand the theoretical foundations 
-of computer science. JFLAT offers several key features that enhance its utility as an educational tool as it allows users to create 
-and visualize the computational models helping students better understand the structure and behaviour of the same models. This tool 
-supports the conversion between different forms of automata. Additionally, JFLAT includes parsing capabilities 
-for various types of grammars, enabling users to experiment with context-free grammars and other formal language constructs.
+\section{JFLAP} 
 
-JFLAT also provides educational benefits by offering a visual and interactive approach to learning complex concepts, 
-as it have the ability to visualize automata and grammars helping users to gain a deeper understanding of theoretical 
-concepts through hands-on experimentation, develop problem-solving skills by working through practical exercises and projects. 
-Examples of exercises and projects include creating and testing finite automata to recognize specific patterns or languages, 
-designing and parsing context-free grammars to explore the syntax and structure of programming languages.
+\textit{JFLAP} (Java Formal Languages and Automata Package) is a long-running teaching tool developed at Duke University under 
+Susan H. Rodger that lets students \emph{build}, \emph{visualize}, and \emph{experiment} with core models from formal languages 
+and automata theory. 
+In practice, it covers nondeterministic finite automata (NFA/DFA), nondeterministic pushdown automata (PDA), multi-tape Turing 
+machines, several classes of grammars, parsing, and even L-systems—all through a point and click interface. 
+
+JFLAP is useful when we move beyond drawing states and arrows and use the built-in \emph{construction} and \emph{proof} helpers. 
+For regular languages, you can take a regular expression, generate an $\varepsilon$-NFA, convert to a DFA, minimize it, and then 
+push the result back to an equivalent regular expression or regular grammar; the intermediate steps are visible and repeatable. 
+For context-free languages, you can work with CFGs and PDAs and run the standard transformations between them; 
+these were emphasized in the Duke materials that originally motivated JFLAP's design. 
+On the Turing side, the tool supports single-tape and multi-tape machines (2 to 5 tapes) and provides a clear step through view of 
+each head, making classic exercises (e.g., $L={a^n b^n c^n}$ with three tapes) far less opaque to learners. 
+
+Given the expression $(ab \mid ba)^*$, users can: 
+(i) enter the RE in JFLAP's RE editor; 
+(ii) auto-generate an $\varepsilon$-NFA; 
+(iii) convert to a DFA; 
+(iv) minimize; and 
+(v) optionally convert the minimized DFA back to an RE for a check of equivalence. 
+
+\section{CGM}
+
+\textit{CGM} (Context-Free Grammar Manipulator) is a lightweight, GUI-based environment from the University of Porto for experimenting with 
+\emph{context-free grammars} (CFGs).
+ It targets classroom use: users can (i) edit a CFG and compile it; (ii) transform it to CNF with the usual clean-ups (remove $\epsilon$-rules, unit 
+ rules, and useless symbols, then binarize productions); (iii) parse input strings; and (iv) construct and inspect parse trees.
+
+This tool implements a bottom-up \emph{CYK} parser: it first converts the user grammar to CNF, then fills a dynamic-programming 
+table $N[i,j]$ with the nonterminals that derive each substring, and finally reconstructs \emph{all} parse trees from that table.
+
+The \emph{Grammar Editor} is text-centric, infers terminals/nonterminals from rules, lets users set the start symbol from the current 
+rule, and supports configurable special symbols. 
+Grammars persist as \texttt{.cgm} files (Python \emph{shelve}); CNF conversion can be triggered from the menu. 
+The \emph{Parse Tree Editor} (FloatCanvas) has separate \emph{view} and \emph{edit} modes: zoom, expand/collapse subtrees, 
+cycle through alternative subtrees when ambiguity is present, and save/load or export trees.
+
+Using the standard “balanced parentheses” grammar $S \to (S)\mid SS\mid \epsilon$, CGM will both \emph{accept} strings like 
+\texttt{()(())} and, crucially for teaching, \emph{display} distinct parse trees whenever the grammar is ambiguous (as it is here). 
+Watching the editor step through CYK's table and then toggling the alternative subtrees makes the source of ambiguity visible 
+instead of abstract.
 
 \section{ANTLR}
 
-ANTLR (ANother Tool for Language Recognition) is a parser generator used for reading, processing, and 
-translating structured text or binary files, it offers several notable features, including the ability to generate parsers, 
-lexers, and tree parsers from grammars, facilitating the creation of language processors. It  also supports multiple programming 
-languages, making it versatile for various development environments and also can be used to build languages, interpreters, compilers, 
-and other language-related frameworks.
 
-This tool helps users understand the principles of syntax analysis and parsing, building parsers and compilers, and exploring the language 
-design and implementation. ANTLR can be used in various educational projects and assignments, such as creating parsers for custom programming 
-languages, building simple compilers to learn about the different stages of compilation, and developing domain-specific languages
-to appreciate the practical applications of the tool in real-world scenarios.
 
-\section{CGM: Context-Free Grammar Manipulator}
+\textit{ANTLR} (ANother Tool for Language Recognition) is a production-grade parser generator used to build parsers, 
+lexers, and tree walkers from declarative grammars. From a single \texttt{.g4} file, ANTLR emits target-language code and a 
+parser that constructs parse trees, with optional \emph{listener} and \emph{visitor} APIs for deterministic tree processing. 
+It is widely used to implement domain-specific languages, query languages, configuration readers, and full compilers/interpreters 
+in industry settings.
 
-CGM (Context-Free Grammar Manipulator) is a tool developed at the University of Porto designed to assist in the manipulation and 
-study of context-free grammars. It provides a graphical environment for editing grammars, converting them to Chomsky normal form, 
-parsing words, and constructing parse trees interactively, it offers several key functionalities, including grammar editing, Chomsky 
-normal form conversion, and the ability to parse words and visualize the corresponding parse trees, aiding in the understanding of grammar 
-structures.
+ANTLR4 supports multiple code generation targets so users can integrate generated parsers directly into their existing stacks. 
+Official distributions and runtimes are available for each target, and IDE/build tooling (e.g., IntelliJ/Eclipse plugins, Maven/Gradle) makes it straightforward to incorporate into CI.23 
 
-CGM helps users to visualize the structure and operation of context-free grammars, experiment with different grammar configurations to 
-see how changes affect parsing and parse tree construction, and develop a deeper understanding of the concepts of grammar rules, 
-parsing, and syntax trees. 
+In daily use, users (i) write a grammar, (ii) generate the lexer/parser, and (iii) attach behaviour by implementing either the \emph{listener} pattern (event callbacks on enter/exit of rules via a tree walker) or the \emph{visitor} pattern (explicit, return-value-oriented traversal).
+
+
+\section{YACC} 
+
+\textit{Yacc} (Yet Another Compiler-Compiler) is a classic Unix parser generator that takes a context-free grammar annotated with
+semantic and produces a bottom-up \emph{LALR(1)} shift-reduce parser. In practice, Yacc is paired with a lexical analyzer, 
+the scanner turns characters into tokens, and the generated parser organizes those tokens according to the grammar and executes 
+user supplied actions to build trees, emit IR, or report errors. 
+
+Yacc's input file is divided into \emph{declarations}, \emph{grammar rules}, and \emph{auxiliary C code}; tokens, precedence, 
+and associativity are declared up front, grammar productions come with inline C actions using the familiar \verb|$$|/\verb|$i| 
+value notations, and helper functions live at the end. The generated parser is a C function (\texttt{yyparse}) that repeatedly 
+invokes the scanner (\texttt{yylex}) and applies reductions; common operator ambiguities are resolved declaratively 
+with \verb|%left|, \verb|%right|, \verb|%nonassoc|, and per‑rule \verb|%prec| to assign precedence and associativity. 
+
+This tool is well-suited for introducing \emph{syntax analysis} and the mechanics of LR parsing while keeping implementation 
+effort manageable: users define tokens in \textit{lex}/\textit{flex}, write a small expression or statement grammar in Yacc, 
+attach actions to construct AST nodes or evaluate expressions, and then compile and run a working parser 
+(e.g., a four-function calculator or a tiny language front end). 
+Numerous tutorials and course handouts walk through this lex-yacc workflow step by step, making it an enduring choice in compiler courses. 
+
+
+ 
