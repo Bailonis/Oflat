@@ -334,6 +334,28 @@ reversing the arrow from Sign↑Neg to Number↑Value and adding an arrow from S
 In such a scenario, none of the four attributes forming the cycle could be evaluated. The challenge in attribute grammars is 
 detecting these cycles within the attribute dependency graph\cite{gordon}.
 
+Knuth characterizes noncircular attribute grammars by lifting the local dependencies stated in each production's semantic rules to a global dependency 
+relation over attribute occurrences. For a production \(A \rightarrow \alpha\), one records which attributes on the right-hand side flow into which 
+attributes on the left (and vice versa for inherited attributes). Aggregating these per-production relations and taking their transitive closure yields a 
+summarized graph over pairs \((N,\text{attr})\). The test is simple: if the closure contains a cycle that returns to the same \((N,\text{attr})\), the 
+specification is circular; if no such cycle exists, the grammar is noncircular and every parse tree admits an evaluation order consistent with the 
+dependencies \cite{gordon,cit5}.
+
+Several practical optimizations make cycle testing and evaluation efficient. The dependency graph can be decomposed into connected components and 
+analyzed component wise, with early termination as soon as a back-edge closes a cycle. Transitive closure can be implemented with bit-set dataflow or 
+fixed-point iteration, exploiting sparsity to reduce cost. Partitioning attributes by kind (synthesized versus inherited) often shrinks the graph 
+without changing outcomes, and restricting specifications to S-attributed, L-attributed, or ordered attribute grammars yields subclasses with trivial or 
+linear evaluation schedules. In evaluators and compiler generators, visit schedules and demand-driven or incremental evaluation avoid unnecessary 
+computations while respecting the same dependency relation \cite{gordon,cit5}.
+
+When a cycle is reported, common remedies are to break mutual dependencies by rephrasing rules (e.g., moving information from inherited to synthesized 
+or introducing a carrier attribute that defers computation), to refactor productions that mix context propagation with value computation, 
+or to precompute context outside the cycle. Tools typically print a minimal cycle as a sequence of \((N,\text{attr})\) links that 
+helps localize the cause; keeping a diagram of the dependency graph alongside the grammar makes validation and revision straightforward. 
+Once noncircularity is established, attributes can be scheduled in a topological order that aligns with parser actions, ensuring evaluation 
+terminates without deadlocks \cite{gordon,cit5}.
+
+
 
 \begin{figure}[ht]
   \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{Chapters/Figures/Chapter2/figure3.png}
@@ -346,29 +368,43 @@ detecting these cycles within the attribute dependency graph\cite{gordon}.
 
 
 \section{Automata}
-Automata theory is a fundamental area of theoretical computer science that deals with the study of abstract machines and the problems they 
-can solve \cite{cit4}. As described in the Chomsky hierarchy, different types of automata correspond to different classes of formal languages.
+Automata theory investigates abstract models of computation and the formal languages they characterize \cite{cit4}. In the Chomsky hierarchy, language 
+classes align with canonical machine models.
 
 \subsection{Types of Automata}
 
 \subsubsection{Finite Automata}
-Finite automata (FA) are  models in computer science used to recognize regular languages, they consist of a finite number of states, 
-transitions between these states, and an input alphabet, when an input string is processed, the automaton transitions through states 
-according to the input symbols. If it ends in an accepting state, the string is recognized as part of the language.
-
-
-\subsubsection{Pushdown Automata}
-Pushdown automata (PDA) are more powerful than finite automata and can recognize context-free languages. 
-They extend finite automata by adding a stack, which provides additional memory. This stack allows PDAs to 
-handle nested structures, such as parentheses in arithmetic expressions \cite{cit5}.
+A (deterministic) finite automaton (FA) is a 5-tuple $(Q,\Sigma,\delta,q_0,F)$ where $Q$ is a finite set of states, $\Sigma$ is the input alphabet, 
+$\delta: Q \times \Sigma \to Q$ is the transition function, $q_0 \in Q$ is the start state, and $F \subseteq Q$ is the set of accepting states. 
+FAs recognize exactly the regular languages. On input $w \in \Sigma^*$, the automaton consumes symbols left to right; if the final state lies in $F$, $w$ 
+is accepted.
 
 \subsubsection{Turing Machines}
-Turing machines (TM) are the most powerful type of the Chomsky hierarchy and can recognize recursively enumerable languages. They consist of an infinite tape,
- a tape head that can read and write symbols, and a set of states. Turing machines can simulate any algorithm and are used to define the limits 
- of what can be computed and are fundamental in the study of computability \cite{cit5}.
+A (single-tape) Turing machine (TM) has a finite control, a bi-infinite tape over a work alphabet $\Gamma \supseteq \Sigma$, a head that reads/writes/moves,
+ and a transition function $\delta$. TMs recognize the recursively enumerable languages and decide the recursive languages, providing a formal basis for 
+ computability theory \cite{cit5}.
 
 \subsubsection{Linear Bounded Automata}
-Linear bounded automata (LBA) are a type of Turing machine with a tape of limited length proportional to the input size, they recognize 
-context-sensitive languages. LBAs are more powerful than PDAs but less powerful than general Turing machines; they also are used in certain 
-types of language recognition and computational complexity studies \cite{cit5}.
+A linear bounded automaton (LBA) is a non-deterministic TM whose head never moves outside the tape segment initially occupied by the input; equivalently, 
+its space use is $O(n)$ for input length $n$. LBAs recognize exactly the context-sensitive languages and are strictly more powerful than PDAs but weaker 
+than unrestricted TMs \cite{cit5}.
+
+\subsubsection{Pushdown Automata}
+A pushdown automaton (PDA) augments an FA with a stack. Formally, a PDA can be given as a 7-tuple $(Q,\Sigma,\Gamma,\delta,q_0,Z_0,F)$ where $\Gamma$ is 
+the stack alphabet, $Z_0 \in \Gamma$ is the initial stack symbol, and $\delta$ can read an input symbol (or $\epsilon$) and the stack top, possibly push/pop,
+and move to a new state. PDAs recognize exactly the context-free languages, enabling nested structures such as balanced parentheses \cite{cit5}.
+
+Attribute grammars are implemented on top of the parser's pushdown stack. Each stack entry carries the grammar symbol (and, in LR parsers, the state) 
+together with an attribute record. A \emph{shift} pushes the next token along with its lexical attributes; a \emph{reduce} by \(A \rightarrow X_1\cdots X_k\)
+ pops the \(X_i\) entries, applies the production's semantic rule to compute \(A\)'s attributes, and pushes \(A\) back with those values. LL parsers 
+ realize the same idea via the call stack: inherited attributes are passed as parameters to recursive procedures, and synthesized attributes are returned 
+ as results. Single pass evaluation is ensured for S attributed (only synthesized) and L-attributed (controlled inherited flow) specifications.
+
+For arithmetic expressions, let the token \(\textit{num}\) carry a lexical value. Reductions compute a synthesized attribute
+ \(\texttt{.val}\): \(F \rightarrow \textit{num}\) yields \(F.val := \textit{num.lexval}\); \(T \rightarrow T\,*\,F\) computes 
+ \(T.val := T_1.val \times F.val\); \(E \rightarrow E\,+\,T\) gives \(E.val := E_1.val + T.val\); and \(E \rightarrow T\) sets
+  \(E.val := T.val\). In declarations, inherited attributes convey the current type from a specifier to each identifier in a list, while synthesized 
+  attributes propagate information upward. The PDA continues to recognize the context-free structure, and the attribute rules fire at well defined 
+  parser actions in lockstep with the parse.
+
 
