@@ -1,46 +1,27 @@
-name: Build the LaTeX template
+name: Build LaTeX document
 
 on:
   push:
-    branches:
-      - devm
-  pull_request:
-
-env:
-  VERSION_FILE: NOVAthesisFiles/nt-version.sty
-  EMAIL_GITHUB: p.bailao@campus.fct.unl.pt
-  USERNAME_GITHUB: Bailonis
-
-permissions: write-all
+    branches:    
+      - 'devm'
 
 jobs:
-  build:
+  build_latex:
     runs-on: ubuntu-latest
-    if: github.actor != 'my_bot_account'
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
+
+      - name: Checkout Git repository
+        uses: actions/checkout@v2
+
+      - name: Build LaTeX document
+        uses: dante-ev/latex-action@latest
         with:
-          ref: devm
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract version number from nt-version.sty
-        run: |
-          version=$(grep novathesisversion $VERSION_FILE | cut -d "{" -f3 | cut -d "}" -f1)
-          echo "Version number is $version"
-      - name: Compile the LaTeX template
-        uses: xu-cheng/texlive-action/full@v1
+          root_file: template.tex
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v8
         with:
-          run: bash .Build/build.sh
-      - name: Upload the template PDF file
-        uses: actions/upload-artifact@v3
-        with:
-          name: Template
-          path: template.pdf
-      - name: Push changes to the repository
-        run: |
-          version=$(grep novathesisversion $VERSION_FILE | cut -d "{" -f3 | cut -d "}" -f1)
-          git config --global user.email "$EMAIL_GITHUB"
-          git config --global user.name "$USERNAME_GITHUB"
-          git add -f template.pdf
-          git commit -m "Version $(grep novathesisversion $VERSION_FILE | cut -d '{' -f3 | cut -d '}' -f1)"
-          git push
+          author_name: PedroBailao
+          author_email: p.bailao@campus.fct.unl.pt
+          message: 'Auto-updating PDF File'
+          add: 'template.pdf'
