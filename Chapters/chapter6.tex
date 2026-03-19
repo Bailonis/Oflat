@@ -12,7 +12,7 @@
 \label{cha:implementation}
 
 OCaml-FLAT is one of the two main components that are part of the existing structure of this project. It consists of the core logic of the tool and 
-uses OCaml for all its construction. In this chapter, we will address OCaml-FLAT, which contains the main operations implemented for attribute grammars.
+is implemented entirely in OCaml. In this chapter, we will address OCaml-FLAT, which contains the main operations implemented for attribute grammars.
 
 OCaml-FLAT is a library composed of several modules, and each module is built as a class. This library, up to the moment of writing this document, 
 implements pushdown automata, regular expressions, context-free grammars, as well as some supporting modules, such as operations on JSON files, errors, 
@@ -76,3 +76,38 @@ emph{body}, a set of \texttt{equations}, and a set of \texttt{conditions}; and \
 \texttt{expression}s. Additionally, \texttt{expression} and \texttt{value} describe the expressions and constants used in equations; 
 \texttt{condition} represents boolean predicates; and \texttt{attribute}, \texttt{attributes}, and \texttt{attrArg} handle the identification of 
 attributes and their occurrences.
+
+\begin{verbatim}
+type attribute = symbol
+    type attributes = attribute set
+    type attrArg = variable * int
+    type value =
+        | Int of int
+        | String of string
+        | Bool of bool
+    type expression =
+        | Const of value
+        | Apply of attribute * attrArg (* l(A2) *)
+        | Expr of string * expression * expression
+    type equation = expression * expression
+    type equations = equation set
+    type condition = expression 
+    type conditions = condition set
+
+    type rule = {
+        head : variable;
+        body : word;
+        equations : equations;
+        conditions : conditions
+    }
+    type rules = rule set
+
+    type t = {
+        alphabet : symbols;
+        variables : variables;
+        synthesized : attributes;
+        inherited : attributes;
+        initial : variable;
+        rules : rules
+    }
+\end{verbatim}
