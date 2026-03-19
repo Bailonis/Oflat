@@ -2,28 +2,32 @@ name: Build LaTeX document
 
 on:
   push:
-    branches:    
-      - 'devm'
+    branches:
+      - devm
 
-permissions: write-all
+permissions:
+  contents: write
 
 jobs:
   build_latex:
     runs-on: ubuntu-latest
-    steps:
 
-      - name: Checkout Git repository
-        uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build LaTeX document
         uses: dante-ev/latex-action@latest
         with:
           root_file: template.tex
 
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v8
+      - name: Commit updated PDF
+        uses: EndBug/add-and-commit@v9
         with:
           author_name: PedroBailao
           author_email: author_email_here@email.com
-          message: 'Auto-updating PDF File'
-          add: 'template.pdf'
+          message: "Auto-update PDF file"
+          add: "template.pdf"
+          push: true
