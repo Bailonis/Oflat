@@ -8,71 +8,62 @@
 
 \typeout{NT FILE chapter6.tex}%
 
-\chapter{Planning}
-\label{cha:planning}
+\chapter{OCAML-FLAT - Implementation}
+\label{cha:implementation}
 
+OCaml-FLAT is one of the two main components that are part of the existing structure of this project. It consists of the core logic of the tool and 
+uses OCaml for all its construction. In this chapter, we will address OCaml-FLAT, which contains the main operations implemented for attribute grammars.
 
+OCaml-FLAT is a library composed of several modules, and each module is built as a class. This library, up to the moment of writing this document, 
+implements pushdown automata, regular expressions, context-free grammars, as well as some supporting modules, such as operations on JSON files, errors, 
+parsers, among others.
 
-In this chapter, the work plan for this dissertation is presented, considering a period of 24 weeks (6 months).
+For the implementation of attribute grammars in OCaml-FLAT, the central goal is to couple a precise static validation phase with a deterministic evaluation 
+strategy over parse trees. The library represents an attribute grammar as a set of rules with equations and conditions attached to each production, and it 
+enforces a good construction before any evaluation can proceed. Validation checks range from context-free sanity (reusing CFG validation) to attribute 
+typing, direction constraints (inherited vs.\ synthesized), and global acyclicity of attribute dependencies. Only after this pipeline succeeds do we 
+execute the attribute equations over a parse tree.
 
-The objective of this work is to add support for attribute grammars to the system OCamlFLAT/OFLAT. The implementation work aims to extend existing software, which already includes some relevant elements, such as support for context-free grammars and basic visualization and graphical interaction mechanisms.
+Two aspects are key to the design. First, expression typing and equation validation ensure each assignment is meaningful and referentially correct. 
+Second, the evaluation order guarantees that inherited attributes of a child are computed before descending into that child, and synthesized attributes 
+of the head are computed after its children return---yielding a left-to-right, node-local schedule that is predictable and terminating in the absence of 
+dependency cycles. Together, these choices produce a robust and explainable evaluator without relying on heuristic fixpoint closures.
 
-\section{Support for Attribute Grammars in the OCamlFLAT Library (8 weeks)}
+Typing proceeds by a straightforward rule: attributes are associated to a base type inferred from their name---by default integers, with \texttt{"s"} 
+denoting string and \texttt{"b"} denoting boolean---while constants and operators are type checked accordingly. Binary operators are admitted only when 
+operand types align (e.g., \texttt{+} on \texttt{int} or \texttt{string}, \texttt{-}, \texttt{*}, \texttt{/} on \texttt{int}, comparisons across equal 
+types), and any mismatch is flagged at validation time. Applications of attributes use \texttt{(attr, (var, i))}, where \texttt{i} identifies the head 
+or a specific child occurrence; an index normalization step resolves the default case and unambiguous references.
 
-At the library level, several functionalities are planned:
+On the left-hand side of equations, the direction discipline is enforced: assignments targeting the head must write synthesized attributes, whereas 
+assignments targeting a child must write inherited attributes. Indices are checked against the rule's body to prevent out-of-range references, and 
+all variables must belong to the grammar's variable set. If types on both sides of an equation do not match, validation fails. Conditions are validated 
+separately and must type check to boolean.
 
-\begin{itemize}
-    \item Representation of attributes and their calculation rules within grammars.
-    \item Circularity testing of synthesized and inherited attributes in a grammar.
-    \item Calculation of synthesized and inherited attributes on an already constructed derivation tree.
-    \item Calculation of synthesized and inherited attributes during the derivation tree construction of a word, i.e., during parsing.
-    \item Introduction of "conditions" in grammars to use attribute values to restrict the generated language.
-    \item Integration of attribute grammars into the existing support for composite models in the library. This involves attempting various operations on attribute grammars: union, intersection, difference, concatenation, and Kleene closure.
-    \item Integration of grammars into the existing support for pedagogical exercises in the library.
-\end{itemize}
+At evaluation time, the library models a local environment as a list of nodes, headed by the current symbol and followed by its children. Each node 
+carries the set of evaluated attributes for that symbol occurrence. Attribute applications resolve by locating the appropriate node---head or child 
+occurrence---and reading the requested attribute value. Updates are performed by replacing the targeted attribute binding on the designated node, 
+preserving immutability of the structure. A stable ordering of equations at the head and per child ensures determinism of side-effect-free updates 
+within a node.
 
-\section{Support for Grammars in the OFLAT Web Application (6 weeks)}
+The evaluation strategy is left-to-right on children. For each child, all inherited equations targeting that child are applied in the head's environment 
+before the recursive descent. The child is then evaluated. Once all children have been processed, equations that target the head (i.e., synthesized 
+attributes) are evaluated, and node-local conditions are checked. This yields a two-phase per-node schedule---child inherited first, head synthesized 
+later---that matches the intuition for attribute flow while avoiding ad hoc closures over \(\varepsilon\)-like effects.
 
-Attribute grammars must be integrated into the existing graphical interface. The additions should have pedagogical features, and some interesting ideas may emerge for the graphical interface.
+Global correctness is guarded by a dependency graph construction. For every equation, the implementation identifies the destination attribute occurrence 
+(head or specific child) and the set of attribute references appearing on the right-hand side. From these, it builds a directed graph whose nodes 
+are ``(symbol, occurrence, attribute)'' triplets and whose edges represent ``RHS depends on LHS.'' A depth-first search detects cycles; if any cycle 
+exists, the grammar is rejected as having circular attribute dependencies. This check is integrated into the overall \texttt{validate} routine, 
+preventing non-terminating evaluations at runtime.
 
-There is already support for context-free grammars in the graphical application. That part of the code will be duplicated, refactored, and adapted. Understanding and modifying the graphical application code is not a trivial task.
+The attribute grammar layer interacts with the context-free layer. Conversions are provided in both directions: an attribute grammar can be projected to 
+a CFG by erasing attributes, and a CFG can be lifted to an attribute grammar with empty attribute sets and equation blocks. Word acceptance may, when 
+appropriate, delegate to the CFG acceptance procedure, while a separate routine attempts attribute evaluation on a given parse tree, reporting success 
+or failure. A generator uses the CFG projection to enumerate terminal strings up to depth and count limits, which is useful for testing attribute 
+specifications independently of a parser.
 
-What should be supported in the graphical interface for attribute grammars:
-
-\begin{itemize}
-    \item Visualization.
-    \item Editing.
-    \item Visualization of the results of operations available in the library.
-    \item Visualization of derivation trees annotated with attribute calculations. In a more ambitious version, attribute calculation could be animated.
-    \item Integration into the existing support for composite models in the graphical application.
-\end{itemize}
-
-\section{Pedagogical Exercises (1 week)}
-
-Create a collection of interesting pedagogical examples and encode them into a set of exercises in the format supported by the OCamlFLAT/OFLAT system.
-
-\section{Evaluation (1 week)}
-
-\begin{itemize}
-    \item The correctness of the newly implemented code will be assessed through a set of unit tests, which will be written alongside code development.
-    \item Analyzing the system's limitations by creating examples that pose challenges due to size or execution time.
-    \item Seeking feedback from potential users of the system, particularly regarding the graphical interface. For example, teachers and students of the TC course.
-\end{itemize}
-
-\section{Dissertation Writing (8 weeks)}
-
-Ideally conducted in small increments, concurrently with other tasks. Two months are considered for the production of the final document. It is important to have a near-final version ready two weeks before the submission deadline to facilitate inviting an examiner.
-
-\section{Gantt Chart}
-
-\begin{flushleft}
-    \begin{ganttchart}[hgrid,vgrid]{1}{24}
-        \gantttitle{Work Plan Timeline (Weeks)}{24} \\
-        \gantttitlelist{1,...,24}{1} \\
-        \ganttbar{OCamlFLAT Library}{1}{8} \\
-        \ganttbar{OFLAT Web Application}{9}{14} \\
-        \ganttbar{Pedagogical Exercises}{15}{15} \\
-        \ganttbar{Evaluation}{16}{16} \\
-        \ganttbar{Dissertation Writing}{17}{24}
-    \end{ganttchart}
-\end{flushleft}
+Reference semantics for attribute occurrences are explicit. Index \texttt{0} denotes the head; index \texttt{-1} is normalized to the head when the variable 
+equals the head, and otherwise to the first occurrence of the named child; positive indices select the \(k\)-th matching child. Occurrence computations and 
+equation ordering are derived from the rule body, ensuring that references are stable and reproducible even when the same child symbol appears multiple 
+times. This removes ambiguity at both validation and evaluation time.
