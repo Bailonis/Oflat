@@ -1,0 +1,45 @@
+name: LaTeX Grammar and Content Review
+
+on:
+  pull_request:
+    paths:
+      - 'Chapters/*.tex'
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necessary to compare branches
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install openai # Groq uses the OpenAI-compatible client
+
+      - name: Run Review Script
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          BASE_REF: ${{ github.base_ref }}
+        run: python .github/script/review_latex.py
+
+      - name: Post PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('feedback.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
