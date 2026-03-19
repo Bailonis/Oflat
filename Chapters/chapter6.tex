@@ -6,24 +6,6 @@
 %% Chapter with lots of dummy text
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-
-\usepackage{listings}
-\usepackage{xcolor}
-
-\lstdefinestyle{ocamlblock}{
-  language=Caml,
-  basicstyle=\ttfamily\small,
-  frame=single,
-  breaklines=true,
-  showstringspaces=false,
-  keywordstyle=\color{blue},
-  commentstyle=\color{gray},
-  stringstyle=\color{teal}
-}
-
-
 \typeout{NT FILE chapter6.tex}%
 
 \chapter{OCAML-FLAT - Implementation}
@@ -94,42 +76,3 @@ emph{body}, a set of \texttt{equations}, and a set of \texttt{conditions}; and \
 \texttt{expression}s. Additionally, \texttt{expression} and \texttt{value} describe the expressions and constants used in equations; 
 \texttt{condition} represents boolean predicates; and \texttt{attribute}, \texttt{attributes}, and \texttt{attrArg} handle the identification of 
 attributes and their occurrences.
-
-\begin{lstlisting}[style=ocamlblock]
-type attribute = symbol
-type attributes = attribute set
-type attrArg = variable * int
-
-type value =
-    | Int of int
-    | String of string
-    | Bool of bool
-
-type expression =
-    | Const of value
-    | Apply of attribute * attrArg (* l(A2) *)
-    | Expr of string * expression * expression
-
-type equation = expression * expression
-type equations = equation set
-type condition = expression
-type conditions = condition set
-
-type rule = {
-    head : variable;
-    body : word;
-    equations : equations;
-    conditions : conditions
-}
-
-type rules = rule set
-
-type t = {
-    alphabet : symbols;
-    variables : variables;
-    synthesized : attributes;
-    inherited : attributes;
-    initial : variable;
-    rules : rules
-}
-\end{lstlisting}
