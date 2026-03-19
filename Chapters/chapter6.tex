@@ -6,6 +6,24 @@
 %% Chapter with lots of dummy text
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{ocamlblock}{
+  language=Caml,
+  basicstyle=\ttfamily\small,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{teal}
+}
+
+
 \typeout{NT FILE chapter6.tex}%
 
 \chapter{OCAML-FLAT - Implementation}
@@ -77,7 +95,7 @@ emph{body}, a set of \texttt{equations}, and a set of \texttt{conditions}; and \
 \texttt{condition} represents boolean predicates; and \texttt{attribute}, \texttt{attributes}, and \texttt{attrArg} handle the identification of 
 attributes and their occurrences.
 
-\begin{lstlisting}[style=ocamlstyle]
+\begin{lstlisting}[style=ocamlblock]
 type attribute = symbol
 type attributes = attribute set
 type attrArg = variable * int
