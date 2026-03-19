@@ -114,16 +114,10 @@ type attribute = symbol
 
 \section{Operations implemented} 
 
-In the implementation of operations on attribute grammars, the \texttt{accept} and
-\texttt{generate} functions, together with the main search-tree construction routines
-used by the graphical tool, proved to be the most demanding components. These parts
-required particular care and a considerable additional effort. Because they constitute
-the core of the library, they will be presented with greater depth and detail. The
-remaining implemented functions will also be described, including the conversions
-between the various internal types of the library, transformations related to the
-attribute-evaluation mechanism, and several Boolean functions that are relevant for
-characterizing properties of attribute grammars.
-
+This section presents the design, static checks, and evaluation semantics of the attribute-grammar component, as implemented by the provided code. 
+The implementation supports typed attributes (integers, strings, booleans), distinguishes inherited and synthesized attributes, validates equations and 
+conditions, constructs a dependency graph to detect cycles, evaluates attributes over parse trees with a deterministic order, and supplies conversions to 
+and from context-free grammars (CFG).
 
 
 \subsection{The \texttt{accept} function of the library}
