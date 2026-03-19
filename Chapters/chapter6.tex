@@ -111,3 +111,144 @@ type attribute = symbol
         rules : rules
     }
 \end{verbatim}
+
+\section{Operations implemented} 
+
+In the implementation of operations on attribute grammars, the \texttt{accept} and
+\texttt{generate} functions, together with the main search-tree construction routines
+used by the graphical tool, proved to be the most demanding components. These parts
+required particular care and a considerable additional effort. Because they constitute
+the core of the library, they will be presented with greater depth and detail. The
+remaining implemented functions will also be described, including the conversions
+between the various internal types of the library, transformations related to the
+attribute-evaluation mechanism, and several Boolean functions that are relevant for
+characterizing properties of attribute grammars.
+
+
+
+\subsection{The \texttt{accept} function of the library}
+
+The \texttt{accept} function is one of the central components of the library. It receives
+a word and an attribute grammar, and returns a boolean indicating whether the word
+is accepted by the grammar. The function first converts the attribute grammar into an
+equivalent context--free grammar and then relies on the acceptance mechanism of that
+grammar.
+
+Internally, the work is carried out by the auxiliary function \texttt{accept\_ag\_with\_tree},
+which attempts to construct a parse tree for the given word and, if successful, computes
+all attribute values over the resulting tree. This computation uses the attribute
+evaluation procedure of the grammar and may fail if the equations cannot be satisfied.
+A successful evaluation therefore corresponds to an accepted derivation.
+
+The acceptance process begins by attempting to derive the word according to the
+underlying context--free rules. If no derivation exists, the function immediately returns
+\texttt{false}. If a derivation is found, the evaluation phase is applied to the parse tree.
+During this phase, all inherited and synthesized attributes are computed following the
+dependency order determined by the grammar. If any attribute cannot be evaluated, or a
+condition associated with a rule fails, the evaluation process terminates, and the word is
+rejected.
+
+If the evaluation of all attributes completes without errors, the function returns
+\texttt{true}, indicating that the word is both syntactically derivable and semantically
+consistent with the attribute equations. In this way, \texttt{accept} integrates syntactic
+derivation and attribute evaluation into a single decision procedure for attribute
+grammars.
+
+\subsection{Auxiliary functions for implementing \texttt{accept}}
+
+In the attribute grammar implementation, the progression of the evaluation does not
+occur through explicit transition functions. Instead, the next stage of computation is
+determined by the application of the attribute equations associated with each rule of
+the grammar.
+
+For each node of the parse tree, inherited attributes must be computed before its
+children are evaluated. This is achieved by selecting the equations that target each
+child and updating the corresponding attribute values in the evaluation environment.
+Once the inherited attributes of a child are determined, the child is evaluated
+recursively, producing both its inherited and synthesized attributes.
+
+After all children of a node have been processed, the synthesized equations
+associated with the rule are applied to the parent node. These equations update the
+attribute values of the head symbol. Any conditions specified for the rule are also
+evaluated at this stage; if a condition evaluates to \texttt{false}, the evaluation fails.
+
+A configuration is considered successful only if the entire attribute evaluation
+completes without errors. Evaluation may fail when an attribute reference cannot be
+resolved, when a type mismatch occurs, or when a condition associated with a rule is
+not satisfied.
+
+The acceptance mechanism uses this behaviour directly. The function \texttt{accept}
+first attempts to build a parse tree for the input word. If a parse tree cannot be
+constructed, the word is rejected. If a parse tree is available, the function proceeds
+with the full attribute evaluation of the tree. The word is accepted only if this
+evaluation finishes successfully, meaning that all attributes across the entire tree
+were computed and all conditions were satisfied.
+
+
+\subsection{Core Entities}
+
+An attribute grammar instance $AG$ consists of terminal alphabet $\Sigma$, variable set $V$, an initial symbol $S \in V$, and a set of rules $R$. 
+Each rule $r \in R$ has a head $A \in V$, a body $X_1\ldots X_k$ with $X_i \in \Sigma \cup V$, a finite set of equations, and a finite set of boolean 
+conditions. Attributes are partitioned into inherited and synthesized; every symbol may carry a (finite) mapping from attribute names to values. Values 
+are typed: \texttt{int}, \texttt{string}, and \texttt{bool}. A simple mapping assigns types to attribute names (e.g., attribute ``\texttt{s}'' is \texttt{string},
+``\texttt{b}'' is \texttt{bool}, and any other is \texttt{int}). This per-attribute typing is used both in static validation and at run time during evaluation.
+
+References to attributes in equations use the form \(\mathsf{attr}(X[i])\), where \(i=0\) denotes the rule head, \(i>0\) denotes the $i$-th occurrence of a 
+variable in the body, and \(i=-1\) denotes the first occurrence when the variable appears at least once. An auxiliary normalization maps the default 
+index \(-1\) to \(0\) when the referenced variable is the head symbol. These conventions allow uniform access to attributes of the head and of specific body occurrences.
+
+\subsection{Static Validation of Equations and Conditions}
+
+Static validation proceeds rule by rule and enforces: (i) well-formed left-hand sides (LHS), (ii) directionality constraints (synthesized heads and inherited children), (iii) type consistency of equations, (iv) existence checks for referenced variables and attributes, (v) index–range constraints for child occurrences, and (vi) boolean typing of conditions. Violations trigger explicit error reports.
+
+A valid equation is of the form \(\mathsf{attr}(X[i]) := e\). The validator confirms that the LHS applies to a legitimate symbol position: if \(i=0\), then \(X\) must be the rule head; if \(i>0\), then \(X\) must appear at least \(i\) times in the body; and if \(i=-1\), the referenced symbol must occur as required by the defaulting rule. Directionality is enforced: LHS targeting the head must name a synthesized attribute; LHS targeting a child must name an inherited attribute. Any mismatch (e.g., assigning an inherited attribute on the head) is rejected.
+
+The static checker computes expression types compositionally. Constants carry their declared type. Attribute applications \(\mathsf{attr}(X[i])\) inherit the type associated with \(\mathsf{attr}\). Binary operators are type–checked against a fixed table: arithmetic (\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}) require \texttt{int} operands (with \texttt{+} also overloaded for \texttt{string} concatenation); equality/inequality (\texttt{=}, \texttt{$<>$}) require operands of the same type; relational comparisons (\texttt{<}, \texttt{$<=$}, \texttt{>}, \texttt{$>=$}) apply to \texttt{int} and \texttt{string}. The parentheses operator is treated as projection. Inconsistent uses (e.g., comparing \texttt{bool} with \texttt{int}, or dividing by a non-\texttt{int}) are rejected. Conditions must type-check to \texttt{bool}.
+
+The checker verifies that each referenced variable is declared, each attribute name belongs to either the inherited or synthesized sets, and child indices are in range with respect to the rule body. The default index \(-1\) resolves to the first occurrence when referencing children and to \(0\) when referencing the head symbol.
+
+\subsection{Evaluation Model over Parse Trees}
+
+Evaluation is defined on a parse tree that conforms to the underlying CFG structure (same head and body symbols per rule instance). Each tree node holds a symbol and an environment of evaluated attributes (a finite map from attribute names to values). Equations are applied in a deterministic order that guarantees that inherited attributes required by a child are computed before descending into that child, and that synthesized attributes of the head are computed after all children have been processed. Conditions are checked at the node once the required attributes are available. Failures abort evaluation at that node.
+
+For each node, an environment list is constructed consisting of the head’s evaluation map followed by the children’s evaluation maps in left-to-right order. Attribute references are resolved by first normalizing the occurrence index, then selecting the correct evaluation map (head vs.\ child occurrence), and finally retrieving the attribute value from that map; missing attributes trigger a runtime error.
+
+Inherited attributes for each child are computed left-to-right. For the $j$-th child, the evaluator forms an environment composed of the head, the already processed children (with their updated environments), and the remaining unprocessed children; it then filters the rule’s equations to those targeting the specific child occurrence and applies them at the head context to produce the child’s inherited values. Immediately after, evaluation recurses into that child. This procedure repeats for all children, preserving a deterministic left-to-right traversal.
+
+After all children are evaluated, the evaluator selects the subset of equations that target the head and applies them in a stable, deterministic order. The ordering key first distinguishes head targets from child targets, then orders child targets by symbol name and occurrence index, and finally by attribute name; for head equations, the key ensures a predictable sequence by attribute name. The ordered fold over equations updates the head environment accordingly. Conditions attached to the rule are then evaluated in this final environment and must hold.
+
+At runtime, operators mirror the static typing rules: integer arithmetic for \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/} (with division-by-zero checks), string concatenation for \texttt{+} on strings, equality and inequality across same-typed operands, and lexicographic/standard order for \texttt{<}, \texttt{$<=$}, \texttt{>}, \texttt{$>=$} on integers and strings. Boolean operands are not admitted for relational operators. Parentheses return the value of their left operand. Type errors are reported with operand renderings.
+
+\subsection{Dependency Analysis and Cycle Detection}
+
+The implementation constructs a fine-grained dependency graph over attribute occurrences to reject cyclic specifications. Nodes of this graph are triples \((\mathsf{sym}, j, \mathsf{attr})\) denoting the \(j\)-th occurrence of symbol \(\mathsf{sym}\) within a rule instance (with \(j=0\) for the head), paired with an attribute name. For an equation \(\mathsf{attr}_L(X[i]) := e\), the construction adds edges from every attribute occurrence referenced in \(e\) to the target occurrence \((X, i, \mathsf{attr}_L)\). A standard depth-first search with recursion stack detection decides the presence of cycles. Any cycle yields a validation error that rejects the attribute grammar.
+
+\subsection{Conversions to and from CFG}
+
+Two structural conversions are provided. First, a forgetful map \(AG \rightarrow \mathrm{CFG}\) drops attributes and equations, preserving only the underlying production rules \((\text{head}, \text{body})\). Second, a CFG can be lifted to a vacuous attribute grammar by reusing its terminals, variables, initial symbol, and rules, while initializing the sets of inherited and synthesized attributes, equations, and conditions to be empty. These conversions support reuse of CFG infrastructure (e.g., acceptance testing) and serve as a baseline for generation procedures.
+
+\subsection{Acceptance and Generation}
+
+Grammar acceptance is delegated to the underlying CFG acceptance procedure obtained from the forgetful conversion. Hence, acceptance of a word depends solely on the context-free structure and not on attribute constraints. A separate predicate evaluates attributes over a given parse tree and returns success if attribute evaluation completes without errors and all conditions hold at every node.
+
+A bounded breadth-first enumeration procedure produces terminal words derivable from the start symbol. The algorithm maintains a queue of sentential forms together with their derivation depth. For each dequeued form, if it contains only terminals (after removing \(\epsilon\)), it is recorded as an output; otherwise, and provided a user-specified depth bound is not exceeded, the leftmost variable is expanded by all of its rule bodies, enqueuing the resulting sentential forms. A deduplication table avoids revisiting sentential forms already seen. The procedure returns up to a user-specified maximum number of words.
+
+\subsection{Parse-Tree Interface and Rule Matching}
+
+Evaluation over a parse tree requires that each internal node corresponds to a unique rule whose head equals the node's symbol and whose body equals the sequence of the children’s root symbols (after normalizing away \(\epsilon\)). If no rule matches, a diagnostic lists candidate rules sharing the same head to support debugging. Leaves carry empty attribute maps; internal nodes start with empty maps that are populated by evaluation. The tree structure is manipulated through utilities that extract the root node, its symbol, its children, and that update a child or the root with a new evaluation map.
+
+\subsection{Condition Checking}
+
+Rule-level conditions are boolean expressions evaluated at the node after inherited and synthesized attributes required by those expressions are available. Every condition must evaluate to \texttt{bool}; non-boolean results or failed conditions produce errors that stop evaluation. The implementation evaluates each condition to a value, coerces it to a boolean, and raises a failure if the result is false.
+
+\subsection{Stable Equation Ordering and Determinism}
+
+To ensure reproducibility and avoid accidental dependence on data-structure iteration order, equations are applied in a stable order determined by a total key. Targets to the head precede targets to children; among child targets, the order is by the child’s symbol name, then by the occurrence index (1-based), and then by attribute name. The resulting list is folded from left to right, updating the current environment at each step. This ordering interacts with the two-phase strategy (children first for inherited attributes, then head for synthesized) to yield deterministic outcomes.
+
+\subsection{Auxiliary Analyses and Utilities}
+
+Several utilities support the main algorithms. Rule bodies are normalized by removing \(\epsilon\); helper predicates recognize productions of the form \(A \rightarrow a\) and \(A \rightarrow BC\) for quick classification; a hash table indexes bodies by head symbol for efficient expansion during generation; and functions compute child- occurrence metadata used by the left-to-right inherited-attribute pass. Error messages are constructed with concrete values and symbols to aid debugging, including formatted renderings of values and descriptions of mismatched expectations.
+
+\subsection{Complexity and Termination Considerations}
+
+Static validation is linear in the size of the grammar and its equations plus the cost of dependency-cycle detection. Cycle detection runs in linear time in the size of the dependency graph (sum of nodes and edges). Attribute evaluation over a fixed parse tree is linear in the size of the tree times the number of equations per node, given that each equation and condition is evaluated once in a fixed order. The bounded generation procedure is exponential in the worst case with respect to depth, as typical for breadth-first exploration of derivations, but it is explicitly limited by user-set bounds on depth and number of words.
