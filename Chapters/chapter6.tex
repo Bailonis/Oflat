@@ -112,15 +112,9 @@ type attribute = symbol
     }
 \end{verbatim}
 
-\section{Operations implemented} 
-
-This section presents the design, static checks, and evaluation semantics of the attribute-grammar component. 
-The implementation supports typed attributes (integers, strings, booleans), distinguishes inherited and synthesized attributes, validates equations and 
-conditions, constructs a dependency graph to detect cycles, evaluates attributes over parse trees with a deterministic order, and supplies conversions to 
-and from context-free grammars (CFG).
 
 
-\subsection{The \texttt{calcAttributes} fuction} 
+\section{The \texttt{calcAttributes} fuction} 
 
 \texttt{calcAttributes} evaluates all attributes in a parse tree according to a given attribute grammar. 
 It ensures that each child node receives its inherited attributes before that child is evaluated, and that the parent node computes its synthesized attributes 
@@ -149,12 +143,12 @@ let rec calcAttributes (ag : t) (pt : parseTree) : parseTree =
 \end{verbatim}
 
 
-\subsubsection{Inputs and Output}
+\subsection{Inputs and Output}
 The function takes an attribute grammar \texttt{ag} and a parse tree \texttt{pt}. If \texttt{pt} is a leaf, it is returned unchanged. 
 If \texttt{pt} is an internal node, the function computes attributes for the node and for all its children, returning a structurally identical tree
 whose nodes carry the evaluated attribute bindings. 
 
-\subsubsection{Evaluation Procedure at an Internal Node}
+\subsection{Evaluation Procedure at an Internal Node}
 Let the current node be \texttt{Node((head\_sym, head\_evs), children)}.
 \begin{enumerate}
   \item \textbf{Rule identification.} The function determines the unique grammar rule whose head symbol equals \texttt{head\_sym} and whose body matches the 
@@ -179,12 +173,12 @@ to \texttt{true}. If a condition fails or evaluates to a non-boolean value, eval
 environments. The tree's topology is unchanged; only attribute maps are updated. 
 \end{enumerate}
 
-\subsubsection{Deterministic Order and Rationale}
+\subsection{Deterministic Order and Rationale}
 The strict left-to-right order establishes a predictable flow of information: inherited attributes for child \( i \) may depend on the head and on children
 \( 1..i-1 \), but never on \( i+1..n \). This sequencing avoids evaluation-time circularities and ensures each child observes a stable context when it is 
 evaluated. A separate dependency-graph check elsewhere detects global cycles among equations. 
 
-\subsubsection{Error Handling}
+\subsection{Error Handling}
 The surrounding code validates that attribute references target valid head/child positions, checks expression types (e.g., integer vs.\ string arithmetic and 
 comparisons), and detects inconsistent environments (e.g., out-of-range child occurrence, head-symbol mismatches). Failures are reported with precise diagnostics 
 at the point of detection; rule-selection mismatches list candidate rules with the same head, and condition failures indicate the node where the evaluation failed. 
@@ -342,8 +336,6 @@ After \texttt{loop} has produced the fully evaluated children, \texttt{calcAttri
 The correctness of those later phases relies on the contract guaranteed by \texttt{loop}: all children are available with their inherited attributes applied 
 and their subtrees fully evaluated.
 
-
-\subsection{Selected Functions: Explanations and Code}
 
 \subsubsection{\texttt{getRootRule}}
 Select the unique grammar rule that matches the current parse-tree node: the rule whose head symbol equals the node's root symbol and whose body 
