@@ -184,7 +184,7 @@ comparisons), and detects inconsistent environments (e.g., out-of-range child oc
 at the point of detection; rule-selection mismatches list candidate rules with the same head, and condition failures indicate the node where the evaluation failed. 
 
 
-\section{Local Auxiliary Logic Used by \texttt{calcAttributes}}
+\section{Auxiliary Methods Used by \texttt{calcAttributes}}
 This section focuses on the local worker that drives left-to-right child evaluation for \texttt{calcAttributes}. In the implementation, \texttt{calcAttributes} 
 delegates the child pass to \texttt{eval\_children\_left\_to\_right}, which defines a local recursive function \texttt{loop}. 
 This \texttt{loop} is the auxiliary routine that realizes the stepwise propagation of inherited attributes to each child and then triggers 
@@ -325,7 +325,7 @@ For the case \verb|child :: rest, occ :: occs_rest|:
 When \texttt{remaining} and \texttt{remaining\_o} are both empty, the loop returns \texttt{List.rev processed}, i.e., the fully evaluated children in original 
 left-to-right order. Any other shape indicates a mismatch between children and occurrence annotations and triggers an explicit failure. 
 
-\subsection{Why This Auxiliary is Necessary}
+\subsection{The Loop Necessity}
 The local \texttt{loop} encodes the evaluation discipline that inherited attributes of child \(i\) may depend on the head and on the already evaluated 
 siblings \(1..i-1\), but not on later siblings. It does so by constructing \texttt{env\_before} at each step, selecting inherited equations for exactly 
 one occurrence, and committing the results before recursing to the next child. This realizes a deterministic, left-to-right strategy and prevents 
@@ -443,7 +443,7 @@ let check_conditions_at_node
 \end{verbatim}
 
 
-\section{The \texttt{accept}}
+\section{The \texttt{accept} fuction}
 
 The \texttt{accept} receives
 a word and an attribute grammar, and returns a boolean indicating whether the word
@@ -459,7 +459,7 @@ let accept (ag: t) (w: word): bool =
 
 
 
-\section{\texttt{validate}:}
+\section{ The \texttt{validate} function}
 The \texttt{validate} performs the static checks required before evaluating an attribute grammar on any parse tree. It combines five steps:
 
 \begin{enumerate}
@@ -508,9 +508,10 @@ let validate (name: string) (rep: t): unit =
 \end{verbatim}
 
 
-\subsection{Validate helpers}
+\subsection{Auxiliary Methods Used by \texttt{validate}}
 
 The following helpers iterate over all rules and check each equation or condition individually:
+
 \begin{verbatim}
 let validateEquations (name: string) (rep: t): unit =
   Set.iter (fun r ->
