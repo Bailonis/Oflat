@@ -114,7 +114,7 @@ type attribute = symbol
 
 \section{Operations implemented} 
 
-This section presents the design, static checks, and evaluation semantics of the attribute-grammar component, as implemented by the provided code. 
+This section presents the design, static checks, and evaluation semantics of the attribute-grammar component. 
 The implementation supports typed attributes (integers, strings, booleans), distinguishes inherited and synthesized attributes, validates equations and 
 conditions, constructs a dependency graph to detect cycles, evaluates attributes over parse trees with a deterministic order, and supplies conversions to 
 and from context-free grammars (CFG).
@@ -144,14 +144,11 @@ rejected.
 
 If the evaluation of all attributes completes without errors, the function returns
 \texttt{true}, indicating that the word is both syntactically derivable and semantically
-consistent with the attribute equations. In this way, \texttt{accept} integrates syntactic
-derivation and attribute evaluation into a single decision procedure for attribute
-grammars.
+consistent with the attribute equations.
 
-\subsection{Auxiliary functions for implementing \texttt{accept}}
+\subsection{Auxiliary functions for implementing \texttt{accept}}   
 
-In the attribute grammar implementation, the progression of the evaluation does not
-occur through explicit transition functions. Instead, the next stage of computation is
+in this stage computation is
 determined by the application of the attribute equations associated with each rule of
 the grammar.
 
@@ -171,13 +168,6 @@ completes without errors. Evaluation may fail when an attribute reference cannot
 resolved, when a type mismatch occurs, or when a condition associated with a rule is
 not satisfied.
 
-The acceptance mechanism uses this behaviour directly. The function \texttt{accept}
-first attempts to build a parse tree for the input word. If a parse tree cannot be
-constructed, the word is rejected. If a parse tree is available, the function proceeds
-with the full attribute evaluation of the tree. The word is accepted only if this
-evaluation finishes successfully, meaning that all attributes across the entire tree
-were computed and all conditions were satisfied.
-
 
 \subsection{Core Entities}
 
@@ -193,8 +183,6 @@ index \(-1\) to \(0\) when the referenced variable is the head symbol. These con
 
 \subsection{Static Validation of Equations and Conditions}
 
-Static validation proceeds rule by rule and enforces: (i) well-formed left-hand sides (LHS), (ii) directionality constraints (synthesized heads and inherited children), (iii) type consistency of equations, (iv) existence checks for referenced variables and attributes, (v) index–range constraints for child occurrences, and (vi) boolean typing of conditions. Violations trigger explicit error reports.
-
 A valid equation is of the form \(\mathsf{attr}(X[i]) := e\). The validator confirms that the LHS applies to a legitimate symbol position: if \(i=0\), then \(X\) must be the rule head; if \(i>0\), then \(X\) must appear at least \(i\) times in the body; and if \(i=-1\), the referenced symbol must occur as required by the defaulting rule. Directionality is enforced: LHS targeting the head must name a synthesized attribute; LHS targeting a child must name an inherited attribute. Any mismatch (e.g., assigning an inherited attribute on the head) is rejected.
 
 The static checker computes expression types compositionally. Constants carry their declared type. Attribute applications \(\mathsf{attr}(X[i])\) inherit the type associated with \(\mathsf{attr}\). Binary operators are type–checked against a fixed table: arithmetic (\texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}) require \texttt{int} operands (with \texttt{+} also overloaded for \texttt{string} concatenation); equality/inequality (\texttt{=}, \texttt{$<>$}) require operands of the same type; relational comparisons (\texttt{<}, \texttt{$<=$}, \texttt{>}, \texttt{$>=$}) apply to \texttt{int} and \texttt{string}. The parentheses operator is treated as projection. Inconsistent uses (e.g., comparing \texttt{bool} with \texttt{int}, or dividing by a non-\texttt{int}) are rejected. Conditions must type-check to \texttt{bool}.
@@ -205,27 +193,25 @@ The checker verifies that each referenced variable is declared, each attribute n
 
 Evaluation is defined on a parse tree that conforms to the underlying CFG structure (same head and body symbols per rule instance). Each tree node holds a symbol and an environment of evaluated attributes (a finite map from attribute names to values). Equations are applied in a deterministic order that guarantees that inherited attributes required by a child are computed before descending into that child, and that synthesized attributes of the head are computed after all children have been processed. Conditions are checked at the node once the required attributes are available. Failures abort evaluation at that node.
 
-For each node, an environment list is constructed consisting of the head’s evaluation map followed by the children’s evaluation maps in left-to-right order. Attribute references are resolved by first normalizing the occurrence index, then selecting the correct evaluation map (head vs.\ child occurrence), and finally retrieving the attribute value from that map; missing attributes trigger a runtime error.
+For each node, an environment list is constructed consisting of the head's evaluation map followed by the children's evaluation maps in left-to-right order. Attribute references are resolved by first normalizing the occurrence index, then selecting the correct evaluation map (head vs.\ child occurrence), and finally retrieving the attribute value from that map; missing attributes trigger a runtime error.
 
-Inherited attributes for each child are computed left-to-right. For the $j$-th child, the evaluator forms an environment composed of the head, the already processed children (with their updated environments), and the remaining unprocessed children; it then filters the rule’s equations to those targeting the specific child occurrence and applies them at the head context to produce the child’s inherited values. Immediately after, evaluation recurses into that child. This procedure repeats for all children, preserving a deterministic left-to-right traversal.
+Inherited attributes for each child are computed left-to-right. For the $j$-th child, the evaluator forms an environment composed of the head, the already processed children (with their updated environments), and the remaining unprocessed children; it then filters the rule's equations to those targeting the specific child occurrence and applies them at the head context to produce the child's inherited values. Immediately after, evaluation recurses into that child. This procedure repeats for all children, preserving a deterministic left-to-right traversal.
 
 After all children are evaluated, the evaluator selects the subset of equations that target the head and applies them in a stable, deterministic order. The ordering key first distinguishes head targets from child targets, then orders child targets by symbol name and occurrence index, and finally by attribute name; for head equations, the key ensures a predictable sequence by attribute name. The ordered fold over equations updates the head environment accordingly. Conditions attached to the rule are then evaluated in this final environment and must hold.
 
-At runtime, operators mirror the static typing rules: integer arithmetic for \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/} (with division-by-zero checks), string concatenation for \texttt{+} on strings, equality and inequality across same-typed operands, and lexicographic/standard order for \texttt{<}, \texttt{$<=$}, \texttt{>}, \texttt{$>=$} on integers and strings. Boolean operands are not admitted for relational operators. Parentheses return the value of their left operand. Type errors are reported with operand renderings.
-
 \subsection{Dependency Analysis and Cycle Detection}
 
-The implementation constructs a fine-grained dependency graph over attribute occurrences to reject cyclic specifications. Nodes of this graph are triples \((\mathsf{sym}, j, \mathsf{attr})\) denoting the \(j\)-th occurrence of symbol \(\mathsf{sym}\) within a rule instance (with \(j=0\) for the head), paired with an attribute name. For an equation \(\mathsf{attr}_L(X[i]) := e\), the construction adds edges from every attribute occurrence referenced in \(e\) to the target occurrence \((X, i, \mathsf{attr}_L)\). A standard depth-first search with recursion stack detection decides the presence of cycles. Any cycle yields a validation error that rejects the attribute grammar.
+The implementation constructs a dependency graph over attribute occurrences to reject cyclic specifications. Nodes of this graph are triples \((\mathsf{sym}, j, \mathsf{attr})\) denoting the \(j\)-th occurrence of symbol \(\mathsf{sym}\) within a rule instance (with \(j=0\) for the head), paired with an attribute name. For an equation \(\mathsf{attr}_L(X[i]) := e\), the construction adds edges from every attribute occurrence referenced in \(e\) to the target occurrence \((X, i, \mathsf{attr}_L)\). A standard depth-first search with recursion stack detection decides the presence of cycles. Any cycle yields a validation error that rejects the attribute grammar.
 
 \subsection{Conversions to and from CFG}
 
-Two structural conversions are provided. First, a forgetful map \(AG \rightarrow \mathrm{CFG}\) drops attributes and equations, preserving only the underlying production rules \((\text{head}, \text{body})\). Second, a CFG can be lifted to a vacuous attribute grammar by reusing its terminals, variables, initial symbol, and rules, while initializing the sets of inherited and synthesized attributes, equations, and conditions to be empty. These conversions support reuse of CFG infrastructure (e.g., acceptance testing) and serve as a baseline for generation procedures.
+Two structural conversions are provided. First, a forgetful map \(AG \rightarrow \mathrm{CFG}\) drops attributes and equations, preserving only the underlying production rules \((\text{head}, \text{body})\). Second, a CFG can be lifted to a empty attribute grammar by reusing its terminals, variables, initial symbol, and rules, while initializing the sets of inherited and synthesized attributes, equations, and conditions to be empty. These conversions support reuse of CFG infrastructure (e.g., acceptance testing) and serve as a baseline for generation procedures.
 
 \subsection{Acceptance and Generation}
 
-Grammar acceptance is delegated to the underlying CFG acceptance procedure obtained from the forgetful conversion. Hence, acceptance of a word depends solely on the context-free structure and not on attribute constraints. A separate predicate evaluates attributes over a given parse tree and returns success if attribute evaluation completes without errors and all conditions hold at every node.
+Grammar acceptance is delegated to the underlying CFG acceptance procedure obtained from the forgetful conversion. Hence, acceptance of a word depends on the context-free structure and not on attribute constraints. A separate predicate evaluates attributes over a given parse tree and returns success if attribute evaluation completes without errors and all conditions hold at every node.
 
-A bounded breadth-first enumeration procedure produces terminal words derivable from the start symbol. The algorithm maintains a queue of sentential forms together with their derivation depth. For each dequeued form, if it contains only terminals (after removing \(\epsilon\)), it is recorded as an output; otherwise, and provided a user-specified depth bound is not exceeded, the leftmost variable is expanded by all of its rule bodies, enqueuing the resulting sentential forms. A deduplication table avoids revisiting sentential forms already seen. The procedure returns up to a user-specified maximum number of words.
+A bounded breadth-first enumeration procedure produces terminal words derivable from the start symbol. The algorithm maintains a queue of forms together with their derivation depth. For each dequeued form, if it contains only terminals (after removing \(\epsilon\)), it is recorded as an output; otherwise, and provided a user-specified depth bound is not exceeded, the leftmost variable is expanded by all of its rule bodies, enqueuing the resulting sentential forms. A deduplication table avoids revisiting sentential forms already seen. The procedure returns up to a user-specified maximum number of words.
 
 \subsection{Parse-Tree Interface and Rule Matching}
 
