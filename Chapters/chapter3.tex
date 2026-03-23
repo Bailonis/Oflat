@@ -86,11 +86,39 @@ parser that constructs parse trees, with optional \emph{listener} and \emph{visi
 It is widely used to implement domain-specific languages, query languages, configuration readers, and full compilers/interpreters 
 in industry settings.
 
-ANTLR4 supports multiple code generation targets so users can integrate generated parsers directly into their existing stacks. 
+ANTLR supports multiple code generation targets so users can integrate generated parsers directly into their existing stacks. 
 Official distributions and runtimes are available for each target, and IDE/build tooling (e.g., IntelliJ/Eclipse plugins, Maven/Gradle) makes it straightforward to incorporate into CI.23 
 
-In daily use, users (i) write a grammar, (ii) generate the lexer/parser, and (iii) attach behaviour by implementing either the \emph{listener} pattern (event callbacks on enter/exit of rules via a tree walker) or the \emph{visitor} pattern (explicit, return-value-oriented traversal).
+In daily use, users write a grammar, generate the lexer/parser, and attach behaviour by implementing either the \emph{listener} pattern (event callbacks on enter/exit of 
+rules via a tree walker) or the \emph{visitor} pattern (explicit, return-value-oriented traversal) which can complement or replace attributes computed in the grammar.
 
+We enforce the language \(L=\{a^n \mid n<1000\}\) by carrying an inherited limit and synthesizing the length.
+
+\begin{verbatim}
+File: ALessThan1000.g4
+
+// Grammar for L = { a^n | n < 1000 }
+grammar ALessThan1000;
+
+// Start rule synthesizes the total length via the child rule.
+s returns [int count]
+    : x=seq[1000] EOF { $count = $x.cnt; }
+    ;
+
+// 'seq' accumulates a synthesized attribute 'cnt' and enforces n < limit.
+seq[int limit] returns [int cnt]
+    @init { $cnt = 0; }
+    : ( 'a'
+        {
+          $cnt++;
+          if ($cnt >= $limit) {
+            throw new RuntimeException("length >= " + $limit);
+          }
+        }
+      )*
+    ;
+
+\end{verbatim}
 
 \section{YACC} 
 
@@ -109,7 +137,3 @@ This tool is well-suited for introducing \emph{syntax analysis} and the mechanic
 effort manageable: users define tokens in \textit{lex}/\textit{flex}, write a small expression or statement grammar in Yacc, 
 attach actions to construct AST nodes or evaluate expressions, and then compile and run a working parser 
 (e.g., a four-function calculator or a tiny language front end). 
-Numerous tutorials and course handouts walk through this lex-yacc workflow step by step, making it an enduring choice in compiler courses. 
-
-
- 
