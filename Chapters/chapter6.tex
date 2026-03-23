@@ -497,7 +497,6 @@ Non-boolean conditions are rejected with a diagnostic.
 the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, validation fails with 
 \enquote{Attribute dependency cycle detected}. This prevents unschedulable attribute computations at evaluation time. 
 
-\subsection{Code: \texttt{validate}}
 \begin{verbatim}
 let validate (name: string) (rep: t): unit =
   let cfg = ga_to_cfg rep in
@@ -509,7 +508,7 @@ let validate (name: string) (rep: t): unit =
 \end{verbatim}
 
 
-\subsubsection{Validate helpers}
+\subsection{Validate helpers}
 
 The following helpers iterate over all rules and check each equation or condition individually:
 \begin{verbatim}
@@ -530,7 +529,7 @@ let validateConditions (name: string) (rep: t): unit =
 These use rule-scoped checkers: \texttt{validateEquation} confirms target well-formedness, direction (inherited vs.\ synthesized), variable membership, 
 and type equality between left and right expressions; \texttt{validateCondition} verifies that the condition's static type is boolean. 
 
-\paragraph{Cycle detection.}
+
 The cycle check reduces to a graph problem:
 \begin{verbatim}
 let has_cycles (ag : t) : bool =
@@ -538,3 +537,86 @@ let has_cycles (ag : t) : bool =
 \end{verbatim}
 Here \texttt{build\_dep\_graph} indexes each attribute occurrence into a node id and collects edges from RHS references to LHS targets for every equation 
 of every rule. \texttt{has\_cycle\_graph} runs a DFS-based cycle test over the adjacency lists. If any back-edge is found, the function returns \texttt{true}. 
+
+
+\section{Cycle Detection}
+Attribute dependencies are modelled as a directed graph: each node represents a concrete attribute occurrence 
+\((\textit{symbol}, \textit{occurrence}, \textit{attribute})\), and each equation adds edges from every attribute referenced on the right-hand 
+side to the left-hand side target. A DFS-based test on this graph reports whether any cycle exists. If a cycle is found, validation fails. 
+
+\subsection{\texttt{build\_dep\_graph}}
+this fuction constructs the dependency graph of the whole grammar and return it as adjacency lists. 
+
+\begin{itemize}
+  \item Map each occurrence \((s, k, a)\) to a unique node id (hash table). 
+  \item For each rule equation \(LHS = RHS\): translate \(LHS\) to its destination node; collect all attribute refs in \(RHS\) and add edges \(\text{ref} \to LHS\). 
+  \item Materialize the edge set into an \texttt{int list array}. 
+\end{itemize}
+
+\begin{verbatim}
+type node_key = symbol * int * attribute
+
+let build_dep_graph (ag : t) : int list array =
+  let index_tbl : (node_key, int) Hashtbl.t = Hashtbl.create 64 in
+  let counter = ref 0 in
+  let get_id key =
+    match Hashtbl.find_opt index_tbl key with
+    | Some id -> id
+    | None ->
+        let id = !counter in
+        incr counter;
+        Hashtbl.add index_tbl key id;
+        id
+  in
+  let edges = ref [] in
+  let rules = SetUtil.to_list ag.rules in
+  List.iter (fun r ->
+    Set.iter (fun eq ->
+      match eq with
+      | Apply (attrL, (vL,iL)), rhs ->
+          let (sL,jL) = sym_occ_of_ref r (vL,iL) in
+          let dst = get_id (sL, jL, attrL) in
+          let refs = refs_in_expr r rhs in
+          List.iter (fun (s,j,a) ->
+            let src = get_id (s,j,a) in
+            edges := (src, dst) :: !edges
+          ) refs
+      | _ -> ()
+    ) r.equations
+  ) rules;
+  let n = !counter in
+  let adj = Array.make n [] in
+  List.iter (fun (u,v) -> adj.(u) <- v :: adj.(u)) !edges;
+  adj
+\end{verbatim}
+
+\subsection{\texttt{has\_cycle\_graph}}
+This fuction decides if the directed graph contains any cycle using DFS with a recursion stack. 
+
+Maintain two boolean arrays: \texttt{visited} and \texttt{stack}. A back-edge to a node currently in \texttt{stack} signals a cycle; otherwise, explore all 
+successors. 
+
+\begin{verbatim}
+let rec dfs adj u visited stack =
+  if stack.(u) then true
+  else if visited.(u) then false
+  else (
+    visited.(u) <- true;
+    stack.(u) <- true;
+    let found = List.exists (fun v -> dfs adj v visited stack) adj.(u) in
+    stack.(u) <- false;
+    found
+  )
+
+let has_cycle_graph adj =
+  let n = Array.length adj in
+  let visited = Array.make n false in
+  let stack = Array.make n false in
+  let rec loop i =
+    if i = n then false
+    else if (not visited.(i)) && dfs adj i visited stack
+    then true
+    else loop (i+1)
+  in
+  loop 0
+\end{verbatim}
