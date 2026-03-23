@@ -181,7 +181,7 @@ to \texttt{true}. If a condition fails or evaluates to a non-boolean value, eval
 environments. The tree's topology is unchanged; only attribute maps are updated. 
 \end{enumerate}
 
-\subsubsubsection{Deterministic Order and Rationale}
+\subsubsection{Deterministic Order and Rationale}
 The strict left-to-right order establishes a predictable flow of information: inherited attributes for child \( i \) may depend on the head and on children
 \( 1..i-1 \), but never on \( i+1..n \). This sequencing avoids evaluation-time circularities and ensures each child observes a stable context when it is 
 evaluated. A separate dependency-graph check elsewhere detects global cycles among equations. 
