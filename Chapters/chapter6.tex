@@ -8,71 +8,616 @@
 
 \typeout{NT FILE chapter6.tex}%
 
-\chapter{Planning}
-\label{cha:planning}
+\chapter{OCAML-FLAT - Implementation}
+\label{cha:implementation}
+
+OCaml-FLAT is one of the two main components that are part of the existing structure of this project. It consists of the core logic of the tool and 
+is implemented entirely in OCaml. In this chapter, we will address OCaml-FLAT, which contains the main operations implemented for attribute grammars.
+
+OCaml-FLAT is a library composed of several modules, and each module is built as a class. This library, up to the moment of writing this document, 
+implements pushdown automata, regular expressions, context-free grammars, as well as some supporting modules, such as operations on JSON files, errors, 
+parsers, among others.
+
+For the implementation of attribute grammars in OCaml-FLAT, the central goal is to couple a precise static validation phase with a deterministic evaluation 
+strategy over parse trees. The library represents an attribute grammar as a set of rules with equations and conditions attached to each production, and it 
+enforces a good construction before any evaluation can proceed. Validation checks range from context-free sanity (reusing CFG validation) to attribute 
+typing, direction constraints (inherited vs.\ synthesized), and global acyclicity of attribute dependencies. Only after this pipeline succeeds do we 
+execute the attribute equations over a parse tree.
+
+Two aspects are key to the design. First, expression typing and equation validation ensure each assignment is meaningful and referentially correct. 
+Second, the evaluation order guarantees that inherited attributes of a child are computed before descending into that child, and synthesized attributes 
+of the head are computed after its children return---yielding a left-to-right, node-local schedule that is predictable and terminating in the absence of 
+dependency cycles. Together, these choices produce a robust and explainable evaluator without relying on heuristic fixpoint closures.
+
+Typing proceeds by a straightforward rule: attributes are associated to a base type inferred from their name---by default integers, with \texttt{"s"} 
+denoting string and \texttt{"b"} denoting boolean---while constants and operators are type checked accordingly. Binary operators are admitted only when 
+operand types align (e.g., \texttt{+} on \texttt{int} or \texttt{string}, \texttt{-}, \texttt{*}, \texttt{/} on \texttt{int}, comparisons across equal 
+types), and any mismatch is flagged at validation time. Applications of attributes use \texttt{(attr, (var, i))}, where \texttt{i} identifies the head 
+or a specific child occurrence; an index normalization step resolves the default case and unambiguous references.
+
+On the left-hand side of equations, the direction discipline is enforced: assignments targeting the head must write synthesized attributes, whereas 
+assignments targeting a child must write inherited attributes. Indices are checked against the rule's body to prevent out-of-range references, and 
+all variables must belong to the grammar's variable set. If types on both sides of an equation do not match, validation fails. Conditions are validated 
+separately and must type check to boolean.
+
+At evaluation time, the library models a local environment as a list of nodes, headed by the current symbol and followed by its children. Each node 
+carries the set of evaluated attributes for that symbol occurrence. Attribute applications resolve by locating the appropriate node---head or child 
+occurrence---and reading the requested attribute value. Updates are performed by replacing the targeted attribute binding on the designated node, 
+preserving immutability of the structure. A stable ordering of equations at the head and per child ensures determinism of side-effect-free updates 
+within a node.
+
+The evaluation strategy is left-to-right on children. For each child, all inherited equations targeting that child are applied in the head's environment 
+before the recursive descent. The child is then evaluated. Once all children have been processed, equations that target the head (i.e., synthesized 
+attributes) are evaluated, and node-local conditions are checked. This yields a two-phase per-node schedule---child inherited first, head synthesized 
+later---that matches the intuition for attribute flow while avoiding ad hoc closures over \(\varepsilon\)-like effects.
+
+Global correctness is guarded by a dependency graph construction. For every equation, the implementation identifies the destination attribute occurrence 
+(head or specific child) and the set of attribute references appearing on the right-hand side. From these, it builds a directed graph whose nodes 
+are ``(symbol, occurrence, attribute)'' triplets and whose edges represent ``RHS depends on LHS.'' A depth-first search detects cycles; if any cycle 
+exists, the grammar is rejected as having circular attribute dependencies. This check is integrated into the overall \texttt{validate} routine, 
+preventing non-terminating evaluations at runtime.
+
+The attribute grammar layer interacts with the context-free layer. Conversions are provided in both directions: an attribute grammar can be projected to 
+a CFG by erasing attributes, and a CFG can be lifted to an attribute grammar with empty attribute sets and equation blocks. Word acceptance may, when 
+appropriate, delegate to the CFG acceptance procedure, while a separate routine attempts attribute evaluation on a given parse tree, reporting success 
+or failure. A generator uses the CFG projection to enumerate terminal strings up to depth and count limits, which is useful for testing attribute 
+specifications independently of a parser.
+
+Reference semantics for attribute occurrences are explicit. Index \texttt{0} denotes the head; index \texttt{-1} is normalized to the head when the variable 
+equals the head, and otherwise to the first occurrence of the named child; positive indices select the \(k\)-th matching child. Occurrence computations and 
+equation ordering are derived from the rule body, ensuring that references are stable and reproducible even when the same child symbol appears multiple 
+times. This removes ambiguity at both validation and evaluation time.
+
+\section{Data types created for attribute grammars in Ocaml} 
+
+The main data types defined to simplify the manipulation of attribute grammars are: \texttt{t}, which represents an attribute grammar (alphabet, 
+variables, synthesized and inherited attributes, initial variable, and set of rules); \texttt{rule}, which models a production with \emph{head}, \
+emph{body}, a set of \texttt{equations}, and a set of \texttt{conditions}; and \texttt{equation}, which represents an assignment between 
+\texttt{expression}s. Additionally, \texttt{expression} and \texttt{value} describe the expressions and constants used in equations; 
+\texttt{condition} represents boolean predicates; and \texttt{attribute}, \texttt{attributes}, and \texttt{attrArg} handle the identification of 
+attributes and their occurrences.
+
+\begin{verbatim}
+type attribute = symbol
+    type attributes = attribute set
+    type attrArg = variable * int
+    type value =
+        | Int of int
+        | String of string
+        | Bool of bool
+    type expression =
+        | Const of value
+        | Apply of attribute * attrArg (* l(A2) *)
+        | Expr of string * expression * expression
+    type equation = expression * expression
+    type equations = equation set
+    type condition = expression 
+    type conditions = condition set
+
+    type rule = {
+        head : variable;
+        body : word;
+        equations : equations;
+        conditions : conditions
+    }
+    type rules = rule set
+
+    type t = {
+        alphabet : symbols;
+        variables : variables;
+        synthesized : attributes;
+        inherited : attributes;
+        initial : variable;
+        rules : rules
+    }
+\end{verbatim}
 
 
 
-In this chapter, the work plan for this dissertation is presented, considering a period of 24 weeks (6 months).
+\section{The \texttt{calcAttributes} fuction} 
 
-The objective of this work is to add support for attribute grammars to the system OCamlFLAT/OFLAT. The implementation work aims to extend existing software, which already includes some relevant elements, such as support for context-free grammars and basic visualization and graphical interaction mechanisms.
+\texttt{calcAttributes} evaluates all attributes in a parse tree according to a given attribute grammar. 
+It ensures that each child node receives its inherited attributes before that child is evaluated, and that the parent node computes its synthesized attributes 
+only after all children have been evaluated. 
+The function returns a tree with the same shape, but with attribute maps updated on the head node and on every descendant. 
 
-\section{Support for Attribute Grammars in the OCamlFLAT Library (8 weeks)}
 
-At the library level, several functionalities are planned:
+\begin{verbatim}
+let rec calcAttributes (ag : t) (pt : parseTree) : parseTree =
+    match pt with
+    | Leaf _ -> pt
+    | Node (((head_sym, _) as head), children) ->
+        let rule = getRootRule ag (Node (head, children)) in
+        let children' = eval_children_left_to_right ag head rule.equations children in
+        let head_eqs = set_filter (eq_targets_head head_sym) rule.equations in
+        let env2 = head :: List.map getRoot children' in
+        let env3 = apply_equations_at_head head_sym env2 head_eqs in
+        check_conditions_at_node head_sym rule.conditions env3;
 
+        match env3 with
+        | (new_head_sym, new_head_evs) :: child_envs ->
+            let children'' = zip_update_children children' child_envs in
+            Node ((new_head_sym, new_head_evs), children'')
+        | [] ->
+            failwith "calcAttributes: empty environment after synthesized equations"
+\end{verbatim}
+
+
+\subsection{Inputs and Output}
+The function takes an attribute grammar \texttt{ag} and a parse tree \texttt{pt}. If \texttt{pt} is a leaf, it is returned unchanged. 
+If \texttt{pt} is an internal node, the function computes attributes for the node and for all its children, returning a structurally identical tree
+whose nodes carry the evaluated attribute bindings. 
+
+\subsection{Evaluation Procedure at an Internal Node}
+Let the current node be \texttt{Node((head\_sym, head\_evs), children)}.
+\begin{enumerate}
+  \item \textbf{Rule identification.} The function determines the unique grammar rule whose head symbol equals \texttt{head\_sym} and whose body matches the 
+sequence of child symbols at this node. If no rule matches, a diagnostic is raised that includes the encountered head/body and the candidate rules 
+that share the same head. This step fixes the set of equations and conditions that apply at the node. 
+
+  \item \textbf{Inherited attributes for children (left-to-right).} Children are processed strictly from left to right. For the current child occurrence, 
+the function builds an \emph{environment} that consists of the head node, the already processed children (in order, with any attributes computed so far), 
+and the remaining children (not yet processed). From the node's rule, it selects only those equations that assign \emph{inherited} attributes to this specific 
+child occurrence (identified by symbol and 1-based occurrence index), and applies them to the environment in a stable order. The child's root is updated with these inherited 
+values, and then \texttt{calcAttributes} is called recursively on that child to evaluate its subtree. This guarantees that a child's inherited attributes may depend on the parent 
+and on earlier siblings, but not on later siblings. 
+
+  \item \textbf{Synthesized attributes for the head.} Once all children are fully evaluated, the function gathers only the equations that target the head 
+(i.e., assign \emph{synthesized} attributes). It constructs a head-first environment containing the head node followed by the now-evaluated child roots and 
+applies those equations in a deterministic, stable order, updating the head's attribute bindings. 
+
+  \item \textbf{Condition checking.} The boolean conditions attached to the rule are evaluated in the same head-first environment. Each condition must evaluate 
+to \texttt{true}. If a condition fails or evaluates to a non-boolean value, evaluation aborts with an error message that identifies the node at which it failed. 
+
+  \item \textbf{Reconstruction.} Finally, the function rebuilds and returns the node by replacing the head and each child root with their updated attribute 
+environments. The tree's topology is unchanged; only attribute maps are updated. 
+\end{enumerate}
+
+\subsection{Deterministic Order and Rationale}
+The strict left-to-right order establishes a predictable flow of information: inherited attributes for child \( i \) may depend on the head and on children
+\( 1..i-1 \), but never on \( i+1..n \). This sequencing avoids evaluation-time circularities and ensures each child observes a stable context when it is 
+evaluated. A separate dependency-graph check elsewhere detects global cycles among equations. 
+
+\subsection{Error Handling}
+The surrounding code validates that attribute references target valid head/child positions, checks expression types (e.g., integer vs.\ string arithmetic and 
+comparisons), and detects inconsistent environments (e.g., out-of-range child occurrence, head-symbol mismatches). Failures are reported with precise diagnostics 
+at the point of detection; rule-selection mismatches list candidate rules with the same head, and condition failures indicate the node where the evaluation failed. 
+
+
+\section{Auxiliary Methods Used by \texttt{calcAttributes}}
+This section focuses on the local worker that drives left-to-right child evaluation for \texttt{calcAttributes}. In the implementation, \texttt{calcAttributes} 
+delegates the child pass to \texttt{eval\_children\_left\_to\_right}, which defines a local recursive function \texttt{loop}. 
+This \texttt{loop} is the auxiliary routine that realizes the stepwise propagation of inherited attributes to each child and then triggers 
+recursive evaluation of that child. 
+
+\subsection{\texttt{eval\_children\_left\_to\_right}}
+
+Evaluate children in strict left-to-right order, applying the inherited-attribute equations that target each child occurrence before recursively evaluating that 
+child's subtree. This ensures that each child receives its required inherited attributes possibly dependent on the head and on previously evaluated siblings, 
+but not on later siblings.
+
+This fuction receives a grammar \texttt{ag}, the current node's head \texttt{head}, the full set of equations for the node's rule \texttt{eqs}, and the list 
+of child parse trees \texttt{children}. And returns a list of fully evaluated child parse trees, in original order. 
+
+The function computes the $(\text{symbol}, \text{occurrence})$ pair for each child (e.g., second \texttt{Expr} child). It defines a 
+local recursive worker \texttt{loop} that maintains three lists: already processed children (reversed), 
+remaining children, and the corresponding $(\text{symbol}, \text{occurrence})$ pairs for the remaining ones. For the current child, an evaluation 
+environment is built as \texttt{head :: processed\_roots @ remaining\_roots}. Inherited equations targeting exactly this child occurrence are filtered and 
+applied to the environment, producing the child's inherited attributes. The child root is updated with those attributes, the child is recursively evaluated 
+via \texttt{calcAttributes}, and the loop advances to the next child. Any mismatch between children and occurrence annotations raises a clear failure.
+
+
+\begin{verbatim}
+and eval_children_left_to_right
+    (ag : t)
+    (head : node)
+    (eqs : equation Set.t)
+    (children : parseTree list)
+    : parseTree list =
+  let head_sym = fst head in
+  let occs = child_occurrences children in
+  let rec loop
+      (processed : parseTree list)        (* evaluated children, reversed *)
+      (remaining : parseTree list)        (* children yet to process     *)
+      (remaining_o : (symbol * int) list) (* their (sym,occ)             *)
+      : parseTree list =
+    match remaining, remaining_o with
+    | [], [] ->
+        List.rev processed
+    | child :: rest, occ :: occs_rest ->
+        let processed_nodes = List.rev processed |> List.map getRoot in
+        let env_before =
+          head :: (processed_nodes @ (List.map getRoot (child :: rest)))
+        in
+        let inh_eqs = set_filter (eq_targets_child head_sym occ) eqs in
+        let env_after_inh =
+          apply_equations_at_head head_sym env_before inh_eqs
+        in
+        let child_node_after_inh =
+          match env_after_inh with
+          | _head_after :: env_tail ->
+              pick_child_node_by_occ occ env_tail
+          | [] ->
+              failwith
+                "calcAttributes: empty environment after inherited equations"
+        in
+        let child_with_inh = updateRoot child child_node_after_inh in
+        let child_evaluated = calcAttributes ag child_with_inh in
+        loop (child_evaluated :: processed) rest occs_rest
+    | _ ->
+        failwith
+          "calcAttributes: internal error (children/occurrences mismatch)"
+  in
+  loop [] children occs
+\end{verbatim}
+
+The call to \texttt{eval\_children\_left\_to\_right} is the point where the local auxiliary function \texttt{loop} is used. 
+
+The \texttt{loop} function above is the auxiliary worker for \texttt{calcAttributes}. 
+
+\subsection{Role of the Auxiliary \texttt{loop} Function}
+The \texttt{loop} fuction performs a left-to-right sweep over the node's children. For each child in order, it computes and writes that child's inherited 
+attributes, recursively evaluates the child subtree, and carries the result forward before proceeding to the next child. 
+This realizes the required dependency discipline: a child may depend on the head and on previously evaluated siblings, but not on later siblings. 
+
+The function carries three accumulators:
 \begin{itemize}
-    \item Representation of attributes and their calculation rules within grammars.
-    \item Circularity testing of synthesized and inherited attributes in a grammar.
-    \item Calculation of synthesized and inherited attributes on an already constructed derivation tree.
-    \item Calculation of synthesized and inherited attributes during the derivation tree construction of a word, i.e., during parsing.
-    \item Introduction of "conditions" in grammars to use attribute values to restrict the generated language.
-    \item Integration of attribute grammars into the existing support for composite models in the library. This involves attempting various operations on attribute grammars: union, intersection, difference, concatenation, and Kleene closure.
-    \item Integration of grammars into the existing support for pedagogical exercises in the library.
+  \item \texttt{processed}: the list of children already evaluated; kept in reverse order for efficient cons operations. These are fully evaluated subtrees. 
+  \item \texttt{remaining}: the list of children yet to process, with the next child at the head. 
+  \item \texttt{remaining\_o}: the list of $(\textit{symbol}, \textit{occurrence})$ pairs corresponding one-to-one with \texttt{remaining}, used 
+  to target inherited-equation assignments to the correct child occurrence. 
 \end{itemize}
 
-\section{Support for Grammars in the OFLAT Web Application (6 weeks)}
+\textbf{Key invariants}
+\begin{enumerate}
+  \item \texttt{processed @ remaining} is a permutation of the original \texttt{children}, preserving relative order between the still-unseen suffix and the 
+  already-evaluated prefix. The invariant is maintained by consing the newly evaluated child onto \texttt{processed} and dropping it from \texttt{remaining}. 
+  \item \texttt{remaining\_o} matches \texttt{remaining} position-by-position; each pair $(s,k)$ gives the symbol and $k$-th occurrence index of the corresponding 
+  child among all children of this node. This allows selection of inherited equations and of the correct child node in the environment. 
+  \item Every tree in \texttt{processed} is fully evaluated (its inherited attributes were set before the recursive call, and its synthesized attributes 
+  and conditions were handled inside that recursive \texttt{calcAttributes}). 
+\end{enumerate}
 
-Attribute grammars must be integrated into the existing graphical interface. The additions should have pedagogical features, and some interesting ideas may emerge for the graphical interface.
+\subsection{Step-by-Step Operation of \texttt{loop}}
+For the case \verb|child :: rest, occ :: occs_rest|:
+\begin{enumerate}
+  \item Compute \texttt{processed\_nodes} as the roots of already-evaluated children (in original order). Then build the evaluation environment for this step:
+  \[
+    \texttt{env\_before} =
+    \texttt{head} \;::\;
+    \texttt{processed\_nodes} \; @ \;
+    \texttt{(roots of (child :: rest))}.
+  \]
+  This environment exposes the head, earlier siblings, the current child, and later siblings to the equations to be applied. 
 
-There is already support for context-free grammars in the graphical application. That part of the code will be duplicated, refactored, and adapted. Understanding and modifying the graphical application code is not a trivial task.
+  \item Select only inherited-attribute equations that target the current occurrence \texttt{occ}:
+  \[
+    \texttt{inh\_eqs} =
+    \{\, e \in \texttt{eqs} \mid \texttt{eq\_targets\_child head\_sym occ}(e)\,\}.
+  \]
+  Apply them in a stable order at the head of \texttt{env\_before}:
+  \[
+    \texttt{env\_after\_inh} =
+    \texttt{apply\_equations\_at\_head head\_sym env\_before inh\_eqs}.
+  \]
+  The effect is to update exactly the target child’s inherited attributes in the environment. 
 
-What should be supported in the graphical interface for attribute grammars:
+  \item Extract the updated root node for the current child occurrence from the environment tail using \texttt{pick\_child\_node\_by\_occ occ}, and write 
+  it back into the child tree with \texttt{updateRoot}:
+  \[
+    \texttt{child\_with\_inh} = \texttt{updateRoot child child\_node\_after\_inh}.
+  \]
+  If the environment is malformed or the occurrence is not found, a descriptive failure is raised. 
+
+  \item Recursively evaluate the child subtree:
+  \[
+    \texttt{child\_evaluated} = \texttt{calcAttributes ag child\_with\_inh}.
+  \]
+  This computes the child's own synthesized attributes and checks its local conditions. 
+
+  \item Advance the loop:
+  \[
+    \texttt{loop (child\_evaluated :: processed) rest occs\_rest}.
+  \]
+  The measure \(|\texttt{remaining}|\) strictly decreases, ensuring termination. 
+\end{enumerate}
+
+When \texttt{remaining} and \texttt{remaining\_o} are both empty, the loop returns \texttt{List.rev processed}, i.e., the fully evaluated children in original 
+left-to-right order. Any other shape indicates a mismatch between children and occurrence annotations and triggers an explicit failure. 
+
+\subsection{The Loop Necessity}
+The local \texttt{loop} encodes the evaluation discipline that inherited attributes of child \(i\) may depend on the head and on the already evaluated 
+siblings \(1..i-1\), but not on later siblings. It does so by constructing \texttt{env\_before} at each step, selecting inherited equations for exactly 
+one occurrence, and committing the results before recursing to the next child. This realizes a deterministic, left-to-right strategy and prevents 
+accidental dependence on future siblings during inherited-attribute computation. 
+
+\subsection{Relation Back to \texttt{calcAttributes}}
+After \texttt{loop} has produced the fully evaluated children, \texttt{calcAttributes} proceeds to the parent's synthesized pass and condition checking. 
+The correctness of those later phases relies on the contract guaranteed by \texttt{loop}: all children are available with their inherited attributes applied 
+and their subtrees fully evaluated.
+
+
+\subsection{\texttt{getRootRule}}
+Select the unique grammar rule that matches the current parse-tree node: the rule whose head symbol equals the node's root symbol and whose body 
+(sequence of symbols) equals the sequence of the node's immediate children. If the node is a leaf, there is no applicable rule and the function fails. 
+If no rule matches, the error message lists candidate rules that share the same head symbol to aid diagnosis. 
+
+Input: the attribute grammar \texttt{ag} and a parse tree \texttt{pt}.  
+Output: the matching rule \texttt{rule}.  
+Failure cases: leaf nodes, or internal nodes whose children do not match any rule body for the node's head symbol. 
+
+For an internal node, the head symbol is taken from the node's root and the body is the list of child-root symbols. The function searches \texttt{ag.rules} for 
+a rule whose head and body match. If none matches, it constructs a readable error with candidate alternatives. 
+
+\begin{verbatim}
+let getRootRule (ag: t) (pt: parseTree): rule =
+  match pt with
+  | Leaf _ ->
+      failwith "getRootRule: leaf has no rule"
+  | Node (_, children) ->
+      let head = getRootSymbol pt in
+      let body = List.map getRootSymbol children in
+      try Set.find (fun r -> r.head = head && r.body = body) ag.rules with
+      | _ ->
+          let candidates =
+            ag.rules
+            |> SetUtil.to_list
+            |> List.filter (fun r -> r.head = head)
+            |> List.map (fun r ->
+                 Printf.sprintf "- %s -> %s"
+                   (symb2str r.head)
+                   (String.concat " " (List.map symb2str r.body)))
+            |> String.concat "\n"
+          in
+          failwith (Printf.sprintf
+            "getRootRule: no rule matches head=%s, body=[%s]\nCandidates with same head:\n%s"
+            (symb2str head)
+            (String.concat " " (List.map symb2str body))
+            (if candidates = "" then "(none)" else candidates))
+\end{verbatim}
+
+\subsection{\texttt{apply\_equations\_at\_head}}
+
+Apply a given set of equations to an evaluation environment whose first node must be the head node with a specific symbol. 
+Equations are applied in a stable, deterministic order to avoid order-dependent results. The output is a new environment reflecting 
+the updates introduced by these equations (e.g., inherited assignments to a specific child, or synthesized assignments to the head). 
+
+
+Inputs: head symbol \texttt{head\_sym}, a non-empty environment \texttt{nodes} whose first node has symbol \texttt{head\_sym}, and an equation set \texttt{equations}.  
+Output: an updated environment \texttt{node list}.  
+Failure cases: empty environment or a head-symbol mismatch at the first node. 
+
+The function first verifies that the environment is not empty and that its first node matches \texttt{head\_sym}. It then orders the equations using a 
+stable ordering and folds over them, applying each equation with \texttt{eval} to produce the next environment. The fold result is the updated environment. 
+
+\begin{verbatim}
+let apply_equations_at_head
+    (head_sym : symbol)
+    (nodes : node list)
+    (equations : equation Set.t)
+    : node list =
+  let () =
+    match nodes with
+    | [] ->
+        failwith "apply_equations_at_head: empty environment (nodes)"
+    | (hs, _) :: _ when hs = head_sym -> ()
+    | (hs, _) :: _ ->
+        failwith
+          (Printf.sprintf
+             "apply_equations_at_head: head symbol mismatch (expected %s, got %s)"
+             (symb2str head_sym) (symb2str hs))
+  in
+  let eqs = stable_eq_order head_sym equations in
+  List.fold_left
+    (fun acc_nodes eq -> eval head_sym eq acc_nodes)
+    nodes
+    eqs
+\end{verbatim}
+
+
+\subsection{\texttt{check\_conditions\_at\_node}}
+
+Evaluate the rule's boolean conditions at the current node's environment and ensure they all hold. A failing condition aborts evaluation with a message 
+identifying the node's head symbol. 
+
+Inputs: head symbol \texttt{head\_sym}, the set of conditions \texttt{conds}, and the current environment \texttt{env}.  
+Output: \texttt{unit}.  
+Failure cases: any condition evaluates to a non-boolean value or to \texttt{false}. 
+
+Each condition is evaluated with \texttt{evaluate}; the result is coerced with \texttt{as\_bool}. If any evaluation fails to yield \texttt{true}, 
+a failure is raised with a diagnostic mentioning the head symbol. 
+
+\begin{verbatim}
+let check_conditions_at_node
+    (head_sym : symbol)
+    (conds : condition Set.t)
+    (env : node list)
+    : unit =
+  Set.iter (fun cond ->
+    let v = evaluate head_sym cond env in
+    if not (as_bool v) then
+      failwith (Printf.sprintf
+        "Condition failed at node %s"
+        (symb2str head_sym))
+  ) conds
+\end{verbatim}
+
+
+\section{The \texttt{accept} fuction}
+
+The \texttt{accept} receives
+a word and an attribute grammar, and returns a boolean indicating whether the word
+is accepted by the grammar. The function first converts the attribute grammar into an
+equivalent context--free grammar and then relies on the acceptance mechanism of that
+grammar.
+
+\begin{verbatim}
+let accept (ag: t) (w: word): bool =
+    let cfg = ga_to_cfg ag in
+    ContextFreeGrammarBasic.accept cfg w
+\end{verbatim}
+
+
+
+\section{ The \texttt{validate} function}
+The \texttt{validate} performs the static checks required before evaluating an attribute grammar on any parse tree. It combines five steps:
+
+\begin{enumerate}
+  \item Convert the attribute grammar to a plain context-free grammar (CFG),
+  \item Validate the CFG structure, 
+  \item Type and well-formedness-check all attribute equations,
+  \item Ensure all rule conditions are boolean,
+  \item Detect dependency cycles among attribute computations. 
+\end{enumerate}
+
+If any check fails, an error is raised with an explanatory message. 
+
+The fuction receives a user-facing name \texttt{name} (used in diagnostics) and an attribute-grammar value \texttt{rep}. And returns normally if and only 
+if all checks pass. Otherwise it reports an error with \texttt{Error.error} or raises a failure from helper routines. 
+
+The grammar is first projected to a CFG with \texttt{ga\_to\_cfg}. This preserves terminals, variables, initial symbol, and the bare head\(\to\)body production 
+structure. The resulting CFG is then validated by \texttt{ContextFreeGrammarPrivate.validate}, which checks basic well-formedness (e.g., symbols belong to the 
+declared sets, rules reference known symbols, etc.). 
+
+\texttt{validateEquations} traverses all rules and their equations. For each equation \( \texttt{lhs} = \texttt{rhs} \):
+\begin{itemize}
+  \item the left-hand side must be an \texttt{Apply(attr,(var,i))} to a valid target (head or a concrete child occurrence in range); the variable must be 
+  a declared grammar variable; and the direction is checked: assignments to the head require synthesized attributes, and assignments to children require 
+  inherited attributes; 
+  \item both sides are type-checked via \texttt{validateExp}, ensuring equal, non-\texttt{"error"} types. Operators are checked for arity and operand types 
+  (e.g., integer arithmetic, string concatenation, comparisons). 
+\end{itemize}
+Any mismatch (invalid target, out-of-range occurrence, wrong direction, unknown symbol/attribute, or type error) triggers an error at this stage. 
+
+\texttt{validateConditions} ensures every condition expression attached to a rule statically type-checks as boolean (again using \texttt{validateExp}). 
+Non-boolean conditions are rejected with a diagnostic. 
+
+\texttt{has\_cycles} constructs a directed dependency graph whose nodes are attribute occurrences identified by 
+\((\textit{symbol}, \textit{occurrence}, \textit{attribute})\). For each equation, edges are added from every attribute reference in the right-hand side to 
+the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, validation fails with 
+\enquote{Attribute dependency cycle detected}. This prevents unschedulable attribute computations at evaluation time. 
+
+\begin{verbatim}
+let validate (name: string) (rep: t): unit =
+  let cfg = ga_to_cfg rep in
+  ContextFreeGrammarPrivate.validate name cfg;
+  validateEquations name rep;
+  validateConditions name rep;
+  if has_cycles rep then
+    Error.error name "Attribute dependency cycle detected" ()
+\end{verbatim}
+
+
+\subsection{Auxiliary Methods Used by \texttt{validate}}
+
+The following helpers iterate over all rules and check each equation or condition individually:
+
+\begin{verbatim}
+let validateEquations (name: string) (rep: t): unit =
+  Set.iter (fun r ->
+    Set.iter (fun eq ->
+      validateEquation name rep eq r
+    ) r.equations
+  ) rep.rules
+
+let validateConditions (name: string) (rep: t): unit =
+  Set.iter (fun r ->
+    Set.iter (fun eq ->
+      validateCondition name rep eq r
+    ) r.conditions
+  ) rep.rules
+\end{verbatim}
+These use rule-scoped checkers: \texttt{validateEquation} confirms target well-formedness, direction (inherited vs.\ synthesized), variable membership, 
+and type equality between left and right expressions; \texttt{validateCondition} verifies that the condition's static type is boolean. 
+
+
+The cycle check reduces to a graph problem:
+\begin{verbatim}
+let has_cycles (ag : t) : bool =
+  ag |> build_dep_graph |> has_cycle_graph
+\end{verbatim}
+Here \texttt{build\_dep\_graph} indexes each attribute occurrence into a node id and collects edges from RHS references to LHS targets for every equation 
+of every rule. \texttt{has\_cycle\_graph} runs a DFS-based cycle test over the adjacency lists. If any back-edge is found, the function returns \texttt{true}. 
+
+
+\section{Cycle Detection}
+Attribute dependencies are modelled as a directed graph: each node represents a concrete attribute occurrence 
+\((\textit{symbol}, \textit{occurrence}, \textit{attribute})\), and each equation adds edges from every attribute referenced on the right-hand 
+side to the left-hand side target. A DFS-based test on this graph reports whether any cycle exists. If a cycle is found, validation fails. 
+
+\subsection{\texttt{build\_dep\_graph}}
+this fuction constructs the dependency graph of the whole grammar and return it as adjacency lists. 
 
 \begin{itemize}
-    \item Visualization.
-    \item Editing.
-    \item Visualization of the results of operations available in the library.
-    \item Visualization of derivation trees annotated with attribute calculations. In a more ambitious version, attribute calculation could be animated.
-    \item Integration into the existing support for composite models in the graphical application.
+  \item Map each occurrence \((s, k, a)\) to a unique node id (hash table). 
+  \item For each rule equation \(LHS = RHS\): translate \(LHS\) to its destination node; collect all attribute refs in \(RHS\) and add edges \(\text{ref} \to LHS\). 
+  \item Materialize the edge set into an \texttt{int list array}. 
 \end{itemize}
 
-\section{Pedagogical Exercises (1 week)}
+\begin{verbatim}
+type node_key = symbol * int * attribute
 
-Create a collection of interesting pedagogical examples and encode them into a set of exercises in the format supported by the OCamlFLAT/OFLAT system.
+let build_dep_graph (ag : t) : int list array =
+  let index_tbl : (node_key, int) Hashtbl.t = Hashtbl.create 64 in
+  let counter = ref 0 in
+  let get_id key =
+    match Hashtbl.find_opt index_tbl key with
+    | Some id -> id
+    | None ->
+        let id = !counter in
+        incr counter;
+        Hashtbl.add index_tbl key id;
+        id
+  in
+  let edges = ref [] in
+  let rules = SetUtil.to_list ag.rules in
+  List.iter (fun r ->
+    Set.iter (fun eq ->
+      match eq with
+      | Apply (attrL, (vL,iL)), rhs ->
+          let (sL,jL) = sym_occ_of_ref r (vL,iL) in
+          let dst = get_id (sL, jL, attrL) in
+          let refs = refs_in_expr r rhs in
+          List.iter (fun (s,j,a) ->
+            let src = get_id (s,j,a) in
+            edges := (src, dst) :: !edges
+          ) refs
+      | _ -> ()
+    ) r.equations
+  ) rules;
+  let n = !counter in
+  let adj = Array.make n [] in
+  List.iter (fun (u,v) -> adj.(u) <- v :: adj.(u)) !edges;
+  adj
+\end{verbatim}
 
-\section{Evaluation (1 week)}
+\subsection{\texttt{has\_cycle\_graph}}
+This fuction decides if the directed graph contains any cycle using DFS with a recursion stack. 
 
-\begin{itemize}
-    \item The correctness of the newly implemented code will be assessed through a set of unit tests, which will be written alongside code development.
-    \item Analyzing the system's limitations by creating examples that pose challenges due to size or execution time.
-    \item Seeking feedback from potential users of the system, particularly regarding the graphical interface. For example, teachers and students of the TC course.
-\end{itemize}
+Maintain two boolean arrays: \texttt{visited} and \texttt{stack}. A back-edge to a node currently in \texttt{stack} signals a cycle; otherwise, explore all 
+successors. 
 
-\section{Dissertation Writing (8 weeks)}
+\begin{verbatim}
+let rec dfs adj u visited stack =
+  if stack.(u) then true
+  else if visited.(u) then false
+  else (
+    visited.(u) <- true;
+    stack.(u) <- true;
+    let found = List.exists (fun v -> dfs adj v visited stack) adj.(u) in
+    stack.(u) <- false;
+    found
+  )
 
-Ideally conducted in small increments, concurrently with other tasks. Two months are considered for the production of the final document. It is important to have a near-final version ready two weeks before the submission deadline to facilitate inviting an examiner.
-
-\section{Gantt Chart}
-
-\begin{flushleft}
-    \begin{ganttchart}[hgrid,vgrid]{1}{24}
-        \gantttitle{Work Plan Timeline (Weeks)}{24} \\
-        \gantttitlelist{1,...,24}{1} \\
-        \ganttbar{OCamlFLAT Library}{1}{8} \\
-        \ganttbar{OFLAT Web Application}{9}{14} \\
-        \ganttbar{Pedagogical Exercises}{15}{15} \\
-        \ganttbar{Evaluation}{16}{16} \\
-        \ganttbar{Dissertation Writing}{17}{24}
-    \end{ganttchart}
-\end{flushleft}
+let has_cycle_graph adj =
+  let n = Array.length adj in
+  let visited = Array.make n false in
+  let stack = Array.make n false in
+  let rec loop i =
+    if i = n then false
+    else if (not visited.(i)) && dfs adj i visited stack
+    then true
+    else loop (i+1)
+  in
+  loop 0
+\end{verbatim}
