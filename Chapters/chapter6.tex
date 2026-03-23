@@ -457,4 +457,78 @@ let accept (ag: t) (w: word): bool =
     ContextFreeGrammarBasic.accept cfg w
 \end{verbatim}
 
-git pull
+
+
+\subsection{\texttt{validate}:}
+The \texttt{validate} performs the static checks required before evaluating an attribute grammar on any parse tree. It combines five steps:
+
+\begin{enumerate}
+  \item Convert the attribute grammar to a plain context-free grammar (CFG),
+  \item Validate the CFG structure, 
+  \item Type and well-formedness-check all attribute equations,
+  \item Ensure all rule conditions are boolean,
+  \item Detect dependency cycles among attribute computations. 
+\end{enumerate}
+
+If any check fails, an error is raised with an explanatory message. 
+
+The fuction receives a user-facing name \texttt{name} (used in diagnostics) and an attribute-grammar value \texttt{rep}. And returns normally if and only 
+if all checks pass. Otherwise it reports an error with \texttt{Error.error} or raises a failure from helper routines. 
+
+The grammar is first projected to a CFG with \texttt{ga\_to\_cfg}. This preserves terminals, variables, initial symbol, and the bare head\(\to\)body production 
+structure. The resulting CFG is then validated by \texttt{ContextFreeGrammarPrivate.validate}, which checks basic well-formedness (e.g., symbols belong to the 
+declared sets, rules reference known symbols, etc.). 
+
+\texttt{validateEquations} traverses all rules and their equations. For each equation \( \texttt{lhs} = \texttt{rhs} \):
+\begin{itemize}
+  \item the left-hand side must be an \texttt{Apply(attr,(var,i))} to a valid target (head or a concrete child occurrence in range); the variable must be 
+  a declared grammar variable; and the direction is checked: assignments to the head require synthesized attributes, and assignments to children require 
+  inherited attributes; 
+  \item both sides are type-checked via \texttt{validateExp}, ensuring equal, non-\texttt{"error"} types. Operators are checked for arity and operand types 
+  (e.g., integer arithmetic, string concatenation, comparisons). 
+\end{itemize}
+Any mismatch (invalid target, out-of-range occurrence, wrong direction, unknown symbol/attribute, or type error) triggers an error at this stage. 
+
+\texttt{validateConditions} ensures every condition expression attached to a rule statically type-checks as boolean (again using \texttt{validateExp}). Non-boolean conditions are rejected with a diagnostic. 
+
+\texttt{has\_cycles} constructs a directed dependency graph whose nodes are attribute occurrences identified by \((\textit{symbol}, \textit{occurrence}, \textit{attribute})\). For each equation, edges are added from every attribute reference in the right-hand side to the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, validation fails with \enquote{Attribute dependency cycle detected}. This prevents unschedulable attribute computations at evaluation time. 
+
+\subsection{Code: \texttt{validate}}
+\begin{verbatim}
+let validate (name: string) (rep: t): unit =
+  let cfg = ga_to_cfg rep in
+  ContextFreeGrammarPrivate.validate name cfg;
+  validateEquations name rep;
+  validateConditions name rep;
+  if has_cycles rep then
+    Error.error name "Attribute dependency cycle detected" ()
+\end{verbatim}
+
+
+\subsubsection{Validate helpers}
+
+The following helpers iterate over all rules and check each equation or condition individually:
+\begin{verbatim}
+let validateEquations (name: string) (rep: t): unit =
+  Set.iter (fun r ->
+    Set.iter (fun eq ->
+      validateEquation name rep eq r
+    ) r.equations
+  ) rep.rules
+
+let validateConditions (name: string) (rep: t): unit =
+  Set.iter (fun r ->
+    Set.iter (fun eq ->
+      validateCondition name rep eq r
+    ) r.conditions
+  ) rep.rules
+\end{verbatim}
+These use rule-scoped checkers: \texttt{validateEquation} confirms target well-formedness, direction (inherited vs.\ synthesized), variable membership, and type equality between left and right expressions; \texttt{validateCondition} verifies that the condition’s static type is boolean. 
+
+\paragraph{Cycle detection.}
+The cycle check reduces to a graph problem:
+\begin{verbatim}
+let has_cycles (ag : t) : bool =
+  ag |> build_dep_graph |> has_cycle_graph
+\end{verbatim}
+Here \texttt{build\_dep\_graph} indexes each attribute occurrence into a node id and collects edges from RHS references to LHS targets for every equation of every rule. \texttt{has\_cycle\_graph} runs a DFS-based cycle test over the adjacency lists. If any back-edge is found, the function returns \texttt{true}. 

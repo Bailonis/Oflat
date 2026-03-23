@@ -35,37 +35,4 @@ implemented in the library, and transformations between different grammar models
 that represent the history of a derivation or evaluation; these trees are consumed by the graphical tool to perform its main visualization of the 
 evaluation process.
 
-\begin{verbatim}
-type attribute = symbol
-    type attributes = attribute set
-    type attrArg = variable * int
-    type value =
-        | Int of int
-        | String of string
-        | Bool of bool
-    type expression =
-        | Const of value
-        | Apply of attribute * attrArg (* l(A2) *)
-        | Expr of string * expression * expression
-    type equation = expression * expression
-    type equations = equation set
-    type condition = expression 
-    type conditions = condition set
 
-    type rule = {
-        head : variable;
-        body : word;
-        equations : equations;
-        conditions : conditions
-    }
-    type rules = rule set
-
-    type t = {
-        alphabet : symbols;
-        variables : variables;
-        synthesized : attributes;
-        inherited : attributes;
-        initial : variable;
-        rules : rules
-    }
-\end{verbatim}
