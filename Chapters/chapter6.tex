@@ -489,9 +489,13 @@ declared sets, rules reference known symbols, etc.).
 \end{itemize}
 Any mismatch (invalid target, out-of-range occurrence, wrong direction, unknown symbol/attribute, or type error) triggers an error at this stage. 
 
-\texttt{validateConditions} ensures every condition expression attached to a rule statically type-checks as boolean (again using \texttt{validateExp}). Non-boolean conditions are rejected with a diagnostic. 
+\texttt{validateConditions} ensures every condition expression attached to a rule statically type-checks as boolean (again using \texttt{validateExp}). 
+Non-boolean conditions are rejected with a diagnostic. 
 
-\texttt{has\_cycles} constructs a directed dependency graph whose nodes are attribute occurrences identified by \((\textit{symbol}, \textit{occurrence}, \textit{attribute})\). For each equation, edges are added from every attribute reference in the right-hand side to the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, validation fails with \enquote{Attribute dependency cycle detected}. This prevents unschedulable attribute computations at evaluation time. 
+\texttt{has\_cycles} constructs a directed dependency graph whose nodes are attribute occurrences identified by 
+\((\textit{symbol}, \textit{occurrence}, \textit{attribute})\). For each equation, edges are added from every attribute reference in the right-hand side to 
+the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, validation fails with 
+\enquote{Attribute dependency cycle detected}. This prevents unschedulable attribute computations at evaluation time. 
 
 \subsection{Code: \texttt{validate}}
 \begin{verbatim}
@@ -523,7 +527,8 @@ let validateConditions (name: string) (rep: t): unit =
     ) r.conditions
   ) rep.rules
 \end{verbatim}
-These use rule-scoped checkers: \texttt{validateEquation} confirms target well-formedness, direction (inherited vs.\ synthesized), variable membership, and type equality between left and right expressions; \texttt{validateCondition} verifies that the condition’s static type is boolean. 
+These use rule-scoped checkers: \texttt{validateEquation} confirms target well-formedness, direction (inherited vs.\ synthesized), variable membership, 
+and type equality between left and right expressions; \texttt{validateCondition} verifies that the condition's static type is boolean. 
 
 \paragraph{Cycle detection.}
 The cycle check reduces to a graph problem:
@@ -531,4 +536,5 @@ The cycle check reduces to a graph problem:
 let has_cycles (ag : t) : bool =
   ag |> build_dep_graph |> has_cycle_graph
 \end{verbatim}
-Here \texttt{build\_dep\_graph} indexes each attribute occurrence into a node id and collects edges from RHS references to LHS targets for every equation of every rule. \texttt{has\_cycle\_graph} runs a DFS-based cycle test over the adjacency lists. If any back-edge is found, the function returns \texttt{true}. 
+Here \texttt{build\_dep\_graph} indexes each attribute occurrence into a node id and collects edges from RHS references to LHS targets for every equation 
+of every rule. \texttt{has\_cycle\_graph} runs a DFS-based cycle test over the adjacency lists. If any back-edge is found, the function returns \texttt{true}. 
