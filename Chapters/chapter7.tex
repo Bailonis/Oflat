@@ -16,14 +16,14 @@ Passing cases show fully annotated attribute values; failure-oriented cases indi
 violation, or out-of-range occurrence). Cycle-detection tests also include the attribute-dependency graph. 
 
 \subsection{\texttt{test\_parseTree} (Grammar \texttt{ag2}, word \texttt{3+2+9\textasciitilde})}
-\textbf{Purpose.} Parse \texttt{3+2+9\textasciitilde} from the CFG induced by \texttt{ag2}, convert to an AG tree, and evaluate attributes. Rules propagate a running sum via inherited \texttt{d} and synthesized \texttt{r}; result at root: \(v(S)=14\). 
+Parse \texttt{3+2+9\textasciitilde} from the CFG induced by \texttt{ag2}, convert to an AG tree, and evaluate attributes. Rules propagate a running sum via inherited \texttt{d} and synthesized \texttt{r}; result at root: \(v(S)=14\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=50mm},
-  level 2/.style={sibling distance=30mm},
-  level 3/.style={sibling distance=24mm},
-  level 4/.style={sibling distance=20mm},
+  level 1/.style={sibling distance=50mm, level distance=20mm},
+  level 2/.style={sibling distance=30mm, level distance=20mm},
+  level 3/.style={sibling distance=24mm, level distance=20mm},
+  level 4/.style={sibling distance=20mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -53,9 +53,8 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 \vspace{1cm}
 
 
-% ------------------------------------------------------------
 \subsection{\texttt{test\_ag1\_simple\_synthesized} (\texttt{ag1}, tree \texttt{pt1})}
-\textbf{Purpose.} Simple synthesized value over multiplication: \(S\to E\), \(E\to E * F\), inner \(E\to F\); leaves \(F\to 3, F\to 2\). Expected \(v(S)=6\). 
+Simple synthesized value over multiplication: \(S\to E\), \(E\to E * F\), inner \(E\to F\); leaves \(F\to 3, F\to 2\). Expected \(v(S)=6\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
@@ -84,14 +83,14 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag2\_simple\_synthesized\_and\_inherited} (\texttt{ag2}, tree \texttt{pt2})}
-\textbf{Purpose.} Same structure as \texttt{test\_parseTree}; checks inherited \texttt{d} and synthesized \texttt{r} along the \texttt{X}-chain; \(v(S)=14\). 
+ Same structure as \texttt{test\_parseTree}; checks inherited \texttt{d} and synthesized \texttt{r} along the \texttt{X}-chain; \(v(S)=14\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=50mm},
-  level 2/.style={sibling distance=30mm},
-  level 3/.style={sibling distance=24mm},
-  level 4/.style={sibling distance=20mm},
+  level 1/.style={sibling distance=50mm, level distance=20mm},
+  level 2/.style={sibling distance=30mm, level distance=20mm},
+  level 3/.style={sibling distance=24mm, level distance=20mm},
+  level 4/.style={sibling distance=20mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -123,11 +122,11 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag3\_simpler\_synthesized\_and\_inherited} (\texttt{ag3}, tree \texttt{pt3})}
-\textbf{Purpose.} Minimal inherited/synthesized flow: \(S\to E\ \{d(E)=5,\ v(S)=v(E)\}\), \(E\to \sim\ \{v(E)=d(E)+1\}\). Expected \(v(S)=6\). 
+ Minimal inherited/synthesized flow: \(S\to E\ \{d(E)=5,\ v(S)=v(E)\}\), \(E\to \sim\ \{v(E)=d(E)+1\}\). Expected \(v(S)=6\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=35mm},
+  level 1/.style={sibling distance=35mm, level distance=30mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -142,7 +141,7 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag4\_type\_mismatch} (\texttt{ag4}, tree \texttt{pt4})}
-\textbf{Purpose.} Deliberate type error: \(S\to A\ B\ \{\,b(S)=b(A)+b(B)\,\}\) with \(A\to x\{b(A)=\mathrm{T}\}\), \(B\to y\{b(B)=\mathrm{F}\}\). The sum \(+\) is invalid on booleans; failure at the root. 
+Deliberate type error: \(S\to A\ B\ \{\,b(S)=b(A)+b(B)\,\}\) with \(A\to x\{b(A)=\mathrm{T}\}\), \(B\to y\{b(B)=\mathrm{F}\}\). The sum \(+\) is invalid on booleans; failure at the root. 
 
 \vspace{1cm}
 \begin{tikzpicture}[
@@ -165,13 +164,13 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag5\_div\_zero} (\texttt{ag5}, tree \texttt{pt5})}
-\textbf{Purpose.} Division by zero: \(E\to E / F\) with left \(F\to 1\) and right \(F\to 0\). Failure occurs evaluating \(v(E_0)=v(E_1)/v(F)\). 
+ Division by zero: \(E\to E / F\) with left \(F\to 1\) and right \(F\to 0\). Failure occurs evaluating \(v(E_0)=v(E_1)/v(F)\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=48mm},
-  level 2/.style={sibling distance=30mm},
-  level 3/.style={sibling distance=22mm},
+  level 1/.style={sibling distance=48mm, level distance=20mm},
+  level 2/.style={sibling distance=30mm, level distance=20mm},
+  level 3/.style={sibling distance=22mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -194,13 +193,13 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag6\_lattr\_violation} (\texttt{ag6}, tree \texttt{pt6})}
-\textbf{Purpose.} L-attributed violation at runtime: \(S\to A\ B\ \{d(A)=v(B)\}\) requires reading \(v(B)\) before \(B\) is evaluated (left-to-right discipline). Failure occurs when setting \(d(A)\). 
+ L-attributed violation at runtime: \(S\to A\ B\ \{d(A)=v(B)\}\) requires reading \(v(B)\) before \(B\) is evaluated (left-to-right discipline). Failure occurs when setting \(d(A)\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=44mm},
-  level 2/.style={sibling distance=26mm},
-  edge from parent/.style={draw, -latex},
+  level 1/.style={sibling distance=44mm, level distance=20mm},
+  level 2/.style={sibling distance=26mm, level distance=20mm},
+  edge from parent/.style={draw, -latex, level distance=20mm},
   every node/.style={draw, ellipse, align=center}
 ]
 \node {S\\$v=\textnormal{not computed}$}
@@ -217,12 +216,12 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag7\_default\_index} (\texttt{ag7}, tree \texttt{pt7})}
-\textbf{Purpose.} Default vs.\ explicit child indices on \(S\to C\ C\); inherited \(d(C_1)=1\), \(d(C_2)=3\); \(v(S)=v(C_1)+v(C_2)=4\). 
+ Default vs.\ explicit child indices on \(S\to C\ C\); inherited \(d(C_1)=1\), \(d(C_2)=3\); \(v(S)=v(C_1)+v(C_2)=4\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=44mm},
-  level 2/.style={sibling distance=26mm},
+  level 1/.style={sibling distance=44mm, level distance=20mm},
+  level 2/.style={sibling distance=26mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -240,7 +239,7 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag8\_boolean\_flags} (\texttt{ag8}, tree \texttt{pt8})}
-\textbf{Purpose.} Boolean synthesized attribute \texttt{b} with \(A\to x\{b(A)=\mathrm{T}\}\), \(B\to y\{b(B)=\mathrm{F}\}\), and \(S\to A\,B\) with equality check; \(b(S)=\mathrm{F}\). 
+ Boolean synthesized attribute \texttt{b} with \(A\to x\{b(A)=\mathrm{T}\}\), \(B\to y\{b(B)=\mathrm{F}\}\), and \(S\to A\,B\) with equality check; \(b(S)=\mathrm{F}\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
@@ -263,14 +262,14 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag9\_list\_length} (\texttt{ag9}, tree \texttt{pt9}=\texttt{make\_list 30})}
-\textbf{Purpose.} List length via synthesized \texttt{v}. For \(n=30\) the root has \(v=30\). Below is the same left-nested pattern shown for \(n=4\) (illustrative); the test uses \(n=30\). 
+ List length via synthesized \texttt{v}. For \(n=30\) the root has \(v=30\). Below is the same left-nested pattern shown for \(n=4\) (illustrative); the test uses \(n=30\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=58mm},
-  level 2/.style={sibling distance=40mm},
-  level 3/.style={sibling distance=32mm},
-  level 4/.style={sibling distance=26mm},
+  level 1/.style={sibling distance=40mm, level distance=20mm},
+  level 2/.style={sibling distance=40mm, level distance=20mm},
+  level 3/.style={sibling distance=32mm, level distance=20mm},
+  level 4/.style={sibling distance=26mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -303,12 +302,12 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag10\_inherited\_default} (\texttt{ag10}, tree \texttt{pt10})}
-\textbf{Purpose.} Default inherited values \(d(C)=0,d(F)=0\), then \(v(C)=1\), \(v(F)=2\); hence \(v(S)=3\). 
+ Default inherited values \(d(C)=0,d(F)=0\), then \(v(C)=1\), \(v(F)=2\); hence \(v(S)=3\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=46mm},
-  level 2/.style={sibling distance=26mm},
+  level 1/.style={sibling distance=46mm, level distance=20mm},
+  level 2/.style={sibling distance=26mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -326,12 +325,12 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag11\_out\_of\_range\_ref} (\texttt{ag11}, tree \texttt{pt11})}
-\textbf{Purpose.} Out-of-range child reference: \(S\to A\ \{v(S)=v(A_2)\}\) but only one \(A\) child exists. Failure at the root while resolving \(A_2\). 
+ Out-of-range child reference: \(S\to A\ \{v(S)=v(A_2)\}\) but only one \(A\) child exists. Failure at the root while resolving \(A_2\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=40mm},
-  level 2/.style={sibling distance=24mm},
+  level 1/.style={sibling distance=40mm, level distance=20mm},
+  level 2/.style={sibling distance=24mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -346,12 +345,12 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_has\_cycles\_ok} (\texttt{ok\_ag})}
-\textbf{Purpose.} Acyclic grammar \(\;S\to F\{v(S)=v(F)\},\ F\to a\{v(F)=1\}\;\). No dependency cycle; a concrete tree for the terminal word \texttt{a} is shown. (The unit test itself only checks the cycle predicate.) 
+ Acyclic grammar \(\;S\to F\{v(S)=v(F)\},\ F\to a\{v(F)=1\}\;\). No dependency cycle; a concrete tree for the terminal word \texttt{a} is shown. (The unit test itself only checks the cycle predicate.) 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=36mm},
-  level 2/.style={sibling distance=24mm},
+  level 1/.style={sibling distance=36mm, level distance=20mm},
+  level 2/.style={sibling distance=24mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -366,7 +365,7 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_has\_cycles\_detected} (\texttt{cyc\_ag})}
-\textbf{Purpose.} Deliberate attribute cycle: \(S\to F\{v(S_0)=v(F_0)\},\ F\to S\{v(F_0)=v(S_0)\}\). No finite parse tree exists; the test inspects the dependency graph (cycle between \(v(S_0)\) and \(v(F_0)\)). 
+ Deliberate attribute cycle: \(S\to F\{v(S_0)=v(F_0)\},\ F\to S\{v(F_0)=v(S_0)\}\). No finite parse tree exists; the test inspects the dependency graph (cycle between \(v(S_0)\) and \(v(F_0)\)). 
 
 \vspace{1cm}
 \begin{center}
@@ -387,11 +386,11 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_accept\_with\_tree\_ok}}
-\textbf{Purpose.} Calls \texttt{accept\_ag\_with\_tree} on grammar \texttt{ag1} and tree \texttt{pt3}. Since \texttt{pt3} uses terminals \texttt{\textasciitilde} not present in \texttt{ag1}, acceptance is expected to be false. For completeness, the same \texttt{pt3} is shown below with attributes as they would be under \texttt{ag3}. (The unit test only prints the boolean.) 
+ Calls \texttt{accept\_ag\_with\_tree} on grammar \texttt{ag1} and tree \texttt{pt3}. Since \texttt{pt3} uses terminals \texttt{\textasciitilde} not present in \texttt{ag1}, acceptance is expected to be false. For completeness, the same \texttt{pt3} is shown below with attributes as they would be under \texttt{ag3}. (The unit test only prints the boolean.) 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=35mm},
+  level 1/.style={sibling distance=35mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -406,13 +405,13 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_accept\_words}}
-\textbf{Purpose.} Checks CFG acceptance for the word \texttt{3\*2} derived from \texttt{ag1}. The test does not evaluate attributes, but a consistent annotated AG tree would have \(v(S)=6\). 
+ Checks CFG acceptance for the word \texttt{3\*2} derived from \texttt{ag1}. The test does not evaluate attributes, but a consistent annotated AG tree would have \(v(S)=6\). 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=46mm},
-  level 2/.style={sibling distance=30mm},
-  level 3/.style={sibling distance=22mm},
+  level 1/.style={sibling distance=46mm, level distance=20mm},
+  level 2/.style={sibling distance=30mm, level distance=20mm},
+  level 3/.style={sibling distance=22mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -435,21 +434,21 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_validate}}
-\textbf{Purpose.} Runs static validation on the extended arithmetic grammar \texttt{ag\_expr\_ext}. A representative evaluated tree for the fixture \texttt{pt\_expr\_ext} (expression \(3 + 2 \times (9-5) / 2 - 1\)) is shown in Section~\ref{sec:expr-ext-tree}. (Validation itself performs no tree evaluation.) 
+ Runs static validation on the extended arithmetic grammar \texttt{ag\_expr\_ext}. A representative evaluated tree for the fixture \texttt{pt\_expr\_ext} (expression \(3 + 2 \times (9-5) / 2 - 1\)) is shown in Section~\ref{sec:expr-ext-tree}. (Validation itself performs no tree evaluation.) 
 
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag\_expr\_ext} (\texttt{ag\_expr\_ext}, tree \texttt{pt\_expr\_ext})}
 \label{sec:expr-ext-tree}
-\textbf{Purpose.} Extended arithmetic with attributes value \texttt{v} and pretty string \texttt{s}. Root result: \(v(S)=6\), \(s(S)=\)\texttt{3+2*(9-5)/2-1}. (Height \texttt{h} is computed by the grammar but omitted here for brevity.) 
+ Extended arithmetic with attributes value \texttt{v} and pretty string \texttt{s}. Root result: \(v(S)=6\), \(s(S)=\)\texttt{3+2*(9-5)/2-1}. (Height \texttt{h} is computed by the grammar but omitted here for brevity.) 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=62mm},
-  level 2/.style={sibling distance=46mm},
-  level 3/.style={sibling distance=34mm},
-  level 4/.style={sibling distance=28mm},
-  level 5/.style={sibling distance=24mm},
+  level 1/.style={sibling distance=62mm, level distance=40mm},
+  level 2/.style={sibling distance=46mm, level distance=20mm},
+  level 3/.style={sibling distance=34mm, level distance=20mm},
+  level 4/.style={sibling distance=28mm, level distance=20mm},
+  level 5/.style={sibling distance=24mm, level distance=20mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -520,13 +519,3 @@ violation, or out-of-range occurrence). Cycle-detection tests also include the a
 \end{tikzpicture}
 
 \vspace{1cm}
-
-
-% ------------------------------------------------------------
-\subsection{\texttt{generate\_words}}
-\textbf{Purpose.} Enumerates terminal words from \texttt{ag1} up to given depth and count limits. This test produces a list of words, not a single tree; therefore no single annotated tree is attached here. 
-
-% ============================
-% End of Section
-% ============================
-```
