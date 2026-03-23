@@ -15,6 +15,44 @@ This chapter includes every unit test defined in the test module, with a brief p
 Passing cases show fully annotated attribute values; failure-oriented cases indicate the precise failure point (type mismatch, division by zero, L-attributed 
 violation, or out-of-range occurrence). Cycle-detection tests also include the attribute-dependency graph. 
 
+\subsection{\texttt{test\_ag1\_simple\_synthesized} (\texttt{ag1}, tree \texttt{pt1})}
+Simple synthesized value over multiplication: \(S\to E\), \(E\to E * F\), inner \(E\to F\); leaves \(F\to 3, F\to 2\). Expected \(v(S)=6\). 
+
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{verbatim}
+S -> E {v(S) = v(E)}
+E -> E * F {v(E0) = v(E1) * v(F)}
+E -> F {v(E) = v(F)}
+F -> 2 {v(F) = 2}
+F -> 3 {v(F) = 3}
+
+\end{verbatim}
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=45mm, level distance=20mm},
+  level 2/.style={sibling distance=30mm, level distance=20mm},
+  level 3/.style={sibling distance=36mm, level distance=20mm}, 
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S\\$v=6$}
+  child {node {E\\$v=6$}
+    child {node {E\\$v=3$}
+      child {node {F\\$v=3$}
+        child {node {3}}
+      }
+    }
+    child {node {*}}
+    child {node {F\\$v=2$}
+      child {node {2}}
+    }
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
 \subsection{\texttt{test\_parseTree} (Grammar \texttt{ag2}, word \texttt{3+2+9\textasciitilde})}
 Parse \texttt{3+2+9\textasciitilde} from the CFG induced by \texttt{ag2}, convert to an AG tree, and evaluate attributes. Rules propagate a running sum via inherited \texttt{d} and synthesized \texttt{r}; result at root: \(v(S)=14\). 
 
@@ -51,35 +89,6 @@ Parse \texttt{3+2+9\textasciitilde} from the CFG induced by \texttt{ag2}, conver
 \end{tikzpicture}
 
 \vspace{1cm}
-
-
-\subsection{\texttt{test\_ag1\_simple\_synthesized} (\texttt{ag1}, tree \texttt{pt1})}
-Simple synthesized value over multiplication: \(S\to E\), \(E\to E * F\), inner \(E\to F\); leaves \(F\to 3, F\to 2\). Expected \(v(S)=6\). 
-
-\vspace{1cm}
-\begin{tikzpicture}[
-  level 1/.style={sibling distance=45mm, level distance=20mm},
-  level 2/.style={sibling distance=30mm, level distance=20mm},
-  level 3/.style={sibling distance=36mm, level distance=20mm}, 
-  edge from parent/.style={draw, -latex},
-  every node/.style={draw, ellipse, align=center}
-]
-\node {S\\$v=6$}
-  child {node {E\\$v=6$}
-    child {node {E\\$v=3$}
-      child {node {F\\$v=3$}
-        child {node {3}}
-      }
-    }
-    child {node {*}}
-    child {node {F\\$v=2$}
-      child {node {2}}
-    }
-  };
-\end{tikzpicture}
-
-\vspace{1cm}
-
 
 % ------------------------------------------------------------
 \subsection{\texttt{test\_ag2\_simple\_synthesized\_and\_inherited} (\texttt{ag2}, tree \texttt{pt2})}
@@ -519,3 +528,195 @@ Deliberate type error: \(S\to A\ B\ \{\,b(S)=b(A)+b(B)\,\}\) with \(A\to x\{b(A)
 \end{tikzpicture}
 
 \vspace{1cm}
+
+
+
+
+
+
+\subsection{\texttt{ag2}}
+\textbf{Inherited:} \texttt{["d"]}\quad
+\textbf{Synthesized:} \texttt{["v","r"]}
+
+\begin{lstlisting}
+S -> E {v(S) = v(E)}
+E -> F X {v(E) = r(X) ; d(X) = v(F)}
+X -> + F X {r(X0) = r(X1) ; d(X1) = d(X0) + v(F)}
+X -> ~ {r(X) = d(X)}
+F -> 0 {v(F) = 0}
+F -> 1 {v(F) = 1}
+F -> 2 {v(F) = 2}
+F -> 3 {v(F) = 3}
+F -> 4 {v(F) = 4}
+F -> 5 {v(F) = 5}
+F -> 6 {v(F) = 6}
+F -> 7 {v(F) = 7}
+F -> 8 {v(F) = 8}
+F -> 9 {v(F) = 9}
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag3}}
+\textbf{Inherited:} \texttt{["d"]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> E {v(S) = v(E) ; d(E) = 5}
+E -> ~ {v(E) = d(E) + 1}
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag4}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["b"]}
+
+\begin{lstlisting}
+S -> A B { b(S) = b(A) + b(B) }
+A -> x { b(A) = T }
+B -> y { b(B) = F }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag5}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> E {v(S) = v(E)}
+E -> E / F {v(E0) = v(E1) / v(F)}
+E -> F {v(E) = v(F)}
+F -> 0 {v(F) = 0}
+F -> 1 {v(F) = 1}
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag6}}
+\textbf{Inherited:} \texttt{["d"]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> A B { d(A) = v(B) ; v(S) = v(A) + v(B) }
+A -> a { v(A) = d(A) }
+B -> a { v(B) = 1 }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag7}}
+\textbf{Inherited:} \texttt{["d"]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> C C { d(C) = 1 ; d(C2) = 3 ; v(S) = v(C1) + v(C2) }
+C -> n { v(C) = d(C) }
+C -> m { v(C) = d(C) }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag8}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["b"]}
+
+\begin{lstlisting}
+S -> A B { b(S) = b(A) = b(B) }
+A -> x { b(A) = T }
+A -> y { b(A) = F }
+B -> x { b(B) = T }
+B -> y { b(B) = F }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag9}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+L -> L , I { v(L0) = v(L1) + v(I) }
+L -> I { v(L) = v(I) }
+I -> a { v(I) = 1 }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag10}}
+\textbf{Inherited:} \texttt{["d"]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> C F { d(C) = 0; d(F) = 0 ; v(S) = v(C) + v(F) }
+C -> n { v(C) = d(C) + 1 }
+F -> m { v(F) = d(F) + 2 }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag11}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> A { v(S) = v(A2) }
+A -> a { v(A) = 1 }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ok\_ag}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> F { v(S) = v(F) }
+F -> a { v(F) = 1 }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{cyc\_ag}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["v"]}
+
+\begin{lstlisting}
+S -> F { v(S0) = v(F0) }
+F -> S { v(F0) = v(S0) }
+\end{lstlisting}
+% 
+
+
+\subsection{\texttt{ag\_expr\_ext}}
+\textbf{Inherited:} \texttt{[""]}\quad
+\textbf{Synthesized:} \texttt{["v","s","h"]}
+
+\begin{lstlisting}
+S -> E { v(S) = v(E) ; s(S) = s(E) ; h(S) = h(E) }
+
+E -> E + T { v(E0) = v(E1) + v(T) ; s(E0) = s(E1) + '+' + s(T) ; h(E0) = h(E1) + h(T) + 1 }
+E -> E - T { v(E0) = v(E1) - v(T) ; s(E0) = s(E1) + '-' + s(T) ; h(E0) = h(E1) + h(T) + 1 }
+E -> T     { v(E)  = v(T) ; s(E)  = s(T) ; h(E)  = h(T) }
+
+T -> T * F { v(T0) = v(T1) * v(F) ; s(T0) = s(T1) + '*' + s(F) ; h(T0) = h(T1) + h(F) + 1 }
+T -> T / F { v(T0) = v(T1) / v(F) ; s(T0) = s(T1) + '/' + s(F) ; h(T0) = h(T1) + h(F) + 1 }
+T -> F     { v(T)  = v(F) ; s(T)  = s(F) ; h(T)  = h(F) }
+
+F -> ( E ) { v(F) = v(E) ; s(F) = '(' + s(E) + ')' ; h(F) = h(E) + 1 }
+F -> N     { v(F) = v(N) ; s(F) = s(N) ; h(F) = h(N) }
+
+N -> 0 { v(N) = 0 ; s(N) = '0' ; h(N) = 1 }
+N -> 1 { v(N) = 1 ; s(N) = '1' ; h(N) = 1 }
+N -> 2 { v(N) = 2 ; s(N) = '2' ; h(N) = 1 }
+N -> 3 { v(N) = 3 ; s(N) = '3' ; h(N) = 1 }
+N -> 4 { v(N) = 4 ; s(N) = '4' ; h(N) = 1 }
+N -> 5 { v(N) = 5 ; s(N) = '5' ; h(N) = 1 }
+N -> 6 { v(N) = 6 ; s(N) = '6' ; h(N) = 1 }
+N -> 7 { v(N) = 7 ; s(N) = '7' ; h(N) = 1 }
+N -> 8 { v(N) = 8 ; s(N) = '8' ; h(N) = 1 }
+N -> 9 { v(N) = 9 ; s(N) = '9' ; h(N) = 1 }
+\end{lstlisting}
+% 
+```
