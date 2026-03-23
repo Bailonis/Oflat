@@ -8,31 +8,314 @@
 
 \typeout{NT FILE chapter7.tex}%
 
-\chapter{Evaluation and future work}
-\label{cha:Evaluation}
+\chapter{Unit Testing}
+\label{cha:UnitTesting}
+
+This chapter presents the unit tests used to verify the correctness and robustness of the attribute-grammar implementation. 
+The tests cover core scenarios—successful evaluation of synthesized and inherited attributes, deterministic left-to-right child evaluation, 
+and conformance between parse trees and production rules—as well as boundary cases that exercise error handling, such as type mismatches, 
+division by zero, invalid child occurrences and dependency cycles.
+
+\section{The Tests}
+
+\subsection{\texttt{test\_parseTree} (Grammar \texttt{ag2}, word \texttt{3+2+9\textasciitilde})}
+Parse the word \texttt{3+2+9\textasciitilde} using the CFG projected from \texttt{ag2}, convert the CFG tree to an AG tree, and evaluate attributes with \texttt{calcAttributes}. The shape features a head \texttt{S$\rightarrow$E}, with \texttt{E$\rightarrow$F\ X} and a right-branching chain of \texttt{X} nodes for the two \texttt{+} and the final \texttt{\textasciitilde}.
 
 
-\section{Evaluation}
-\label{sec:evaluation}
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=48mm},
+  level 2/.style={sibling distance=30mm},
+  level 3/.style={sibling distance=22mm},
+  level 4/.style={sibling distance=18mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {E}
+    child {node {F}
+      child {node {3}}
+    }
+    child {node {X}
+      child {node {+}}
+      child {node {F}
+        child {node {2}}
+      }
+      child {node {X}
+        child {node {+}}
+        child {node {F}
+          child {node {9}}
+        }
+        child {node {X}
+          child {node {\textasciitilde}}
+        }
+      }
+    }
+  };
+\end{tikzpicture}
 
-During the implementation of the main algorithms of the OCaml-FLAT library, unit tests were written for all operations to provide greater assurance of 
-their correct functioning. Especially on tests for the word acceptance operation, since it is complex and highly visible and calculating attributes, since 
-the calcullation of inherited attributes it was more complex than expected, and it is one of the main focus of this dissertation. 
-Care was also taken to design unit tests that exercise potentially problematic cases, for example attribute grammars that create cyclic situations by 
-continuously changing attribute values. Nevertheless, it would have been preferable to make the application available to a limited number of users so it 
-could be tested more intensively. To help evaluate the quality and correctness of the work, the supervisor of this dissertation was frequently consulted 
-in his capacity as a former lecturer of the Theory of Computation course.
+\vspace{1cm}
 
-\section{Conclusion}
-\label{sec:conclusion}
+\subsection{\texttt{test\_ag1\_simple\_synthesized} (\texttt{ag1}, tree \texttt{pt1})}
+Validate a simple synthesized attribute \texttt{v} over multiplication: \texttt{S$\rightarrow$E}, \texttt{E$\rightarrow$E\ *\ F}, inner \texttt{E$\rightarrow$F}, and leaves \texttt{F$\rightarrow$3}, \texttt{F$\rightarrow$2}. Expected result after evaluation: \texttt{v(S)=6}.%
+% 
 
-For this project the OCaml-FLAT library was extended; the OFLAT graphical tool exists to create and manipulate FLAT models, but I did not work on 
-the OFLAT library.
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=45mm},
+  level 2/.style={sibling distance=30mm},
+  level 3/.style={sibling distance=20mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {E}
+    child {node {E}
+      child {node {F}
+        child {node {3}}
+      }
+    }
+    child {node {\*}}
+    child {node {F}
+      child {node {2}}
+    }
+  };
+\end{tikzpicture}
 
-The OCaml-FLAT library was adapted to support attribute grammars, with all necessary types created for their representation and a range of operations 
-implemented. These include evaluation of attribute values for a given input, generation of words of length n, conversions between the various types 
-implemented in the library, and transformations between different grammar models. In addition, functions were implemented to produce derivation trees 
-that represent the history of a derivation or evaluation; these trees are consumed by the graphical tool to perform its main visualization of the 
-evaluation process.
+\vspace{1cm}
 
+\subsection{\texttt{test\_ag2\_simple\_synthesized\_and\_inherited} (\texttt{ag2}, tree \texttt{pt2})}
+ Check inherited flow \texttt{d} across the \texttt{X} chain and synthesized result \texttt{r}/\texttt{v}. The fixture \texttt{pt2} encodes the same structure as the parsed word \texttt{3+2+9\textasciitilde}. Expected: \texttt{v(S)=14}.%
+% 
 
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=48mm},
+  level 2/.style={sibling distance=30mm},
+  level 3/.style={sibling distance=22mm},
+  level 4/.style={sibling distance=18mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {E}
+    child {node {F}
+      child {node {3}}
+    }
+    child {node {X}
+      child {node {+}}
+      child {node {F}
+        child {node {2}}
+      }
+      child {node {X}
+        child {node {+}}
+        child {node {F}
+          child {node {9}}
+        }
+        child {node {X}
+          child {node {\textasciitilde}}
+        }
+      }
+    }
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\subsection{\texttt{test\_ag3\_simpler\_synthesized\_and\_inherited} (\texttt{ag3}, tree \texttt{pt3})}
+Minimal inherited and synthesized flow: \texttt{S$\rightarrow$E \{d(E)=5, v(S)=v(E)\}}, \texttt{E$\rightarrow$\textasciitilde \{v(E)=d(E)+1\}}. Expected: \texttt{v(S)=6}.%
+% 
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=35mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {E}
+    child {node {\textasciitilde}}
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\subsection{\texttt{test\_ag7\_default\_index} (\texttt{ag7}, tree \texttt{pt7})}
+Confirm default child indices and explicit \texttt{C1}/\texttt{C2} occurrences on \texttt{S$\rightarrow$C\ C} are handled correctly when applying inherited assignments. Leaves are \texttt{n} and \texttt{m}.%
+% 
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=40mm},
+  level 2/.style={sibling distance=24mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {C}
+    child {node {n}}
+  }
+  child {node {C}
+    child {node {m}}
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\subsection{\texttt{test\_ag8\_boolean\_flags} (\texttt{ag8}, tree \texttt{pt8})}
+Evaluate a boolean synthesized attribute \texttt{b} over terminals \texttt{x} and \texttt{y}. Fixture expands \texttt{S$\rightarrow$A\ B} with \texttt{A$\rightarrow$x} and \texttt{B$\rightarrow$y}.%
+% 
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=40mm},
+  level 2/.style={sibling distance=24mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {A}
+    child {node {x}}
+  }
+  child {node {B}
+    child {node {y}}
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\subsection{\texttt{test\_ag9\_list\_length} (\texttt{ag9}, tree \texttt{pt9 = make\_list 30})}
+Compute list length using a synthesized attribute \texttt{v}. The builder \texttt{make\_list} nests \texttt{L} to the left: for \texttt{n=1}, \texttt{L$\rightarrow$I}; for \texttt{n>1}, \texttt{L$\rightarrow$L , I}. The actual test uses \texttt{n=30}. Below is an illustrative tree for \texttt{n=4}; the \texttt{n=30} instance continues the same left-nested pattern. Expected at the root: length \texttt{30}.
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=55mm},
+  level 2/.style={sibling distance=40mm},
+  level 3/.style={sibling distance=30mm},
+  level 4/.style={sibling distance=24mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {L}
+  child {node {L}
+    child {node {L}
+      child {node {I}
+        child {node {a}}
+      }
+    }
+    child {node {,}}
+    child {node {I}
+      child {node {a}}
+    }
+  }
+  child {node {,}}
+  child {node {I}
+    child {node {a}}
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\subsection{\texttt{test\_ag10\_inherited\_default} (\texttt{ag10}, tree \texttt{pt10})}
+Apply default inherited values to both children of \texttt{S$\rightarrow$C\ F}, then synthesize \texttt{v} at \texttt{S}. Leaves are \texttt{n} and \texttt{m}. Expected: \texttt{v(S)=3}.%
+% 
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=40mm},
+  level 2/.style={sibling distance=24mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {C}
+    child {node {n}}
+  }
+  child {node {F}
+    child {node {m}}
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\subsection{\texttt{test\_ag\_expr\_ext} (\texttt{ag\_expr\_ext}, tree \texttt{pt\_expr\_ext})}
+Extended arithmetic with \texttt{+}, \texttt{-}, \texttt{\*}, \texttt{/}, and parentheses. Attributes: value \texttt{v}, pretty string \texttt{s}, and height \texttt{h}. Fixture encodes \texttt{3 + 2 * (9 - 5) / 2 - 1} under nonterminals \texttt{E/T/F/N}. Expected at the root: \texttt{v(S)=6}, \texttt{s(S)=``3+2*(9-5)/2-1''}.%
+% 
+
+\vspace{1cm}
+\begin{tikzpicture}[
+  level 1/.style={sibling distance=60mm},
+  level 2/.style={sibling distance=45mm},
+  level 3/.style={sibling distance=32mm},
+  level 4/.style={sibling distance=26mm},
+  level 5/.style={sibling distance=22mm},
+  edge from parent/.style={draw, -latex},
+  every node/.style={draw, ellipse, align=center}
+]
+\node {S}
+  child {node {E}
+    child {node {E}
+      child {node {E}
+        child {node {T}
+          child {node {F}
+            child {node {N}
+              child {node {3}}
+            }
+          }
+        }
+      }
+      child {node {+}}
+      child {node {T}
+        child {node {T}
+          child {node {T}
+            child {node {F}
+              child {node {N}
+                child {node {2}}
+              }
+            }
+          }
+          child {node {\*}}
+          child {node {F}
+            child {node {(}}
+            child {node {E}
+              child {node {E}
+                child {node {T}
+                  child {node {F}
+                    child {node {N}
+                      child {node {9}}
+                    }
+                  }
+                }
+              }
+              child {node {-}}
+              child {node {T}
+                child {node {F}
+                  child {node {N}
+                    child {node {5}}
+                  }
+                }
+              }
+            }
+            child {node {)}}
+          }
+        }
+        child {node {/}}
+        child {node {F}
+          child {node {N}
+            child {node {2}}
+          }
+        }
+      }
+    }
+    child {node {-}}
+    child {node {T}
+      child {node {F}
+        child {node {N}
+          child {node {1}}
+        }
+      }
+    }
+  };
+\end{tikzpicture}
+
+\vspace{1cm}
