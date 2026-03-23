@@ -256,11 +256,11 @@ The call to \texttt{eval\_children\_left\_to\_right} is the point where the loca
 The \texttt{loop} function above is the auxiliary worker for \texttt{calcAttributes}. 
 
 \subsection{Role of the Auxiliary \texttt{loop} Function}
-\textbf{Purpose.} \texttt{loop} performs a left-to-right sweep over the node's children. For each child in order, it computes and writes that child's inherited 
+The \texttt{loop} fuction performs a left-to-right sweep over the node's children. For each child in order, it computes and writes that child's inherited 
 attributes, recursively evaluates the child subtree, and carries the result forward before proceeding to the next child. 
 This realizes the required dependency discipline: a child may depend on the head and on previously evaluated siblings, but not on later siblings. 
 
-\textbf{Interface (implicit via parameters).} The function carries three accumulators:
+The function carries three accumulators:
 \begin{itemize}
   \item \texttt{processed}: the list of children already evaluated; kept in reverse order for efficient cons operations. These are fully evaluated subtrees. 
   \item \texttt{remaining}: the list of children yet to process, with the next child at the head. 
@@ -268,12 +268,12 @@ This realizes the required dependency discipline: a child may depend on the head
   to target inherited-equation assignments to the correct child occurrence. 
 \end{itemize}
 
-\textbf{Key invariants.}
+\textbf{Key invariants}
 \begin{enumerate}
   \item \texttt{processed @ remaining} is a permutation of the original \texttt{children}, preserving relative order between the still-unseen suffix and the 
   already-evaluated prefix. The invariant is maintained by consing the newly evaluated child onto \texttt{processed} and dropping it from \texttt{remaining}. 
   \item \texttt{remaining\_o} matches \texttt{remaining} position-by-position; each pair $(s,k)$ gives the symbol and $k$-th occurrence index of the corresponding 
-  child among all children of this node. This allows precise selection of inherited equations and of the correct child node in the environment. 
+  child among all children of this node. This allows selection of inherited equations and of the correct child node in the environment. 
   \item Every tree in \texttt{processed} is fully evaluated (its inherited attributes were set before the recursive call, and its synthesized attributes 
   and conditions were handled inside that recursive \texttt{calcAttributes}). 
 \end{enumerate}
@@ -337,7 +337,7 @@ The correctness of those later phases relies on the contract guaranteed by \text
 and their subtrees fully evaluated.
 
 
-\subsubsection{\texttt{getRootRule}}
+\subsection{\texttt{getRootRule}}
 Select the unique grammar rule that matches the current parse-tree node: the rule whose head symbol equals the node's root symbol and whose body 
 (sequence of symbols) equals the sequence of the node's immediate children. If the node is a leaf, there is no applicable rule and the function fails. 
 If no rule matches, the error message lists candidate rules that share the same head symbol to aid diagnosis. 
@@ -376,7 +376,7 @@ let getRootRule (ag: t) (pt: parseTree): rule =
             (if candidates = "" then "(none)" else candidates))
 \end{verbatim}
 
-\subsubsection{\texttt{apply\_equations\_at\_head}}
+\subsection{\texttt{apply\_equations\_at\_head}}
 
 Apply a given set of equations to an evaluation environment whose first node must be the head node with a specific symbol. 
 Equations are applied in a stable, deterministic order to avoid order-dependent results. The output is a new environment reflecting 
@@ -415,7 +415,7 @@ let apply_equations_at_head
 \end{verbatim}
 
 
-\subsubsection{\texttt{check\_conditions\_at\_node}}
+\subsection{\texttt{check\_conditions\_at\_node}}
 
 Evaluate the rule's boolean conditions at the current node's environment and ensure they all hold. A failing condition aborts evaluation with a message 
 identifying the node's head symbol. 
