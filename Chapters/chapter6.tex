@@ -131,9 +131,7 @@ The function returns a tree with the same shape, but with attribute maps updated
 \begin{verbatim}
 let rec calcAttributes (ag : t) (pt : parseTree) : parseTree =
     match pt with
-    | Leaf _ ->
-        pt
-
+    | Leaf _ -> pt
     | Node (((head_sym, _) as head), children) ->
         let rule = getRootRule ag (Node (head, children)) in
         let children' = eval_children_left_to_right ag head rule.equations children in
