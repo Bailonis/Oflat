@@ -9,7 +9,6 @@
 \typeout{NT FILE chapter7.tex}%
 
 
-
 \section{Unit Tests: Trees and Attribute Annotations}
 This chapter includes every unit test defined in the test module, with a brief purpose statement and a corresponding figure. 
 Passing cases show fully annotated attribute values; failure-oriented cases indicate the precise failure point (type mismatch, division by zero, L-attributed 
@@ -385,8 +384,6 @@ A -> a { v(A) = 1 }
 \end{tikzpicture}
 
 
-
-
 \subsection{\texttt{test\_has\_cycles\_ok} (\texttt{ok\_ag})}
  Acyclic grammar \(\;S\to F\{v(S)=v(F)\},\ F\to a\{v(F)=1\}\;\). No dependency cycle; a concrete tree for the terminal word \texttt{a} is shown. (The unit test itself only checks the cycle predicate.) 
 
@@ -463,8 +460,6 @@ F -> S { v(F0) = v(S0) }
   };
 \end{tikzpicture}
 
-
-
 % ------------------------------------------------------------
 \subsection{\texttt{test\_validate}}
  Runs static validation on the extended arithmetic grammar \texttt{ag\_expr\_ext}. A representative evaluated tree for the fixture \texttt{pt\_expr\_ext} (expression \(3 + 2 \times (9-5) / 2 - 1\)) is shown in Section~\ref{sec:expr-ext-tree}. (Validation itself performs no tree evaluation.) 
@@ -480,12 +475,16 @@ Synthesized: v, h, s
 
 S -> E { v(S) = v(E) ; s(S) = s(E) ; h(S) = h(E) }
 
-E -> E + T { v(E0) = v(E1) + v(T) ; s(E0) = s(E1) + '+' + s(T) ; h(E0) = h(E1) + h(T) + 1 }
-E -> E - T { v(E0) = v(E1) - v(T) ; s(E0) = s(E1) + '-' + s(T) ; h(E0) = h(E1) + h(T) + 1 }
+E -> E + T { v(E0) = v(E1) + v(T) ; s(E0) = s(E1) + '+' + s(T) ;
+             h(E0) = h(E1) + h(T) + 1 }
+E -> E - T { v(E0) = v(E1) - v(T) ; s(E0) = s(E1) + '-' + s(T) ; 
+             h(E0) = h(E1) + h(T) + 1 }
 E -> T     { v(E)  = v(T) ; s(E)  = s(T) ; h(E)  = h(T) }
 
-T -> T * F { v(T0) = v(T1) * v(F) ; s(T0) = s(T1) + '*' + s(F) ; h(T0) = h(T1) + h(F) + 1 }
-T -> T / F { v(T0) = v(T1) / v(F) ; s(T0) = s(T1) + '/' + s(F) ; h(T0) = h(T1) + h(F) + 1 }
+T -> T * F { v(T0) = v(T1) * v(F) ; s(T0) = s(T1) + '*' + s(F) ;
+             h(T0) = h(T1) + h(F) + 1 }
+T -> T / F { v(T0) = v(T1) / v(F) ; s(T0) = s(T1) + '/' + s(F) ;
+             h(T0) = h(T1) + h(F) + 1 }
 T -> F     { v(T)  = v(F) ; s(T)  = s(F) ; h(T)  = h(F) }
 
 F -> ( E ) { v(F) = v(E) ; s(F) = '(' + s(E) + ')' ; h(F) = h(E) + 1 }
@@ -577,5 +576,3 @@ N -> 9 { v(N) = 9 ; s(N) = '9' ; h(N) = 1 }
     }
   };
 \end{tikzpicture}
-
-\vspace{1cm}
