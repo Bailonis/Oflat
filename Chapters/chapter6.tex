@@ -196,10 +196,8 @@ delegates the child pass to \texttt{eval\_children\_left\_to\_right}, which defi
 This \texttt{loop} is the auxiliary routine that realizes the stepwise propagation of inherited attributes to each child and then triggers 
 recursive evaluation of that child. 
 
-The call to \texttt{eval\_children\_left\_to\_right} is the point where the local auxiliary function \texttt{loop} is used. 
-
 \subsection{\texttt{eval\_children\_left\_to\_right}}
-\paragraph{Purpose.}
+
 Evaluate children in strict left-to-right order, applying the inherited-attribute equations that target each child occurrence before recursively evaluating that 
 child's subtree. This ensures that each child receives its required inherited attributes possibly dependent on the head and on previously evaluated siblings, 
 but not on later siblings.
@@ -258,6 +256,8 @@ and eval_children_left_to_right
   in
   loop [] children occs
 \end{verbatim}
+
+The call to \texttt{eval\_children\_left\_to\_right} is the point where the local auxiliary function \texttt{loop} is used. 
 
 The \texttt{loop} function above is the auxiliary worker for \texttt{calcAttributes}. 
 
