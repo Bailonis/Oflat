@@ -198,6 +198,67 @@ recursive evaluation of that child.
 
 The call to \texttt{eval\_children\_left\_to\_right} is the point where the local auxiliary function \texttt{loop} is used. 
 
+\subsection{\texttt{eval\_children\_left\_to\_right}}
+\paragraph{Purpose.}
+Evaluate children in strict left-to-right order, applying the inherited-attribute equations that target each child occurrence before recursively evaluating that 
+child's subtree. This ensures that each child receives its required inherited attributes possibly dependent on the head and on previously evaluated siblings, 
+but not on later siblings.
+
+This fuction receives a grammar \texttt{ag}, the current node's head \texttt{head}, the full set of equations for the node's rule \texttt{eqs}, and the list 
+of child parse trees \texttt{children}. And returns a list of fully evaluated child parse trees, in original order. 
+
+The function computes the $(\text{symbol}, \text{occurrence})$ pair for each child (e.g., second \texttt{Expr} child). It defines a 
+local recursive worker \texttt{loop} that maintains three lists: already processed children (reversed), 
+remaining children, and the corresponding $(\text{symbol}, \text{occurrence})$ pairs for the remaining ones. For the current child, an evaluation 
+environment is built as \texttt{head :: processed\_roots @ remaining\_roots}. Inherited equations targeting exactly this child occurrence are filtered and 
+applied to the environment, producing the child's inherited attributes. The child root is updated with those attributes, the child is recursively evaluated 
+via \texttt{calcAttributes}, and the loop advances to the next child. Any mismatch between children and occurrence annotations raises a clear failure.
+
+
+\begin{verbatim}
+and eval_children_left_to_right
+    (ag : t)
+    (head : node)
+    (eqs : equation Set.t)
+    (children : parseTree list)
+    : parseTree list =
+  let head_sym = fst head in
+  let occs = child_occurrences children in
+  let rec loop
+      (processed : parseTree list)        (* evaluated children, reversed *)
+      (remaining : parseTree list)        (* children yet to process     *)
+      (remaining_o : (symbol * int) list) (* their (sym,occ)             *)
+      : parseTree list =
+    match remaining, remaining_o with
+    | [], [] ->
+        List.rev processed
+    | child :: rest, occ :: occs_rest ->
+        let processed_nodes = List.rev processed |> List.map getRoot in
+        let env_before =
+          head :: (processed_nodes @ (List.map getRoot (child :: rest)))
+        in
+        let inh_eqs = set_filter (eq_targets_child head_sym occ) eqs in
+        let env_after_inh =
+          apply_equations_at_head head_sym env_before inh_eqs
+        in
+        let child_node_after_inh =
+          match env_after_inh with
+          | _head_after :: env_tail ->
+              pick_child_node_by_occ occ env_tail
+          | [] ->
+              failwith
+                "calcAttributes: empty environment after inherited equations"
+        in
+        let child_with_inh = updateRoot child child_node_after_inh in
+        let child_evaluated = calcAttributes ag child_with_inh in
+        loop (child_evaluated :: processed) rest occs_rest
+    | _ ->
+        failwith
+          "calcAttributes: internal error (children/occurrences mismatch)"
+  in
+  loop [] children occs
+\end{verbatim}
+
 The \texttt{loop} function above is the auxiliary worker for \texttt{calcAttributes}. 
 
 \subsection{Role of the Auxiliary \texttt{loop} Function}
