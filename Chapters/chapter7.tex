@@ -21,9 +21,9 @@ Parse \texttt{3+2+9\textasciitilde} from the CFG induced by \texttt{ag2}, conver
 \vspace{1cm}
 \begin{tikzpicture}[
   level 1/.style={sibling distance=50mm, level distance=30mm},
-  level 2/.style={sibling distance=10mm, level distance=30mm},
-  level 3/.style={sibling distance=10mm, level distance=30mm},
-  level 4/.style={sibling distance=10mm, level distance=30mm},
+  level 2/.style={sibling distance=40mm, level distance=30mm},
+  level 3/.style={sibling distance=30mm, level distance=30mm},
+  level 4/.style={sibling distance=20mm, level distance=30mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -126,8 +126,7 @@ Simple synthesized value over multiplication: \(S\to E\), \(E\to E * F\), inner 
 
 \vspace{1cm}
 \begin{tikzpicture}[
-  level 1/.style={sibling distance=36mm, level distance=20mm},
-  level 2/.style={sibling distance=24mm, level distance=20mm},
+  level 1/.style={sibling distance=35mm, level distance=30mm},
   edge from parent/.style={draw, -latex},
   every node/.style={draw, ellipse, align=center}
 ]
@@ -200,7 +199,7 @@ Deliberate type error: \(S\to A\ B\ \{\,b(S)=b(A)+b(B)\,\}\) with \(A\to x\{b(A)
 \begin{tikzpicture}[
   level 1/.style={sibling distance=44mm, level distance=20mm},
   level 2/.style={sibling distance=26mm, level distance=20mm},
-  edge from parent/.style={draw, -latex,}
+  edge from parent/.style={draw, -latex, level distance=20mm},
   every node/.style={draw, ellipse, align=center}
 ]
 \node {S\\$v=\textnormal{not computed}$}
@@ -432,9 +431,13 @@ Deliberate type error: \(S\to A\ B\ \{\,b(S)=b(A)+b(B)\,\}\) with \(A\to x\{b(A)
 
 \vspace{1cm}
 
+
+% ------------------------------------------------------------
 \subsection{\texttt{test\_validate}}
  Runs static validation on the extended arithmetic grammar \texttt{ag\_expr\_ext}. A representative evaluated tree for the fixture \texttt{pt\_expr\_ext} (expression \(3 + 2 \times (9-5) / 2 - 1\)) is shown in Section~\ref{sec:expr-ext-tree}. (Validation itself performs no tree evaluation.) 
 
+
+% ------------------------------------------------------------
 \subsection{\texttt{test\_ag\_expr\_ext} (\texttt{ag\_expr\_ext}, tree \texttt{pt\_expr\_ext})}
 \label{sec:expr-ext-tree}
  Extended arithmetic with attributes value \texttt{v} and pretty string \texttt{s}. Root result: \(v(S)=6\), \(s(S)=\)\texttt{3+2*(9-5)/2-1}. (Height \texttt{h} is computed by the grammar but omitted here for brevity.) 
