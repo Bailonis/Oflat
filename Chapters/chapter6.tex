@@ -14,26 +14,24 @@
 OCaml-FLAT is one of the two main components that are part of the existing structure of this project. It consists of the core logic of the tool and 
 is implemented entirely in OCaml. In this chapter, we will address OCaml-FLAT, which contains the main operations implemented for attribute grammars.
 
-OCaml-FLAT is a library composed of several modules, and each module is built as a class. This library, up to the moment of writing this document, 
-implements pushdown automata, regular expressions, context-free grammars, as well as some supporting modules, such as operations on JSON files, errors, 
-parsers, among others.
+OCaml-FLAT is a library composed of several modules, and each module is built as a class. This library, up to the moment of writing this document, implements 
+finite automata, regular expressions, context-free grammars, pushdown automata, Turing machines and unrestricted grammars. as well as some supporting modules, 
+such as operations on JSON syntax, error management, parsers, among others.
 
-For the implementation of attribute grammars in OCaml-FLAT, the central goal is to couple a precise static validation phase with a deterministic evaluation 
-strategy over parse trees. The library represents an attribute grammar as a set of rules with equations and conditions attached to each production, and it 
-enforces a good construction before any evaluation can proceed. Validation checks range from context-free sanity (reusing CFG validation) to attribute 
+For the implementation of attribute grammars in OCaml-FLAT, the central goal is to calculate synthesized and inherited attributes, validate grammar, and perform cycle detection. The library represents an attribute grammar as a set of rules with equations and conditions attached to each production, and it 
+enforces a good construction before any evaluation can proceed. Validation checks range from context-free sanity (reusing and extending CFG validation) to attribute 
 typing, direction constraints (inherited vs.\ synthesized), and global acyclicity of attribute dependencies. Only after this pipeline succeeds do we 
 execute the attribute equations over a parse tree.
 
 Two aspects are key to the design. First, expression typing and equation validation ensure each assignment is meaningful and referentially correct. 
 Second, the evaluation order guarantees that inherited attributes of a child are computed before descending into that child, and synthesized attributes 
-of the head are computed after its children return---yielding a left-to-right, node-local schedule that is predictable and terminating in the absence of 
-dependency cycles. Together, these choices produce a robust and explainable evaluator without relying on heuristic fixpoint closures.
+of the head are computed after its children return---yielding a left-to-right. Together, these choices produce a robust and explainable evaluator.
 
 Typing proceeds by a straightforward rule: attributes are associated to a base type inferred from their name---by default integers, with \texttt{"s"} 
 denoting string and \texttt{"b"} denoting boolean---while constants and operators are type checked accordingly. Binary operators are admitted only when 
 operand types align (e.g., \texttt{+} on \texttt{int} or \texttt{string}, \texttt{-}, \texttt{*}, \texttt{/} on \texttt{int}, comparisons across equal 
-types), and any mismatch is flagged at validation time. Applications of attributes use \texttt{(attr, (var, i))}, where \texttt{i} identifies the head 
-or a specific child occurrence; an index normalization step resolves the default case and unambiguous references.
+types), and any mismatch is flagged at validation time. Applications of attributes use \texttt{(attr, (var, i))}, for humans, \texttt{v(S0)} , where \texttt{i} identifies the head 
+or a specific child occurrence.
 
 On the left-hand side of equations, the direction discipline is enforced: assignments targeting the head must write synthesized attributes, whereas 
 assignments targeting a child must write inherited attributes. Indices are checked against the rule's body to prevent out-of-range references, and 
@@ -49,9 +47,9 @@ within a node.
 The evaluation strategy is left-to-right on children. For each child, all inherited equations targeting that child are applied in the head's environment 
 before the recursive descent. The child is then evaluated. Once all children have been processed, equations that target the head (i.e., synthesized 
 attributes) are evaluated, and node-local conditions are checked. This yields a two-phase per-node schedule---child inherited first, head synthesized 
-later---that matches the intuition for attribute flow while avoiding ad hoc closures over \(\varepsilon\)-like effects.
+later---that matches the intuition for attribute flow.
 
-Global correctness is guarded by a dependency graph construction. For every equation, the implementation identifies the destination attribute occurrence 
+Cycle detection is guarded by a dependency graph construction. For every equation, the implementation identifies the destination attribute occurrence 
 (head or specific child) and the set of attribute references appearing on the right-hand side. From these, it builds a directed graph whose nodes 
 are ``(symbol, occurrence, attribute)'' triplets and whose edges represent ``RHS depends on LHS.'' A depth-first search detects cycles; if any cycle 
 exists, the grammar is rejected as having circular attribute dependencies. This check is integrated into the overall \texttt{validate} routine, 
@@ -68,7 +66,7 @@ equals the head, and otherwise to the first occurrence of the named child; posit
 equation ordering are derived from the rule body, ensuring that references are stable and reproducible even when the same child symbol appears multiple 
 times. This removes ambiguity at both validation and evaluation time.
 
-\section{Data types created for attribute grammars in Ocaml} 
+\section{Data types created for suporting attribute grammars} 
 
 The main data types defined to simplify the manipulation of attribute grammars are: \texttt{t}, which represents an attribute grammar (alphabet, 
 variables, synthesized and inherited attributes, initial variable, and set of rules); \texttt{rule}, which models a production with \emph{head}, \
@@ -111,6 +109,23 @@ type attribute = symbol
         rules : rules
     }
 \end{verbatim}
+
+
+\subsection*{Notes on \texttt{attrArg} and \texttt{Apply}}
+
+\texttt{attrArg} = \texttt{(variable * int)} Identifies the target node of the current rule:
+\begin{itemize}
+  \item \textbf{0} = head of the rule; \quad \textbf{$k>0$} = $k$-th occurrence in the body; \quad \textbf{$-1$} = default (head if the variable is the head, otherwise first occurrence).
+\end{itemize}
+
+\texttt{Apply} = \texttt{(attribute * attrArg)} Reads/writes attribute \texttt{attr} on that node:
+\begin{itemize}
+  \item RHS = read; \quad LHS = write (\textbf{head} $\Rightarrow$ synthesized, \textbf{child} $\Rightarrow$ inherited).
+\end{itemize}
+
+Example
+\texttt{E -> E * F \{ v(E0) = v(E1) * v(F) \}} uses \texttt{E0=(E,0)}, \texttt{E1=(E,1)}, \texttt{F=(F,-1)$\Rightarrow$(F,1)}.
+
 
 
 
@@ -167,7 +182,7 @@ and on earlier siblings, but not on later siblings.
 applies those equations in a deterministic, stable order, updating the head's attribute bindings. 
 
   \item \textbf{Condition checking.} The boolean conditions attached to the rule are evaluated in the same head-first environment. Each condition must evaluate 
-to \texttt{true}. If a condition fails or evaluates to a non-boolean value, evaluation aborts with an error message that identifies the node at which it failed. 
+to \texttt{true}. If a condition fails or evaluates to a non-boolean value, the evaluation is considered unsuccessful at this node. 
 
   \item \textbf{Reconstruction.} Finally, the function rebuilds and returns the node by replacing the head and each child root with their updated attribute 
 environments. The tree's topology is unchanged; only attribute maps are updated. 
@@ -179,10 +194,10 @@ The strict left-to-right order establishes a predictable flow of information: in
 evaluated. A separate dependency-graph check elsewhere detects global cycles among equations. 
 
 \subsection{Error Handling}
-The surrounding code validates that attribute references target valid head/child positions, checks expression types (e.g., integer vs.\ string arithmetic and 
-comparisons), and detects inconsistent environments (e.g., out-of-range child occurrence, head-symbol mismatches). Failures are reported with precise diagnostics 
-at the point of detection; rule-selection mismatches list candidate rules with the same head, and condition failures indicate the node where the evaluation failed. 
-
+The surrounding code first calls \texttt{validate}; if it returns \texttt{false}, evaluation is skipped and the check reports \texttt{false}. 
+If it returns \texttt{true}, structural and type errors (invalid references, out-of-range occurrences in equations, operator/type mismatches, cycles) are excluded; 
+any remaining failures are runtime (e.g., division by zero), conditions that evaluate to \texttt{false}, or inconsistencies in hand-built parse trees. 
+Diagnostics are reported at the point of detection (candidate rules on rule-selection mismatches; node identification on condition failures).
 
 \section{Auxiliary Methods Used by \texttt{calcAttributes}}
 This section focuses on the local worker that drives left-to-right child evaluation for \texttt{calcAttributes}. In the implementation, \texttt{calcAttributes} 
@@ -463,8 +478,7 @@ let accept (ag: t) (w: word): bool =
 The \texttt{validate} performs the static checks required before evaluating an attribute grammar on any parse tree. It combines five steps:
 
 \begin{enumerate}
-  \item Convert the attribute grammar to a plain context-free grammar (CFG),
-  \item Validate the CFG structure, 
+  \item Validate the CFG structure part of the attribute grammar, using the existing CFG module
   \item Type and well-formedness-check all attribute equations,
   \item Ensure all rule conditions are boolean,
   \item Detect dependency cycles among attribute computations. 
@@ -494,8 +508,8 @@ Non-boolean conditions are rejected with a diagnostic.
 
 \texttt{has\_cycles} constructs a directed dependency graph whose nodes are attribute occurrences identified by 
 \((\textit{symbol}, \textit{occurrence}, \textit{attribute})\). For each equation, edges are added from every attribute reference in the right-hand side to 
-the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, validation fails with 
-\enquote{Attribute dependency cycle detected}. This prevents unschedulable attribute computations at evaluation time. 
+the left-hand side target, within the context of the same rule. A depth-first search detects any cycle; if present, returns false, and add the error message 
+\enquote{Attribute dependency cycle detected} to the errors list. This prevents unschedulable attribute computations at evaluation time. 
 
 \begin{verbatim}
 let validate (name: string) (rep: t): unit =

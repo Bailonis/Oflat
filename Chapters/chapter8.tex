@@ -16,7 +16,7 @@
 \label{sec:evaluation}
 
 During the implementation of the main algorithms of the OCaml-FLAT library, unit tests were written for all operations to provide greater assurance of 
-their correct functioning. Especially on tests for the word acceptance operation, since it is complex and highly visible and calculating attributes, since 
+their correct functioning. Especially on tests for calculating attributes, since 
 the calcullation of inherited attributes it was more complex than expected, and it is one of the main focus of this dissertation. 
 Care was also taken to design unit tests that exercise potentially problematic cases, for example attribute grammars that create cyclic situations by 
 continuously changing attribute values. Nevertheless, it would have been preferable to make the application available to a limited number of users so it 
@@ -32,7 +32,17 @@ the OFLAT library.
 The OCaml-FLAT library was adapted to support attribute grammars, with all necessary types created for their representation and a range of operations 
 implemented. These include evaluation of attribute values for a given input, generation of words of length n, conversions between the various types 
 implemented in the library, and transformations between different grammar models. In addition, functions were implemented to produce derivation trees 
-that represent the history of a derivation or evaluation; these trees are consumed by the graphical tool to perform its main visualization of the 
-evaluation process.
+that represent the history of a derivation or evaluation.
 
 
+\section{Future Work}
+
+Future work includes developing the graphical front end and extending support for attribute grammars in the LL(1) and LR classes, 
+since OFLAT already supports these grammar families and they have the advantage of defining deterministic parsers (for example, tools such as Yacc).  
+
+A good next step would also be calculate attributes for LL(1) grammars, this would 
+require implementing a dedicated LL(1) parser module that interleaves parsing with attribute evaluation. In practice, attribute values would be computed at 
+runtime by the deterministic parser, taking care to handle both synthesized and inherited attributes and to detect or prevent cyclic attribute dependencies.  
+
+Additional directions include integrating the graphical interface with the parser modules so users can build, validate and execute attribute grammars 
+interactively, and adding diagnostics and visualization tools to help identify problematic cases.
