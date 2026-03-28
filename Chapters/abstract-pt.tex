@@ -8,16 +8,18 @@
 
 \typeout{NT FILE abstract-pt.tex}%
 
-Os conceitos teóricos em Teoria de Linguagens Formais e Autómatos (FLAT) são conhecidos pela sua natureza formal, rigorosa e muitas vezes complexa, o que os torna desafiantes para aprender. Para mitigar essa dificuldade, várias ferramentas foram desenvolvidas ao longo dos anos, permitindo que os utilizadores interajam com esses conceitos através de exercícios e exemplos práticos.
+A Teoria de Linguagens Formais e de Autómatos (FLAT) é rigorosa e frequentemente percecionada como abstrata, o que dificulta a aprendizagem inicial. 
+Esta dissertação estende a biblioteca \textbf{OCamlFLAT} com suporte para \emph{gramáticas de atributos}, incluindo atributos sintetizados e herdados, 
+estratégias de avaliação e verificações estáticas para detetar erros de especificação comuns. A contribuição centra-se num núcleo executável fiável e 
+em interfaces claras.
 
-Na FCT-UNL, foram criadas duas ferramentas pedagógicas com este propósito: a biblioteca OCamlFLAT, que fornece suporte lógico para os conceitos de FLAT, e a aplicação gráfica OFLAT, uma ferramenta web que oferece visualizações interativas desses conceitos.
+O plano original incluía melhorias na aplicação web \textbf{OFLAT} e uma avaliação pedagógica. No âmbito final, o trabalho limita-se aos 
+\emph{fundamentos do backend} e os \emph{modelos de dados} necessários para integração futura. As componentes gráficas e o estudo empírico do 
+impacto pedagógico ficam \emph{fora do âmbito} e são delineadas como trabalho futuro.
 
-O primeiro objetivo desta dissertação é estender a biblioteca OCamlFLAT, incorporando suporte para gramáticas com atributos. O segundo objetivo é melhorar a aplicação gráfica OFLAT, adicionando funcionalidades que permitam a visualização e interatividade com estes conceitos de gramáticas.
-
-O foco principal deste trabalho é a melhoria pedagógica do software desenvolvido.
-
-Esta dissertação explica alguns conceitos teóricos da Teoria da Computação, com ênfase no tema das gramáticas com atributos, discute algumas das melhores aplicações de software existentes para conceitos da Teoria da Computação, descreve o estado atual do OCamlFLAT/OFLAT, apresenta as principais ferramentas que serão utilizadas no projeto e finaliza com um plano de trabalho.
-
+A dissertação revê a fundamentação relevante sobre gramáticas de atributos no contexto da teoria da computação, realiza um levantamento das 
+ferramentas educativas relacionadas e descreve a arquitetura e a implementação das extensões ao \textbf{OCamlFLAT}. Ao estabilizar o núcleo e 
+definir pontos de integração, o trabalho fornece uma base para posterior \emph{visualização} e utilização em \emph{contexto letivo}.
 % Palavras-chave do resumo em Português
 % \begin{keywords}
 % Palavra-chave 1, Palavra-chave 2, Palavra-chave 3, Palavra-chave 4
