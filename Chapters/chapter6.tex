@@ -175,7 +175,7 @@ the function builds an \emph{environment} that consists of the head node, the al
 and the remaining children (not yet processed). From the node's rule, it selects only those equations that assign \emph{inherited} attributes to this specific 
 child occurrence (identified by symbol and 1-based occurrence index), and applies them to the environment in a stable order. The child's root is updated with these inherited 
 values, and then \texttt{calcAttributes} is called recursively on that child to evaluate its subtree. This guarantees that a child's inherited attributes may depend on the parent 
-and on earlier siblings, but not on later siblings. 
+and on earlier siblings, but not on later siblings \cite{AhoSethiUllman1986}. 
 
   \item \textbf{Synthesized attributes for the head.} Once all children are fully evaluated, the function gathers only the equations that target the head 
 (i.e., assign \emph{synthesized} attributes). It constructs a head-first environment containing the head node followed by the now-evaluated child roots and 
