@@ -66,7 +66,7 @@ equals the head, and otherwise to the first occurrence of the named child; posit
 equation ordering are derived from the rule body, ensuring that references are stable and reproducible even when the same child symbol appears multiple 
 times. This removes ambiguity at both validation and evaluation time.
 
-\section{Data types created for suporting attribute grammars} 
+\section{Data types created for supporting attribute grammars} 
 
 The main data types defined to simplify the manipulation of attribute grammars are: \texttt{t}, which represents an attribute grammar (alphabet, 
 variables, synthesized and inherited attributes, initial variable, and set of rules); \texttt{rule}, which models a production with \emph{head}, \
@@ -129,7 +129,7 @@ Example
 
 
 
-\section{The \texttt{calcAttributes} fuction} 
+\section{The \texttt{calcAttributes} function} 
 
 \texttt{calcAttributes} evaluates all attributes in a parse tree according to a given attribute grammar. 
 It ensures that each child node receives its inherited attributes before that child is evaluated, and that the parent node computes its synthesized attributes 
@@ -211,7 +211,7 @@ Evaluate children in strict left-to-right order, applying the inherited-attribut
 child's subtree. This ensures that each child receives its required inherited attributes possibly dependent on the head and on previously evaluated siblings, 
 but not on later siblings.
 
-This fuction receives a grammar \texttt{ag}, the current node's head \texttt{head}, the full set of equations for the node's rule \texttt{eqs}, and the list 
+This function receives a grammar \texttt{ag}, the current node's head \texttt{head}, the full set of equations for the node's rule \texttt{eqs}, and the list 
 of child parse trees \texttt{children}. And returns a list of fully evaluated child parse trees, in original order. 
 
 The function computes the $(\text{symbol}, \text{occurrence})$ pair for each child (e.g., second \texttt{Expr} child). It defines a 
@@ -271,7 +271,7 @@ The call to \texttt{eval\_children\_left\_to\_right} is the point where the loca
 The \texttt{loop} function above is the auxiliary worker for \texttt{calcAttributes}. 
 
 \subsection{Role of the Auxiliary \texttt{loop} Function}
-The \texttt{loop} fuction performs a left-to-right sweep over the node's children. For each child in order, it computes and writes that child's inherited 
+The \texttt{loop} function performs a left-to-right sweep over the node's children. For each child in order, it computes and writes that child's inherited 
 attributes, recursively evaluates the child subtree, and carries the result forward before proceeding to the next child. 
 This realizes the required dependency discipline: a child may depend on the head and on previously evaluated siblings, but not on later siblings. 
 
@@ -347,7 +347,7 @@ one occurrence, and committing the results before recursing to the next child. T
 accidental dependence on future siblings during inherited-attribute computation. 
 
 \subsection{Relation Back to \texttt{calcAttributes}}
-After \texttt{loop} has produced the fully evaluated children, \texttt{calcAttributes} proceeds to the parent's synthesized pass and condition checking. 
+After the \texttt{loop} has produced the fully evaluated children, \texttt{calcAttributes} proceeds to the parent's synthesized pass and condition checking. 
 The correctness of those later phases relies on the contract guaranteed by \texttt{loop}: all children are available with their inherited attributes applied 
 and their subtrees fully evaluated.
 
@@ -458,7 +458,7 @@ let check_conditions_at_node
 \end{verbatim}
 
 
-\section{The \texttt{accept} fuction}
+\section{The \texttt{accept} function}
 
 The \texttt{accept} receives
 a word and an attribute grammar, and returns a boolean indicating whether the word
@@ -486,7 +486,7 @@ The \texttt{validate} performs the static checks required before evaluating an a
 
 If any check fails, an error is raised with an explanatory message. 
 
-The fuction receives a user-facing name \texttt{name} (used in diagnostics) and an attribute-grammar value \texttt{rep}. And returns normally if and only 
+The function receives a user-facing name (used in diagnostics) and an attribute-grammar value \texttt{rep}. And returns normally if and only 
 if all checks pass. Otherwise it reports an error with \texttt{Error.error} or raises a failure from helper routines. 
 
 The grammar is first projected to a CFG with \texttt{ga\_to\_cfg}. This preserves terminals, variables, initial symbol, and the bare head\(\to\)body production 
@@ -560,7 +560,7 @@ Attribute dependencies are modelled as a directed graph: each node represents a 
 side to the left-hand side target. A DFS-based test on this graph reports whether any cycle exists. If a cycle is found, validation fails. 
 
 \subsection{\texttt{build\_dep\_graph}}
-this fuction constructs the dependency graph of the whole grammar and return it as adjacency lists. 
+this function constructs the dependency graph of the whole grammar and return it as adjacency lists. 
 
 \begin{itemize}
   \item Map each occurrence \((s, k, a)\) to a unique node id (hash table). 
@@ -606,7 +606,7 @@ let build_dep_graph (ag : t) : int list array =
 \end{verbatim}
 
 \subsection{\texttt{has\_cycle\_graph}}
-This fuction decides if the directed graph contains any cycle using DFS with a recursion stack. 
+This function decides if the directed graph contains any cycle using DFS with a recursion stack. 
 
 Maintain two boolean arrays: \texttt{visited} and \texttt{stack}. A back-edge to a node currently in \texttt{stack} signals a cycle; otherwise, explore all 
 successors. 
