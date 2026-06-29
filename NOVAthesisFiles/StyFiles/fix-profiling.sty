@@ -1,0 +1,62 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% StyFiles/fix-profiling.sty
+%% NOVA thesis configuration file
+%%
+%% Helpers for profiling the compilation process
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ProvidesPackage{fix-profiling}[2026/03/03 v1.2]
+\typeout{NT FILE StyFiles/fix-profiling.sty}%
+
+
+%%=======================================================================
+%% ENGINE COMPATIBILITY
+%%=======================================================================
+
+% Ensure \pdfelapsedtime and \pdfresettimer exist across different engines
+% (pdfTeX, LuaTeX, XeTeX)
+
+\ifdefined\pdfelapsedtime\else
+  \ifdefined\elapsedtime
+    \let\pdfelapsedtime\elapsedtime
+  \else
+    \newcount\pdfelapsedtime
+    \pdfelapsedtime=0
+  \fi
+\fi
+
+\ifdefined\pdfresettimer\else
+  \ifdefined\resettimer
+    \let\pdfresettimer\resettimer
+  \else
+    \newcommand{\pdfresettimer}{}
+  \fi
+\fi
+
+
+%%=======================================================================
+%% PROFILING LOGIC
+%%=======================================================================
+
+\ifdefined\PROFILING
+  % Enable \texprof command
+  \newcommand{\texprof}[1]{#1}
+  
+  % Leverage LaTeX3 benchmark if available
+  \IfFileExists{l3benchmark.sty}{%
+    \RequirePackage{l3benchmark}
+    \ExplSyntaxOn
+      \cs_set_eq:NN \benchmarktic \benchmark_tic:
+      \cs_set_eq:NN \benchmarktoc \benchmark_toc:
+    \ExplSyntaxOff
+  }{%
+    % Dummy definitions if l3benchmark is not found
+    \newcommand{\benchmarktic}{}
+    \newcommand{\benchmarktoc}{}
+  }
+\else
+  % No-op definitions when PROFILING is not active
+  \newcommand{\texprof}[1]{}
+  \newcommand{\benchmarktic}{}
+  \newcommand{\benchmarktoc}{}
+\fi

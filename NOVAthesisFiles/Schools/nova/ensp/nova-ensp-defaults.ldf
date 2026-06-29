@@ -2,12 +2,22 @@
 %% nova/ensp/defaults.ldf
 %% NOVA thesis configuration file
 %%
-%% Customization for FCT-NOVA (strings and cover)
+%% Customization for NOVA ENSP (strings and cover)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \typeout{NT FILE nova/ensp/defaults.ldf}%
 
-\ntsetup{print/secondcover=true}
+
+%%=======================================================================
+%% METADATA & GLOBAL PROPERTIES
+%%=======================================================================
+
+\ntsetup{print/frontpage=true}
+
+
+%%=======================================================================
+%% STRINGS (UNIVERSITY & SCHOOL)
+%%=======================================================================
 
 % Faculty / School
 \school(pt):={Escola Nacional de Saúde Pública}
@@ -15,47 +25,30 @@
 \school(fr):={Escola Nacional de Saúde Pública}
 \school(it):={Escola Nacional de Saúde Pública}
 
-% Scientific filed
-% \majorfield(pt):={«Área Científica»}
-% \majorfield(en):={“Scientific Field”}
-
 % Degree name
 \degreename(pt):={Nome do Curso}
 \degreename(en):={Degree Name}
 
-% Comiittee printing order
+
+%%=======================================================================
+%% COMMITTEE
+%%=======================================================================
+
 \committeeorder():={c,r,m}%
 
-% Cover background images
-% \thesiscover(phd,front,image):={}
-% \thesiscover(phdplan,front,image):={}
-% \thesiscover(phdprop,front,image):={}
-% \thesiscover(msc,front,image):={}
-% \thesiscover(mscplan,front,image):={}
-% \thesiscover(bsc,front,image):={}
-% \thesiscover(plain,front,image):={}
-% \thesiscover(phd,cdfront,image):={}
-% \thesiscover(phd,cdinlay,image):={}
-% \thesiscover(phdplan,cdfront,image):={}
-% \thesiscover(phdplan,cdinlay,image):={}
-% \thesiscover(phdprop,cdfront,image):={}
-% \thesiscover(phdprop,cdinlay,image):={}
-% \thesiscover(msc,cdfront,image):={}
-% \thesiscover(msc,cdinlay,image):={}
-% \thesiscover(mscplan,cdfront,image):={}
-% \thesiscover(mscplan,cdinlay,image):={}
-% \thesiscover(bsc,cdfront,image):={}
-% \thesiscover(bsc,cdinlay,image):={}
-% \thesiscover(plain,cdfront,image):={}
-% \thesiscover(plain,cdinlay,image):={}
-\thesiscover(logo,1):={width=4cm,nova-ensp-logo}
+
+%%=======================================================================
+%% FONTS
+%%=======================================================================
+
+\AtEndPreamble{%
+  %\LoadHelveticaLikeFont%  % \RequirePackage{gillius2}%
+}
 
 
-% Spine info
-\spine(logo)={\theuniversity(logo)}
-% \spine(author)={\thedocauthor(name,short)}
-% \spine(title)={\THEdoctitle(\@LANG@COVER,main)}
-% \spine(year)={\thentdocdate(year)}
+%%=======================================================================
+%% LAYOUT (MARGINS)
+%%=======================================================================
 
 % Set margins for "normal" pages
 \margin(screen,top):={3.5cm}
@@ -74,44 +67,53 @@
 \margin(cover,right):={1.0cm}
 
 
+%%=======================================================================
+%% SPINE
+%%=======================================================================
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Draw the cover page
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\AtEndPreamble{%
-  \LoadHelveticaLikeFont%
-  % \RequirePackage{gillius2}%
+\SpineSetup[%
+]{%
+  box/logo/bg/image           = {\theuniversity(logo)},
+  box/logo/bg/image/angle     = {-90},
+  % debug,
 }
 
-\NTAddToHook{cover/1-1/text/pre}{%
+
+%%=======================================================================
+%% COVER PAGE SETUP (BACKGROUNDS)
+%%=======================================================================
+
+\thesiscover(logo):={nova-ensp-logo}
+
+
+%%=======================================================================
+%% UTILITIES & HOOKS
+%%=======================================================================
+
+\NTAddToHook{cover/1-1/pre}{%
   \sffamily%
 }
 \NTAddToHook{cover/2-1/text/pre}{%
   \sffamily%
 }
 
+
+%%=======================================================================
+%% COVER 1 & 2 ELEMENTS
+%%=======================================================================
+
 % ENSP logo
 \ntaddtocover[vspace=1cm,halign=c,valign=t]{1-1,2-1}{%
-  \@for\myi:={1,2,3,4,5}\do{%
-    % \typeout{MYI=\myi}
-    \datamatchtf{\match}{thesiscover}({logo,\myi},){%
-      % \typeout{MYI=\myi,[\thethesiscover(logo,\myi)]}\AAA
-      \StrCut{\match}{,}\myflg\myfile%
-      \ifnum\myi>1\hspace{1cm}\fi
-      \expanded{\includegraphics[\myflg,align=t]{\myfile}}%
-    }{%
-      % \typeout{MYI=\myi,[\thethesiscover(logo,\myi)]}\BBB
-    }%
-  }%
+  \includegraphics[width=5.75cm,align=t]{\thethesiscover(logo)}%
 }
 
-% % Title of Dissertation
+% Title of Dissertation
 \ntaddtocover[vspace=1]{1-1,2-1}{%
   \fontsize{14}{14}\selectfont
-  \textbf{\thedoctitle(\@LANG@COVER,main,cover)}
+  \textbf{\thedoctitle(\@LANG@COVER,main)}
 }
 
-% % Title of Dissertation
+% Degree name
 \ntaddtocover[vspace=1cm]{1-1,2-1}{%
   \fontsize{14}{14}\selectfont
   \thedegreename(\@LANG@COVER)
@@ -123,13 +125,13 @@
   \textbf{\thedocauthor(name)}
 }
 
-% Degree
+% Presentation text (Cover 2 only)
 \ntaddtocover[vspace=1]{2-1}{%
   \fontsize{11}{11}\selectfont
   \thepresentationtext
 }
 
-% Advisers
+% Advisers (Cover 2 only)
 \ntaddtocover[vspace=1]{2-1}{%
   \fontsize{12}{12}\selectfont
   \ntprintpersons{0.75}{2}{adviser}{a,c}%
@@ -138,10 +140,10 @@
 % Date
 \ntaddtocover[vspace=1]{1-1,2-1}{%
   \fontsize{12}{12}\selectfont
-    \thentdocdate(submission,month,text), \thentdocdate(submission,year)%
+    \PrintDateISO{\GetDocDate(submission,year)-\GetDocDate(submission,month)}%
 }
 
-% % Final space
+% Final space
 \ntaddtocover[vspace=1cm]{1-1,2-1}{%
   ~
 }

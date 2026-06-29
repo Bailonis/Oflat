@@ -13,7 +13,7 @@
 \school(1):={\theschool(pt)}
 % \school(2):={\theuniversity(pt)}
 
-\spine(title):={\thedoctitle(\@LANG@COVER,main)}
+\spine(title):={\thedoctitle(\@LANG@COVER,main,plain)}
 
 % \color{\thethesiscover(\option{/novathesis/doctype},1-1,textcolor)}
 \datamatchtf{\match}{thesiscover}(%
@@ -46,17 +46,7 @@
            ,{1-2,bgcolor}%
            ,{bgcolor}%
 )%
-
-\let\oldstockwidth=\stockwidth
-\begin{newpdflayout}[%
-  \settrims{0pt}{0pt}%
-  \setlrmarginsandblock{0pt}{*}{*}%
-  \setulmarginsandblock{0pt}{*}{*}%
-  \setlength{\parskip}{0pt}%
-  \setheadfoot{0pt}{0pt}%
-  \setheaderspaces{*}{0pt}{*} %
-  \setmarginnotes{0pt}{0pt}{0pt}%
-]{\stockheight}{2\stockwidth+\myspinewidth}%
+\newstocksize{layoutsize={\the\dimexpr2\stockwidth+\myspinewidth\relax,\the\stockheight},keepmargins}
   % \noindent% \Huge HELLO
 \begin{tikzpicture}[remember picture, overlay, transform shape]
   % BACKGROUND
@@ -90,10 +80,11 @@
               {\umfontb\thedocauthor(name)};
         \node [anchor=north west, inner sep=0pt]
             at (0,-10.45)
-              {\umfontb\bfseries\parbox{111mm}{\thedoctitle(\@LANG@COVER,main,cover)}};
+              {\umfontb\bfseries\parbox{111mm}{\thedoctitle(\@LANG@COVER,main)}};
         \node [anchor=south west, inner sep=0pt]
             at (0,-28.7)
-              {\umfontc\thentdocdate(submission,month,text)\theofstr(\@LANG@COVER)\thentdocdate(submission,year)};
+              {\umfontc
+              \PrintDateISO{\GetDocDate(submission,year)-\GetDocDate(submission,month)}};
       \end{tikzpicture}
     };
   % SPINE
@@ -147,5 +138,4 @@
     };
 \end{tikzpicture}
 
-\end{newpdflayout}
-
+\restorestocksize
