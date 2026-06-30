@@ -8,11 +8,11 @@
 
 \typeout{NT FILE chapter7.tex}%
 
-\chapter{Unit Testing}
-\label{cha:Unit Testing}
+\chapter{Testing}
+\label{cha:Testing}
 
-\section{Unit Tests: Trees and Attribute Annotations}
-This chapter includes every unit test defined in the test module, with a brief purpose statement and a corresponding figure. 
+\section{Tests: Trees and Attribute Annotations}
+This chapter includes every test defined in the test module, with a brief purpose statement and a corresponding figure. 
 Passing cases show fully annotated attribute values; failure-oriented cases indicate the precise failure point (type mismatch, division by zero, L-attributed 
 violation, or out-of-range occurrence). Cycle-detection tests also include the attribute-dependency graph. 
 
@@ -387,7 +387,7 @@ A -> a { v(A) = 1 }
 
 
 \subsection{\texttt{test\_has\_cycles\_ok} (\texttt{ok\_ag})}
- Acyclic grammar \(\;S\to F\{v(S)=v(F)\},\ F\to a\{v(F)=1\}\;\). No dependency cycle; a concrete tree for the terminal word \texttt{a} is shown. (The unit test itself only checks the cycle predicate.) 
+ Acyclic grammar \(\;S\to F\{v(S)=v(F)\},\ F\to a\{v(F)=1\}\;\). No dependency cycle; a concrete tree for the terminal word \texttt{a} is shown. (The test itself only checks the cycle predicate.) 
 
 \begin{verbatim}
 Synthesized: v
