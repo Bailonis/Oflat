@@ -30,7 +30,7 @@ research to write attribute equations/specifications rather than manipulate stru
 Next, some tools are presented and classified according to the indicators described above, i.e., 
 whether they are text-based tools or graphical interface-based tools; whether they implement only one type of 
 automaton or multiple types, and whether they support regular expressions and grammars.
-We will discuss three such tools: \textbf{JFLAP}, \textbf{CGM}, \textbf{ANTLR}, and \textbf{YACC}.
+We will discuss three such tools: \textbf{JFLAP}, \textbf{CGM}, \textbf{ANTLR}, \textbf{YACC} and \textbf{Menhir}.
 
 \section{JFLAP} 
 
@@ -137,3 +137,22 @@ This tool is well-suited for introducing \emph{syntax analysis} and the mechanic
 effort manageable: users define tokens in \textit{lex}/\textit{flex}, write a small expression or statement grammar in Yacc, 
 attach actions to construct AST nodes or evaluate expressions, and then compile and run a working parser 
 (e.g., a four-function calculator or a tiny language front end). 
+
+Podes acrescentar uma secção semelhante às de ANTLR e YACC, mantendo o mesmo estilo académico do capítulo:
+
+\section{Menhir}
+
+\textit{Menhir} is a modern parser generator for the OCaml ecosystem, developed as a successor to \textit{ocamlyacc}. 
+It generates deterministic \emph{LR(1)} parsers from context-free grammars and is widely used in language-processing tools,
+ compilers, and program-analysis frameworks. Unlike traditional Yacc-style tools, Menhir accepts the full class of LR(1) 
+ grammars and provides detailed explanations of parsing conflicts, making grammar development and debugging considerably easier. \cite{menhir}
+
+Menhir supports parameterized grammar rules, EBNF-style constructs, incremental parsing, and advanced error-reporting facilities. 
+It can generate efficient OCaml code directly or produce parsing tables that are interpreted by the Menhir runtime library. 
+These features make it suitable both for educational purposes and for industrial-strength compiler development. \cite{menhir}
+
+In practice, users define a grammar in a \texttt{.mly} specification file, declare tokens and precedence rules, and associate 
+semantic actions written in OCaml. 
+The generated parser can then be integrated with a lexer (typically written using \textit{ocamllex}) to construct abstract syntax 
+trees, perform semantic analysis, or implement complete programming-language front ends.
+
